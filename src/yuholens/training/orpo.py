@@ -32,7 +32,7 @@ def main() -> None:
         gradient_accumulation_steps=config["gradient_accumulation_steps"],
         num_train_epochs=config["num_train_epochs"],
         learning_rate=config["learning_rate"],
-        max_length=config["max_seq_length"],
+        max_length=config["max_length"],
         beta=config.get("beta", 0.1),
         bf16=True,
         gradient_checkpointing=True,
