@@ -184,28 +184,52 @@ def _section_key_jp(key: str, span: SectionSpan) -> str:
     return span.label if span.label else key
 
 
+_PASS1_RETRY_NUDGE: str = (
+    "\n\nThe previous response was not valid JSON. Return ONLY a valid JSON "
+    "object matching the schema above. No markdown fences, no commentary."
+)
+
+
 def _pass1_detect(
     state: PipelineState,
     *,
     client: InferenceClient | None = None,
+    strict: bool = True,
+    max_retries: int = 2,
 ) -> PipelineState:
     """Run the Pass-1 red-flag detector once per detected section.
 
     The preamble section is skipped because it carries no analyst-actionable
-    content; every other section is rendered through
-    ``PASS1_USER_TEMPLATE`` and dispatched to the inference client. When the
-    model returns invalid JSON, a minimal record with an ``_parse_error`` key
-    is stored so downstream nodes can still proceed.
+    content; every other section is rendered through ``PASS1_USER_TEMPLATE``
+    and dispatched to the inference client. On invalid JSON, the section is
+    retried up to ``max_retries`` times with an explicit "return JSON only"
+    nudge appended to the user prompt. If every retry still fails, the
+    behaviour depends on ``strict``:
+
+    * ``strict=True`` (default): raise :class:`ValueError`. A malformed
+      Pass-1 block cannot be silently downgraded because the downstream
+      grounder would then treat real disclosures as if they had no evidence.
+    * ``strict=False``: store a minimal record with ``_parse_error`` set and
+      empty ``red_flags``/``numerical_claims``. This is the degraded mode
+      for exploratory runs.
 
     Args:
         state: Current pipeline state with ``sections`` populated by
             :func:`_ingestor`.
         client: Optional inference client. Defaults to :class:`VLLMClient`
             constructed lazily when ``None``.
+        strict: When True, raise ``ValueError`` on unrecoverable JSON parse
+            failure. When False, record ``_parse_error`` and continue.
+        max_retries: Number of retries after the initial attempt for each
+            section. Each retry appends an explicit JSON-only nudge.
 
     Returns:
         The updated state with ``pass1`` populated. Keys are the Japanese
         section labels (or the raw key when no label is set).
+
+    Raises:
+        ValueError: When ``strict`` is True and a section cannot be parsed
+            as JSON after ``max_retries + 1`` attempts.
     """
     active_client = client if client is not None else DEFAULT_CLIENT_FACTORY()
     pass1: dict[str, dict[str, Any]] = {}
@@ -219,7 +243,7 @@ def _pass1_detect(
         if key == "preamble":
             continue
         section_label = _section_key_jp(key, span)
-        user_prompt = PASS1_USER_TEMPLATE.format(
+        base_user_prompt = PASS1_USER_TEMPLATE.format(
             company_name_jp=company_name_jp,
             edinet_code=edinet_code,
             fiscal_year=fiscal_year,
@@ -227,21 +251,38 @@ def _pass1_detect(
             section_text=span.text[:_PASS1_SECTION_CHAR_CAP],
         )
         system_prompt = PASS1_SYSTEM.format(section_key_jp=section_label)
-        raw = active_client.complete(
-            system=system_prompt,
-            user=user_prompt,
-            max_tokens=_PASS1_MAX_TOKENS,
-        )
 
-        try:
-            parsed = json.loads(raw)
-        except json.JSONDecodeError as exc:
+        parsed: dict[str, Any] | None = None
+        last_error: json.JSONDecodeError | None = None
+        for attempt in range(max_retries + 1):
+            prompt = (
+                base_user_prompt
+                if attempt == 0
+                else base_user_prompt + _PASS1_RETRY_NUDGE
+            )
+            raw = active_client.complete(
+                system=system_prompt,
+                user=prompt,
+                max_tokens=_PASS1_MAX_TOKENS,
+            )
+            try:
+                parsed = json.loads(raw)
+                break
+            except json.JSONDecodeError as exc:
+                last_error = exc
+
+        if parsed is None:
+            if strict:
+                raise ValueError(
+                    f"Pass-1 section '{section_label}' returned unparseable "
+                    f"JSON after {max_retries + 1} attempts: {last_error}"
+                )
             parsed = {
                 "section": section_label,
                 "red_flags": [],
                 "numerical_claims": [],
                 "section_summary_ja": "",
-                "_parse_error": str(exc),
+                "_parse_error": str(last_error),
             }
 
         pass1[section_label] = parsed
@@ -254,22 +295,45 @@ def _pass2_compose(
     state: PipelineState,
     *,
     client: InferenceClient | None = None,
+    require_tables: bool = True,
 ) -> PipelineState:
     """Run the Pass-2 composer to draft an English investor memo.
+
+    Pass-2's prompt asks the model for accrual-quality and earnings-direction
+    analysis grounded in the BS/PL/CF tables. When the source row does not
+    supply those tables, the composer is forced to either fabricate figures
+    or skip sections. By default the node raises if any of ``bs``, ``pl``,
+    ``cf`` is missing from ``state["raw_tables"]``; callers can opt into the
+    degraded mode by passing ``require_tables=False``.
 
     Args:
         state: Current state with ``pass1`` populated by :func:`_pass1_detect`.
         client: Optional inference client. Defaults to :class:`VLLMClient`
             constructed lazily when ``None``.
+        require_tables: When True (default), raise ``ValueError`` if
+            ``raw_tables`` is missing any of ``bs``, ``pl``, ``cf``. When
+            False, substitute empty JSON objects and continue.
 
     Returns:
         The updated state with ``pass2_draft`` populated with the raw
         composer output.
+
+    Raises:
+        ValueError: When ``require_tables`` is True and ``state["raw_tables"]``
+            does not contain all three of ``bs``, ``pl``, ``cf`` as non-empty
+            payloads.
     """
     active_client = client if client is not None else DEFAULT_CLIENT_FACTORY()
     pass1_blocks = json.dumps(state.get("pass1", {}), ensure_ascii=False, indent=2)
 
     raw_tables = state.get("raw_tables", {}) or {}
+    missing = [key for key in ("bs", "pl", "cf") if not raw_tables.get(key)]
+    if missing and require_tables:
+        raise ValueError(
+            "Pass-2 composer requires BS/PL/CF tables in state['raw_tables'] "
+            f"but the following keys are missing or empty: {missing}. Pass "
+            "require_tables=False to run in degraded mode."
+        )
     bs_json = json.dumps(raw_tables.get("bs", {}), ensure_ascii=False)
     pl_json = json.dumps(raw_tables.get("pl", {}), ensure_ascii=False)
     cf_json = json.dumps(raw_tables.get("cf", {}), ensure_ascii=False)
@@ -316,6 +380,9 @@ def build_pipeline(
     *,
     client: InferenceClient | None = None,
     loader: Loader | None = None,
+    pass1_strict: bool = True,
+    pass1_max_retries: int = 2,
+    require_tables: bool = True,
 ) -> Any:
     """Compile and return the four-agent LangGraph application.
 
@@ -325,6 +392,14 @@ def build_pipeline(
             :class:`VLLMClient`.
         loader: Optional loader for the ingestor node. Defaults to reading
             UTF-8 text from the filesystem.
+        pass1_strict: Forwarded to :func:`_pass1_detect`. When True (default)
+            unparseable Pass-1 output raises ``ValueError`` after retries are
+            exhausted, preventing silent evidence loss.
+        pass1_max_retries: Number of retries per section on JSON parse
+            failure before strict mode triggers.
+        require_tables: Forwarded to :func:`_pass2_compose`. When True
+            (default) the composer raises if BS/PL/CF tables are missing
+            from ``state['raw_tables']``.
 
     Returns:
         A compiled LangGraph application with entry point ``ingestor``.
@@ -337,8 +412,17 @@ def build_pipeline(
     from langgraph.graph import END, StateGraph
 
     ingestor_node = partial(_ingestor, loader=loader)
-    pass1_node = partial(_pass1_detect, client=client)
-    pass2_node = partial(_pass2_compose, client=client)
+    pass1_node = partial(
+        _pass1_detect,
+        client=client,
+        strict=pass1_strict,
+        max_retries=pass1_max_retries,
+    )
+    pass2_node = partial(
+        _pass2_compose,
+        client=client,
+        require_tables=require_tables,
+    )
 
     graph: StateGraph = StateGraph(PipelineState)
     graph.add_node("ingestor", ingestor_node)

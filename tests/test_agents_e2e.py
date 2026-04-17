@@ -147,8 +147,8 @@ def test_pass1_detect_parses_json_response() -> None:
     assert first_label in first_system
 
 
-def test_pass1_detect_handles_bad_json() -> None:
-    """Invalid JSON is wrapped in a parse-error record, not propagated."""
+def test_pass1_detect_handles_bad_json_in_degraded_mode() -> None:
+    """With ``strict=False`` unparseable output is wrapped in a parse-error record."""
     state: PipelineState = {
         "yuho_path": "x.txt",
         "company_name_jp": "",
@@ -160,7 +160,7 @@ def test_pass1_detect_handles_bad_json() -> None:
     analysed_count = sum(1 for k in state["sections"] if k != "preamble")
 
     client = FakeInferenceClient(["not valid json"] * analysed_count)
-    _pass1_detect(state, client=client)
+    _pass1_detect(state, client=client, strict=False, max_retries=0)
 
     for label, block in state["pass1"].items():
         assert "_parse_error" in block, f"{label} did not record parse error"
@@ -168,6 +168,69 @@ def test_pass1_detect_handles_bad_json() -> None:
         assert block["numerical_claims"] == []
         assert block["section_summary_ja"] == ""
         assert block["section"] == label
+
+
+def test_pass1_detect_raises_when_strict_and_retries_exhausted() -> None:
+    """Default ``strict=True`` raises after ``max_retries + 1`` bad JSON replies."""
+    state: PipelineState = {
+        "yuho_path": "x.txt",
+        "company_name_jp": "",
+        "company_name_en": "",
+        "edinet_code": "",
+        "fiscal_year": 2024,
+    }
+    _ingestor(state, loader=_make_loader(SAMPLE_YUHO))
+    analysed_count = sum(1 for k in state["sections"] if k != "preamble")
+
+    # With max_retries=1 we expect 2 calls for the first section before raising.
+    client = FakeInferenceClient(["nope"] * analysed_count * 2)
+
+    with pytest.raises(ValueError, match="unparseable JSON"):
+        _pass1_detect(state, client=client, max_retries=1)
+
+
+def test_pass1_detect_retry_recovers_on_second_attempt() -> None:
+    """One retry with the JSON-only nudge suffices when the model repairs itself."""
+    state: PipelineState = {
+        "yuho_path": "x.txt",
+        "company_name_jp": "",
+        "company_name_en": "",
+        "edinet_code": "",
+        "fiscal_year": 2024,
+    }
+    _ingestor(state, loader=_make_loader(SAMPLE_YUHO))
+    section_keys = [k for k in state["sections"] if k != "preamble"]
+
+    valid = json.dumps(
+        {
+            "section": "事業等のリスク",
+            "red_flags": [],
+            "numerical_claims": [],
+            "section_summary_ja": "テスト",
+        },
+        ensure_ascii=False,
+    )
+    responses: list[str] = []
+    for idx in range(len(section_keys)):
+        if idx == 0:
+            responses.extend(["still bad", valid])
+        else:
+            responses.append(valid)
+    client = FakeInferenceClient(responses)
+
+    _pass1_detect(state, client=client, max_retries=1)
+
+    assert len(state["pass1"]) == len(section_keys)
+    # Only the first section needed a retry; everyone else parsed first try.
+    expected_calls = 1 + len(section_keys)
+    assert len(client.calls) == expected_calls
+
+
+_SAMPLE_TABLES: dict[str, Any] = {
+    "bs": {"total_assets": 1000, "total_liabilities": 400},
+    "pl": {"revenue": 800, "op_income": 80},
+    "cf": {"op_cf": 60},
+}
 
 
 def test_pass2_and_ground_flow_end_to_end() -> None:
@@ -179,7 +242,7 @@ def test_pass2_and_ground_flow_end_to_end() -> None:
         "edinet_code": "E99999",
         "fiscal_year": 2024,
     }
-    _ingestor(state, loader=_make_loader(SAMPLE_YUHO))
+    _ingestor(state, loader=_make_loader(SAMPLE_YUHO, tables=_SAMPLE_TABLES))
 
     # Pass-1 fake emits one grounded red-flag span per section.
     grounded_span = "為替変動リスク"
@@ -224,6 +287,39 @@ def test_pass2_and_ground_flow_end_to_end() -> None:
     assert "[evidence insufficient]" in grounded_memo
     assert orphan_span not in grounded_memo
     assert state["orphan_spans"] == [orphan_span]
+
+
+def test_pass2_compose_raises_when_tables_missing() -> None:
+    """Default ``require_tables=True`` refuses to run with empty BS/PL/CF."""
+    state: PipelineState = {
+        "yuho_path": "x.txt",
+        "company_name_jp": "",
+        "company_name_en": "",
+        "edinet_code": "",
+        "fiscal_year": 2024,
+        "raw_tables": {},
+        "pass1": {},
+    }
+    client = FakeInferenceClient(["should-never-be-called"])
+
+    with pytest.raises(ValueError, match="raw_tables"):
+        _pass2_compose(state, client=client)
+
+
+def test_pass2_compose_degraded_mode_accepts_missing_tables() -> None:
+    """With ``require_tables=False`` missing tables are substituted with ``{}``."""
+    state: PipelineState = {
+        "yuho_path": "x.txt",
+        "company_name_jp": "",
+        "company_name_en": "",
+        "edinet_code": "",
+        "fiscal_year": 2024,
+        "raw_tables": {},
+        "pass1": {},
+    }
+    client = FakeInferenceClient(["draft memo"])
+    _pass2_compose(state, client=client, require_tables=False)
+    assert state["pass2_draft"] == "draft memo"
 
 
 if __name__ == "__main__":  # pragma: no cover - convenience runner
