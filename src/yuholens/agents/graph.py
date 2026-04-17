@@ -382,24 +382,34 @@ def build_pipeline(
     loader: Loader | None = None,
     pass1_strict: bool = True,
     pass1_max_retries: int = 2,
-    require_tables: bool = True,
+    require_tables: bool | None = None,
 ) -> Any:
     """Compile and return the four-agent LangGraph application.
+
+    The default loader reads a plain-text Yuho and cannot populate BS/PL/CF
+    tables, so ``require_tables`` defaults to ``False`` when no custom
+    ``loader`` is supplied. Callers that inject a loader which does populate
+    tables should pass ``require_tables=True`` explicitly to opt into the
+    strict Pass-2 gate.
 
     Args:
         client: Optional inference client shared by Pass-1 and Pass-2.
             Production callers pass ``None`` to get a lazily constructed
             :class:`VLLMClient`.
         loader: Optional loader for the ingestor node. Defaults to reading
-            UTF-8 text from the filesystem.
+            UTF-8 text from the filesystem; the default loader cannot
+            populate BS/PL/CF tables.
         pass1_strict: Forwarded to :func:`_pass1_detect`. When True (default)
             unparseable Pass-1 output raises ``ValueError`` after retries are
             exhausted, preventing silent evidence loss.
         pass1_max_retries: Number of retries per section on JSON parse
             failure before strict mode triggers.
-        require_tables: Forwarded to :func:`_pass2_compose`. When True
-            (default) the composer raises if BS/PL/CF tables are missing
-            from ``state['raw_tables']``.
+        require_tables: Forwarded to :func:`_pass2_compose`. When ``None``
+            (default) the value auto-derives to ``False`` if ``loader`` is
+            also ``None`` (so the default text-only path keeps running), and
+            ``True`` otherwise (a custom loader is assumed capable of
+            populating tables). Pass an explicit boolean to override the
+            auto-derivation.
 
     Returns:
         A compiled LangGraph application with entry point ``ingestor``.
@@ -409,6 +419,8 @@ def build_pipeline(
             the module remains introspectable without the heavy runtime
             dependency.
     """
+    if require_tables is None:
+        require_tables = loader is not None
     from langgraph.graph import END, StateGraph
 
     ingestor_node = partial(_ingestor, loader=loader)

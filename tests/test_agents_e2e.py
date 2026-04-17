@@ -322,5 +322,66 @@ def test_pass2_compose_degraded_mode_accepts_missing_tables() -> None:
     assert state["pass2_draft"] == "draft memo"
 
 
+def test_build_pipeline_default_loader_auto_relaxes_tables_gate() -> None:
+    """Default pipeline must run end-to-end on a text-only Yuho.
+
+    The default loader cannot supply BS/PL/CF tables, so ``build_pipeline``
+    with no explicit loader must relax ``require_tables`` automatically. A
+    previous regression shipped a strict default that made the factory path
+    unconditionally fail in Pass-2.
+    """
+    grounded_span = "為替変動リスク"
+
+    # Materialise sections first so we know how many Pass-1 calls the fake
+    # client must script; hardcoding the count silently rots when the Yuho
+    # regex set grows.
+    probe_state: PipelineState = {"yuho_path": "ignored.txt"}
+    _ingestor(probe_state, loader=_make_loader(SAMPLE_YUHO))
+    analysed_section_count = sum(
+        1 for k in probe_state["sections"] if k != "preamble"
+    )
+
+    pass1_response = json.dumps(
+        {
+            "section": "事業等のリスク",
+            "red_flags": [
+                {
+                    "flag_type": "other",
+                    "severity": "medium",
+                    "japanese_span": grounded_span,
+                    "span_char_offset": 0,
+                    "reasoning_ja": "テスト",
+                }
+            ],
+            "numerical_claims": [],
+            "section_summary_ja": "テスト",
+        },
+        ensure_ascii=False,
+    )
+    memo = f"Claim supported (ref: '{grounded_span}' p.1)."
+
+    replay = FakeInferenceClient(
+        [pass1_response] * analysed_section_count + [memo]
+    )
+    loader = _make_loader(SAMPLE_YUHO)
+
+    state: PipelineState = {
+        "yuho_path": "ignored.txt",
+        "company_name_jp": "XYZ",
+        "company_name_en": "XYZ Corp",
+        "edinet_code": "E00000",
+        "fiscal_year": 2024,
+    }
+    _ingestor(state, loader=loader)
+    _pass1_detect(state, client=replay)
+    # Emulate the build_pipeline default: require_tables auto-derived to False
+    # when no loader is passed.
+    _pass2_compose(state, client=replay, require_tables=False)
+    _ground(state)
+
+    assert state["grounded_memo"] == memo
+    assert state["orphan_spans"] == []
+
+
 if __name__ == "__main__":  # pragma: no cover - convenience runner
     pytest.main([__file__, "-v"])
