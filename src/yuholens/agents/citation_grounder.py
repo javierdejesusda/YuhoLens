@@ -24,7 +24,7 @@ from typing import Any
 
 _CITATION_GROUP_RE = re.compile(r"\(refs?:\s*[^)]+\)")
 _SPAN_RE = re.compile(r"(?P<quote>['\"])(?P<span>.+?)(?P=quote)\s+p\.\w+")
-_SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?])\s+")
+_SENTENCE_SPLIT_CAPTURING_RE = re.compile(r"((?<=[.!?])\s+)")
 _PARAGRAPH_SPLIT = "\n\n"
 _INSUFFICIENT_MARKER = "[evidence insufficient]"
 _TERMINATORS = frozenset(".!?")
@@ -143,24 +143,36 @@ def _process_sentence(sentence: str, grounded: set[str]) -> tuple[str, list[str]
 def _process_paragraph(paragraph: str, grounded: set[str]) -> tuple[str, list[str]]:
     r"""Apply sentence-level grounding to a single paragraph.
 
+    The paragraph is split into sentence chunks at terminator-plus-whitespace
+    boundaries using a *capturing* regex so the original whitespace (spaces,
+    newlines, tab runs between sentences) is preserved verbatim when the
+    chunks are re-joined. This is required to keep markdown list structure
+    intact — Pass-2 memos carry bullet lists in the executive summary and
+    evidence appendix, and those list items are separated by single newlines
+    that would be collapsed to spaces by a naive split-then-join.
+
     Args:
         paragraph: A single paragraph of the memo (text between ``\n\n``
             paragraph breaks).
         grounded: The set of grounded Japanese spans.
 
     Returns:
-        A ``(rendered_paragraph, orphans)`` pair. Sentences are re-joined
-        with a single space; orphans are returned in citation order and
-        may contain duplicates — caller is responsible for de-duplication.
+        A ``(rendered_paragraph, orphans)`` pair. Sentence chunks are
+        re-joined with their original whitespace; orphans are returned in
+        citation order and may contain duplicates — caller is responsible
+        for de-duplication.
     """
-    sentences = _SENTENCE_SPLIT_RE.split(paragraph)
+    parts = _SENTENCE_SPLIT_CAPTURING_RE.split(paragraph)
     rendered: list[str] = []
     orphans: list[str] = []
-    for sentence in sentences:
-        processed, sentence_orphans = _process_sentence(sentence, grounded)
+    for index, part in enumerate(parts):
+        if index % 2 == 1:
+            rendered.append(part)
+            continue
+        processed, sentence_orphans = _process_sentence(part, grounded)
         rendered.append(processed)
         orphans.extend(sentence_orphans)
-    return " ".join(rendered), orphans
+    return "".join(rendered), orphans
 
 
 def verify_memo(

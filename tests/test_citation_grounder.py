@@ -115,3 +115,22 @@ def test_coverage_ratio_computes_correctly() -> None:
 
     memo_without_citations = "This memo contains no citations at all."
     assert coverage_ratio(memo_without_citations, PASS1_BLOCKS) == 1.0
+
+
+def test_verify_memo_preserves_markdown_bullet_newlines() -> None:
+    bullet_one = f"- Earnings decline next period (ref: '{SPAN_EARNINGS}' p.3)."
+    bullet_two = (
+        f"- Customer concentration is elevated (ref: '{SPAN_CUSTOMER}' p.4)."
+    )
+    bullet_three = (
+        f"- An unsupported bullet (ref: '{ORPHAN_SPAN}' p.5)."
+    )
+    memo = f"{bullet_one}\n{bullet_two}\n{bullet_three}"
+
+    grounded_memo, orphans = verify_memo(memo, PASS1_BLOCKS)
+
+    lines = grounded_memo.split("\n")
+    assert lines[0] == bullet_one
+    assert lines[1] == bullet_two
+    assert lines[2] == "[evidence insufficient]."
+    assert orphans == [ORPHAN_SPAN]
