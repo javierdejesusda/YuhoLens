@@ -146,13 +146,19 @@ def _write_source_manifest(
 def _load_source_manifest(manifest_path: Path) -> dict[str, dict[str, Any]]:
     """Load a previously-written source manifest into a custom-id-keyed dict.
 
+    Malformed JSON lines are skipped rather than aborting the whole load.
+    This keeps :func:`poll_and_filter` robust against a partially truncated
+    sidecar (e.g. a crash during :func:`_write_source_manifest`) — the caller
+    then uses coverage checks to decide whether to trust the manifest or
+    fall back to the live dataset.
+
     Args:
         manifest_path: Path to a sidecar produced by
             :func:`_write_source_manifest`.
 
     Returns:
         Mapping from ``custom_id`` to the serialised source row. Malformed
-        lines are skipped.
+        lines are skipped silently.
     """
     source_rows: dict[str, dict[str, Any]] = {}
     with manifest_path.open("r", encoding="utf-8") as fh:
@@ -160,7 +166,10 @@ def _load_source_manifest(manifest_path: Path) -> dict[str, dict[str, Any]]:
             line = line.strip()
             if not line:
                 continue
-            record = json.loads(line)
+            try:
+                record = json.loads(line)
+            except json.JSONDecodeError:
+                continue
             custom_id = record.get("custom_id")
             row = record.get("row")
             if isinstance(custom_id, str) and isinstance(row, dict):
@@ -639,9 +648,22 @@ def poll_and_filter(
     results = poll_batch(batch_id)
     raw_written = write_results_jsonl(results, Path(raw_out), overwrite=overwrite)
 
+    polled_custom_ids = {
+        record.get("custom_id")
+        for record in results
+        if isinstance(record.get("custom_id"), str)
+    }
+
     manifest_path = _manifest_path(Path(batch_json))
+    manifest_source_rows: dict[str, dict[str, Any]] | None = None
     if manifest_path.exists():
-        source_rows = _load_source_manifest(manifest_path)
+        candidate = _load_source_manifest(manifest_path)
+        missing = polled_custom_ids - candidate.keys()
+        if not missing:
+            manifest_source_rows = candidate
+
+    if manifest_source_rows is not None:
+        source_rows = manifest_source_rows
     else:
         wanted_indices: dict[int, str] = {}
         for record in results:

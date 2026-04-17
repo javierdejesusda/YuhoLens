@@ -508,6 +508,158 @@ def test_poll_and_filter_uses_source_split_override(
     assert all(call[0] != "fraud_detection" for call in iter_split_calls)
 
 
+def test_poll_and_filter_falls_back_when_manifest_incomplete(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A sidecar that does not cover every polled ``custom_id`` is rejected."""
+    good_memo = (
+        _long_english_memo(1000)
+        + " (ref: 'alpha' p.1) (ref: 'beta' p.2) (ref: 'gamma' p.3)"
+    )
+    poll_results = [
+        {
+            "custom_id": "fraud_detection-00000",
+            "memo": good_memo,
+            "usage": {},
+            "stop_reason": "stop",
+        },
+        {
+            "custom_id": "fraud_detection-00001",
+            "memo": good_memo,
+            "usage": {},
+            "stop_reason": "stop",
+        },
+    ]
+
+    iter_split_calls: list[str] = []
+
+    def fake_iter_split(split: str, limit: int | None = None) -> Any:
+        iter_split_calls.append(split)
+        yield {"text": "row zero live.", "bs": {}, "pl": {}, "cf": {}}
+        yield {"text": "row one live.", "bs": {}, "pl": {}, "cf": {}}
+
+    def fake_poll_batch(batch_id: str) -> list[dict[str, Any]]:
+        return poll_results
+
+    monkeypatch.setattr("yuholens.training.teacher.iter_split", fake_iter_split)
+    monkeypatch.setattr("yuholens.training.teacher.poll_batch", fake_poll_batch)
+
+    batch_json = tmp_path / "batch.json"
+    batch_json.write_text(
+        json.dumps(
+            {
+                "batch_id": "batch-incomplete",
+                "input_file_id": "file-incomplete",
+                "split": "fraud_detection",
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    # Manifest is present but only covers ID 00000. Expect fallback to
+    # iter_split, producing a filtered row for each polled ID.
+    manifest_path = tmp_path / "batch.source_rows.jsonl"
+    manifest_path.write_text(
+        json.dumps(
+            {
+                "custom_id": "fraud_detection-00000",
+                "row": {
+                    "text": "Partial manifest row.",
+                    "bs": {},
+                    "pl": {},
+                    "cf": {},
+                },
+            },
+            ensure_ascii=False,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    raw_out = tmp_path / "raw.jsonl"
+    filtered_out = tmp_path / "filtered.jsonl"
+
+    summary = poll_and_filter(batch_json, raw_out, filtered_out)
+
+    assert summary["polled"] == 2
+    assert summary["filtered"] == 2
+    assert iter_split_calls == ["fraud_detection"], (
+        "fallback to iter_split expected when manifest coverage is incomplete"
+    )
+
+
+def test_poll_and_filter_tolerates_malformed_manifest_lines(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Manifest lines that do not decode cleanly are skipped, not fatal."""
+    good_memo = (
+        _long_english_memo(1000)
+        + " (ref: 'alpha' p.1) (ref: 'beta' p.2) (ref: 'gamma' p.3)"
+    )
+    poll_results = [
+        {
+            "custom_id": "fraud_detection-00000",
+            "memo": good_memo,
+            "usage": {},
+            "stop_reason": "stop",
+        },
+    ]
+
+    iter_split_calls: list[str] = []
+
+    def fake_iter_split(split: str, limit: int | None = None) -> Any:
+        iter_split_calls.append(split)
+        yield {"text": "live row zero.", "bs": {}, "pl": {}, "cf": {}}
+
+    def fake_poll_batch(batch_id: str) -> list[dict[str, Any]]:
+        return poll_results
+
+    monkeypatch.setattr("yuholens.training.teacher.iter_split", fake_iter_split)
+    monkeypatch.setattr("yuholens.training.teacher.poll_batch", fake_poll_batch)
+
+    batch_json = tmp_path / "batch.json"
+    batch_json.write_text(
+        json.dumps(
+            {
+                "batch_id": "batch-corrupt",
+                "input_file_id": "file-corrupt",
+                "split": "fraud_detection",
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    # A corrupted manifest: one line is unparseable, the other covers an
+    # unrelated custom_id. Coverage check must fail and trigger fallback.
+    manifest_path = tmp_path / "batch.source_rows.jsonl"
+    manifest_path.write_text(
+        "this is not valid JSON at all\n"
+        + json.dumps(
+            {
+                "custom_id": "fraud_detection-99999",
+                "row": {
+                    "text": "Stale unrelated row.",
+                    "bs": {},
+                    "pl": {},
+                    "cf": {},
+                },
+            },
+            ensure_ascii=False,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    raw_out = tmp_path / "raw.jsonl"
+    filtered_out = tmp_path / "filtered.jsonl"
+
+    summary = poll_and_filter(batch_json, raw_out, filtered_out)
+
+    assert summary["polled"] == 1
+    assert summary["filtered"] == 1
+    assert iter_split_calls == ["fraud_detection"], (
+        "fallback to iter_split expected when manifest is malformed/stale"
+    )
+
+
 def test_poll_and_filter_prefers_source_manifest_over_iter_split(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
