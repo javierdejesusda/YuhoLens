@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+
+# Environments
+.venv/
+venv/
+env/
+.env
+.env.*
+
+# Model / training artifacts (too large for git)
+output/
+checkpoints/
+runs/
+wandb/
+lightning_logs/
+*.safetensors
+*.gguf
+*.bin
+*.pt
+*.ckpt
+
+# Data
+data/edinet_raw/
+data/teacher_bootstrap/
+data/teacher/
+data/cache/
+
+# Secrets
+*.key
+*.pem
+anthropic_key.txt
+huggingface_token.txt
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

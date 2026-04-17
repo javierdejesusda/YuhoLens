@@ -1,0 +1,12 @@
+# SFT hyperparameters for YuhoLens-Pipeline Week 1 main run.
+# Red-team-corrected: seq 8192 (not 12K) — see build-spec §19.
+
+model_id: pfnet/nekomata-14b-pfn-qfin
+train_data: data/teacher/sft.jsonl
+output_dir: output/yuholens-14b-sft
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 32
+num_train_epochs: 2
+learning_rate: 1.0e-5
+max_seq_length: 8192
+save_steps: 200
