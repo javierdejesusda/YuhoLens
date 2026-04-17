@@ -609,6 +609,7 @@ def poll_and_filter(
     filtered_out: Path,
     source_split: str | None = None,
     overwrite: bool = False,
+    allow_live_fallback: bool = False,
 ) -> dict[str, int]:
     """Poll a submitted OpenAI batch, persist raw results, and apply quality gates.
 
@@ -619,11 +620,16 @@ def poll_and_filter(
     deduplication), applies :func:`filter_memos`, and writes the surviving
     records to ``filtered_out``.
 
-    The ``custom_id`` format emitted by :func:`submit_batch` is
-    ``"{split}-{idx:05d}"``, so the trailing integer after the final hyphen is
-    parsed as the row index within the original split. ``iter_split`` is
-    consumed a single time and only rows whose index appears in the results
-    are materialised.
+    Source-row recovery prefers the ``.source_rows.jsonl`` sidecar written
+    by :func:`submit_batch`. If the sidecar exists but is malformed or does
+    not cover every polled ``custom_id``, the behaviour depends on
+    ``allow_live_fallback``: the default is to raise ``ValueError`` because
+    falling back to :func:`iter_split` at poll time would pair the
+    completed batch against a potentially drifted live dataset, defeating
+    the anti-drift invariant the sidecar exists to protect. When no
+    sidecar exists at all — the legacy-batch case before the sidecar
+    invariant shipped — :func:`iter_split` is consumed once to rebuild the
+    mapping; the onus is on the caller to ensure the split has not drifted.
 
     Args:
         batch_json: Path to the one-line JSON file containing ``batch_id``,
@@ -631,15 +637,24 @@ def poll_and_filter(
         raw_out: Destination JSONL path for the unfiltered poll results.
         filtered_out: Destination JSONL path for the quality-gated subset.
         source_split: Optional override for the split name used to rebuild
-            source rows. When omitted, the ``split`` field from the batch JSON
-            is used.
+            source rows. When omitted, the ``split`` field from the batch
+            JSON is used.
         overwrite: Forwarded to :func:`write_results_jsonl` for both output
             files.
+        allow_live_fallback: When True and a sidecar manifest exists but is
+            corrupted or does not fully cover the polled ``custom_id``s,
+            rebuild the missing rows from :func:`iter_split` instead of
+            raising. Default False — fail-closed on sidecar corruption.
 
     Returns:
         A dict with keys ``polled`` (total poll results), ``raw_written``
         (rows written to ``raw_out``), and ``filtered`` (rows written to
         ``filtered_out``).
+
+    Raises:
+        ValueError: When a sidecar manifest exists but is malformed or does
+            not cover every polled ``custom_id``, and
+            ``allow_live_fallback`` is False.
     """
     batch_info = json.loads(batch_json.read_text(encoding="utf-8"))
     batch_id = batch_info["batch_id"]
@@ -659,7 +674,17 @@ def poll_and_filter(
     if manifest_path.exists():
         candidate = _load_source_manifest(manifest_path)
         missing = polled_custom_ids - candidate.keys()
-        if not missing:
+        if missing:
+            if not allow_live_fallback:
+                raise ValueError(
+                    f"Source manifest at {manifest_path} is malformed or "
+                    f"missing coverage for {len(missing)} polled custom_id(s) "
+                    "(first few: "
+                    f"{sorted(missing)[:3]}). Refusing to rebuild from "
+                    "iter_split because the live dataset may have drifted "
+                    "since submit. Pass allow_live_fallback=True to override."
+                )
+        else:
             manifest_source_rows = candidate
 
     if manifest_source_rows is not None:

@@ -508,10 +508,10 @@ def test_poll_and_filter_uses_source_split_override(
     assert all(call[0] != "fraud_detection" for call in iter_split_calls)
 
 
-def test_poll_and_filter_falls_back_when_manifest_incomplete(
+def test_poll_and_filter_raises_when_manifest_incomplete(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """A sidecar that does not cover every polled ``custom_id`` is rejected."""
+    """A sidecar that does not cover every polled ``custom_id`` fails closed by default."""
     good_memo = (
         _long_english_memo(1000)
         + " (ref: 'alpha' p.1) (ref: 'beta' p.2) (ref: 'gamma' p.3)"
@@ -556,8 +556,6 @@ def test_poll_and_filter_falls_back_when_manifest_incomplete(
         + "\n",
         encoding="utf-8",
     )
-    # Manifest is present but only covers ID 00000. Expect fallback to
-    # iter_split, producing a filtered row for each polled ID.
     manifest_path = tmp_path / "batch.source_rows.jsonl"
     manifest_path.write_text(
         json.dumps(
@@ -578,19 +576,18 @@ def test_poll_and_filter_falls_back_when_manifest_incomplete(
     raw_out = tmp_path / "raw.jsonl"
     filtered_out = tmp_path / "filtered.jsonl"
 
-    summary = poll_and_filter(batch_json, raw_out, filtered_out)
+    with pytest.raises(ValueError, match="manifest"):
+        poll_and_filter(batch_json, raw_out, filtered_out)
 
-    assert summary["polled"] == 2
-    assert summary["filtered"] == 2
-    assert iter_split_calls == ["fraud_detection"], (
-        "fallback to iter_split expected when manifest coverage is incomplete"
+    assert iter_split_calls == [], (
+        "fail-closed: iter_split must not be consulted on incomplete manifest"
     )
 
 
-def test_poll_and_filter_tolerates_malformed_manifest_lines(
+def test_poll_and_filter_allows_live_fallback_with_opt_in(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """Manifest lines that do not decode cleanly are skipped, not fatal."""
+    """Explicit ``allow_live_fallback=True`` restores the legacy iter_split recovery path."""
     good_memo = (
         _long_english_memo(1000)
         + " (ref: 'alpha' p.1) (ref: 'beta' p.2) (ref: 'gamma' p.3)"
@@ -628,8 +625,6 @@ def test_poll_and_filter_tolerates_malformed_manifest_lines(
         + "\n",
         encoding="utf-8",
     )
-    # A corrupted manifest: one line is unparseable, the other covers an
-    # unrelated custom_id. Coverage check must fail and trigger fallback.
     manifest_path = tmp_path / "batch.source_rows.jsonl"
     manifest_path.write_text(
         "this is not valid JSON at all\n"
@@ -651,12 +646,15 @@ def test_poll_and_filter_tolerates_malformed_manifest_lines(
     raw_out = tmp_path / "raw.jsonl"
     filtered_out = tmp_path / "filtered.jsonl"
 
-    summary = poll_and_filter(batch_json, raw_out, filtered_out)
+    summary = poll_and_filter(
+        batch_json, raw_out, filtered_out, allow_live_fallback=True
+    )
 
     assert summary["polled"] == 1
     assert summary["filtered"] == 1
     assert iter_split_calls == ["fraud_detection"], (
-        "fallback to iter_split expected when manifest is malformed/stale"
+        "explicit fallback: iter_split should be consulted when "
+        "allow_live_fallback=True and manifest is malformed"
     )
 
 
