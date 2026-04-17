@@ -16,6 +16,7 @@ from yuholens.training.teacher import (
     hallucinated_number_gate,
     language_gate,
     length_gate,
+    poll_and_filter,
     poll_batch,
     write_results_jsonl,
 )
@@ -354,3 +355,154 @@ def test_poll_batch_gives_up_after_max_retries(
             "batch-xyz", client=client, poll_interval_s=0.0, max_wait_s=60.0
         )
     assert client.batches.state["retrieve_calls"] == 5
+
+
+def test_poll_and_filter_end_to_end(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    good_memo = (
+        _long_english_memo(1000)
+        + " (ref: 'alpha' p.1) (ref: 'beta' p.2) (ref: 'gamma' p.3)"
+    )
+    second_good_memo = (
+        _long_english_memo(1000)
+        + " (ref: 'delta' p.1) (ref: 'epsilon' p.2) (ref: 'zeta' p.3)"
+    )
+    bad_citation_memo = (
+        _long_english_memo(1000) + " (ref: 'only' p.1) (ref: 'two' p.2)"
+    )
+    poll_results = [
+        {
+            "custom_id": "fraud_detection-00000",
+            "memo": good_memo,
+            "usage": {},
+            "stop_reason": "stop",
+        },
+        {
+            "custom_id": "fraud_detection-00001",
+            "memo": second_good_memo,
+            "usage": {},
+            "stop_reason": "stop",
+        },
+        {
+            "custom_id": "fraud_detection-00002",
+            "memo": bad_citation_memo,
+            "usage": {},
+            "stop_reason": "stop",
+        },
+    ]
+
+    source_rows_sequence = [
+        {"text": "Report zero body text.", "bs": {}, "pl": {}, "cf": {}},
+        {"text": "Report one body text differs.", "bs": {}, "pl": {}, "cf": {}},
+        {"text": "Report two body text again.", "bs": {}, "pl": {}, "cf": {}},
+    ]
+
+    iter_split_calls: list[tuple[str, int | None]] = []
+
+    def fake_iter_split(split: str, limit: int | None = None) -> Any:
+        iter_split_calls.append((split, limit))
+        for row in source_rows_sequence:
+            yield row
+
+    def fake_poll_batch(batch_id: str) -> list[dict[str, Any]]:
+        assert batch_id == "batch-abc"
+        return poll_results
+
+    monkeypatch.setattr(
+        "yuholens.training.teacher.iter_split", fake_iter_split
+    )
+    monkeypatch.setattr(
+        "yuholens.training.teacher.poll_batch", fake_poll_batch
+    )
+
+    batch_json = tmp_path / "batch.json"
+    batch_json.write_text(
+        json.dumps(
+            {
+                "batch_id": "batch-abc",
+                "input_file_id": "file-abc",
+                "split": "fraud_detection",
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    raw_out = tmp_path / "raw.jsonl"
+    filtered_out = tmp_path / "filtered.jsonl"
+
+    summary = poll_and_filter(batch_json, raw_out, filtered_out)
+
+    assert summary == {"polled": 3, "raw_written": 3, "filtered": 2}
+    assert raw_out.exists()
+    assert filtered_out.exists()
+    raw_lines = raw_out.read_text(encoding="utf-8").splitlines()
+    filtered_lines = filtered_out.read_text(encoding="utf-8").splitlines()
+    assert len(raw_lines) == 3
+    assert len(filtered_lines) == 2
+    filtered_ids = {json.loads(line)["custom_id"] for line in filtered_lines}
+    assert filtered_ids == {
+        "fraud_detection-00000",
+        "fraud_detection-00001",
+    }
+    assert iter_split_calls and iter_split_calls[0][0] == "fraud_detection"
+
+
+def test_poll_and_filter_uses_source_split_override(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    good_memo = (
+        _long_english_memo(1000)
+        + " (ref: 'alpha' p.1) (ref: 'beta' p.2) (ref: 'gamma' p.3)"
+    )
+    poll_results = [
+        {
+            "custom_id": "earnings_forecast-00000",
+            "memo": good_memo,
+            "usage": {},
+            "stop_reason": "stop",
+        },
+    ]
+
+    iter_split_calls: list[tuple[str, int | None]] = []
+
+    def fake_iter_split(split: str, limit: int | None = None) -> Any:
+        iter_split_calls.append((split, limit))
+        yield {"text": "Override split row text.", "bs": {}, "pl": {}, "cf": {}}
+
+    def fake_poll_batch(batch_id: str) -> list[dict[str, Any]]:
+        return poll_results
+
+    monkeypatch.setattr(
+        "yuholens.training.teacher.iter_split", fake_iter_split
+    )
+    monkeypatch.setattr(
+        "yuholens.training.teacher.poll_batch", fake_poll_batch
+    )
+
+    batch_json = tmp_path / "batch.json"
+    batch_json.write_text(
+        json.dumps(
+            {
+                "batch_id": "batch-xyz",
+                "input_file_id": "file-xyz",
+                "split": "fraud_detection",
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    raw_out = tmp_path / "raw.jsonl"
+    filtered_out = tmp_path / "filtered.jsonl"
+
+    summary = poll_and_filter(
+        batch_json,
+        raw_out,
+        filtered_out,
+        source_split="earnings_forecast",
+    )
+
+    assert summary["polled"] == 1
+    assert iter_split_calls, "iter_split was never invoked"
+    assert iter_split_calls[0][0] == "earnings_forecast"
+    assert all(call[0] != "fraud_detection" for call in iter_split_calls)

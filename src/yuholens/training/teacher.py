@@ -506,15 +506,127 @@ def filter_memos(
     return survivors
 
 
+_CUSTOM_ID_INDEX_PATTERN = re.compile(r"-(\d+)$")
+
+
+def poll_and_filter(
+    batch_json: Path,
+    raw_out: Path,
+    filtered_out: Path,
+    source_split: str | None = None,
+    overwrite: bool = False,
+) -> dict[str, int]:
+    """Poll a submitted OpenAI batch, persist raw results, and apply quality gates.
+
+    Reads the batch-id JSON produced by :func:`submit_batch`, polls the batch
+    to completion via :func:`poll_batch`, writes the raw results to
+    ``raw_out``, reconstructs the mapping from ``custom_id`` to the original
+    EDINET-Bench source row (needed by the hallucinated-number gate and
+    deduplication), applies :func:`filter_memos`, and writes the surviving
+    records to ``filtered_out``.
+
+    The ``custom_id`` format emitted by :func:`submit_batch` is
+    ``"{split}-{idx:05d}"``, so the trailing integer after the final hyphen is
+    parsed as the row index within the original split. ``iter_split`` is
+    consumed a single time and only rows whose index appears in the results
+    are materialised.
+
+    Args:
+        batch_json: Path to the one-line JSON file containing ``batch_id``,
+            ``input_file_id``, and ``split``.
+        raw_out: Destination JSONL path for the unfiltered poll results.
+        filtered_out: Destination JSONL path for the quality-gated subset.
+        source_split: Optional override for the split name used to rebuild
+            source rows. When omitted, the ``split`` field from the batch JSON
+            is used.
+        overwrite: Forwarded to :func:`write_results_jsonl` for both output
+            files.
+
+    Returns:
+        A dict with keys ``polled`` (total poll results), ``raw_written``
+        (rows written to ``raw_out``), and ``filtered`` (rows written to
+        ``filtered_out``).
+    """
+    batch_info = json.loads(batch_json.read_text(encoding="utf-8"))
+    batch_id = batch_info["batch_id"]
+    split = source_split if source_split is not None else batch_info["split"]
+
+    results = poll_batch(batch_id)
+    raw_written = write_results_jsonl(results, Path(raw_out), overwrite=overwrite)
+
+    wanted_indices: dict[int, str] = {}
+    for record in results:
+        custom_id = record.get("custom_id")
+        if not isinstance(custom_id, str):
+            continue
+        match = _CUSTOM_ID_INDEX_PATTERN.search(custom_id)
+        if match is None:
+            continue
+        wanted_indices[int(match.group(1))] = custom_id
+
+    source_rows: dict[str, dict[str, Any]] = {}
+    if wanted_indices:
+        max_index = max(wanted_indices)
+        for idx, row in enumerate(iter_split(split)):
+            custom_id = wanted_indices.get(idx)
+            if custom_id is not None:
+                source_rows[custom_id] = row
+            if idx >= max_index:
+                break
+
+    filtered = filter_memos(results, source_rows)
+    filtered_written = write_results_jsonl(
+        filtered, Path(filtered_out), overwrite=overwrite
+    )
+
+    polled = len(results)
+    retention = (filtered_written / polled * 100.0) if polled else 0.0
+    print(
+        f"polled={polled} raw={raw_written} filtered={filtered_written} "
+        f"retention={retention:.1f}%"
+    )
+
+    return {
+        "polled": polled,
+        "raw_written": raw_written,
+        "filtered": filtered_written,
+    }
+
+
 def main() -> None:
-    """Entry point: build and submit a batch request for the chosen split."""
+    """Entry point: dispatch to the ``submit`` or ``poll-and-filter`` subcommand."""
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--split", required=True)
-    parser.add_argument("--out", type=Path, required=True)
-    parser.add_argument("--limit", type=int, default=None)
+    subparsers = parser.add_subparsers(dest="cmd", required=True)
+
+    submit_parser = subparsers.add_parser(
+        "submit", help="Build and submit an OpenAI batch for a split."
+    )
+    submit_parser.add_argument("--split", required=True)
+    submit_parser.add_argument("--out", type=Path, required=True)
+    submit_parser.add_argument("--limit", type=int, default=None)
+
+    poll_parser = subparsers.add_parser(
+        "poll-and-filter",
+        help="Poll a submitted batch and apply quality-gate filters.",
+    )
+    poll_parser.add_argument("--batch-json", type=Path, required=True)
+    poll_parser.add_argument("--raw-out", type=Path, required=True)
+    poll_parser.add_argument("--filtered-out", type=Path, required=True)
+    poll_parser.add_argument("--source-split", default=None)
+    poll_parser.add_argument("--overwrite", action="store_true")
+
     args = parser.parse_args()
 
-    submit_batch(args.split, args.out, args.limit)
+    if args.cmd == "submit":
+        submit_batch(args.split, args.out, args.limit)
+    elif args.cmd == "poll-and-filter":
+        poll_and_filter(
+            args.batch_json,
+            args.raw_out,
+            args.filtered_out,
+            source_split=args.source_split,
+            overwrite=args.overwrite,
+        )
 
 
 if __name__ == "__main__":
