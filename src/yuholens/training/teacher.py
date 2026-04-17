@@ -1,12 +1,12 @@
-"""Teacher bootstrap: Claude Sonnet 4.6 generates English memos + preference pairs.
+"""Teacher bootstrap: OpenAI gpt-5-mini generates English memos + preference pairs.
 
 The teacher runs over ``SakanaAI/EDINET-Bench`` train splits and writes
 JSONL records for the downstream SFT and ORPO trainers.
 
-Cost-optimised via Anthropic's batch API (50% discount vs real-time) since
-bootstrap is not latency-sensitive. A system-prompt cache block carries
-shared framing across thousands of Yuho calls to further reduce input-token
-spend on cache hits.
+Cost-optimised via OpenAI's batch API (50% discount vs real-time) since
+bootstrap is not latency-sensitive. OpenAI auto-caches shared system-prompt
+prefixes of at least 1024 tokens, so the stable analyst framing across
+thousands of Yuho calls further reduces input-token spend on cache hits.
 """
 
 from __future__ import annotations
@@ -18,9 +18,9 @@ import os
 import re
 import time
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
-TEACHER_MODEL = "claude-sonnet-4-6"
+TEACHER_MODEL = "gpt-5-mini"
 SYSTEM_PROMPT = """You are a senior English-speaking Japan-equity analyst
 drafting a two-page investor memo for a non-Japanese-speaking portfolio
 manager. The source is a Japanese 有価証券報告書 (annual securities report).
@@ -97,51 +97,67 @@ def iter_split(split: str, limit: int | None = None) -> Any:
 
 
 def submit_batch(split: str, out_path: Path, limit: int | None) -> None:
-    """Build an Anthropic batch request and persist it to ``out_path``.
+    """Build an OpenAI batch request and persist its identifiers to ``out_path``.
+
+    Writes the per-row chat-completion requests to ``out_path`` with a
+    ``.requests.jsonl`` suffix, uploads that file to OpenAI with
+    ``purpose="batch"``, creates the batch job, and finally writes the
+    returned ``batch_id`` (plus the uploaded ``input_file_id`` and split
+    name) as a single JSON line to ``out_path`` for the poller to consume.
 
     Args:
         split: EDINET-Bench subset name.
-        out_path: Destination JSONL path.
+        out_path: Destination JSON file receiving the ``batch_id`` record.
+            Its sibling ``.requests.jsonl`` path is used as the uploaded
+            request file and is kept on disk for debugging.
         limit: Optional row cap.
     """
-    import anthropic
+    import openai
 
-    client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
-    requests: list[Any] = []
-    for idx, row in enumerate(iter_split(split, limit)):
-        requests.append(
-            anthropic.types.messages.batch_create_params.Request(
-                custom_id=f"{split}-{idx:05d}",
-                params={
+    client = openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    requests_path = out_path.with_suffix(".requests.jsonl")
+
+    with requests_path.open("w", encoding="utf-8") as fh:
+        for idx, row in enumerate(iter_split(split, limit)):
+            req = {
+                "custom_id": f"{split}-{idx:05d}",
+                "method": "POST",
+                "url": "/v1/chat/completions",
+                "body": {
                     "model": TEACHER_MODEL,
-                    "max_tokens": 2048,
-                    "system": [
-                        {
-                            "type": "text",
-                            "text": SYSTEM_PROMPT,
-                            "cache_control": {"type": "ephemeral"},
-                        }
-                    ],
+                    "max_completion_tokens": 2048,
                     "messages": [
-                        {"role": "user", "content": build_user_prompt(row)}
+                        {"role": "system", "content": SYSTEM_PROMPT},
+                        {"role": "user", "content": build_user_prompt(row)},
                     ],
                 },
-            )
-        )
+            }
+            fh.write(json.dumps(req, ensure_ascii=False) + "\n")
 
-    batch = client.messages.batches.create(requests=requests)
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(json.dumps({"batch_id": batch.id, "split": split}) + "\n")
+    with requests_path.open("rb") as upload_fh:
+        file_obj = client.files.create(file=upload_fh, purpose="batch")
+    batch = client.batches.create(
+        input_file_id=file_obj.id,
+        endpoint="/v1/chat/completions",
+        completion_window="24h",
+    )
+    out_path.write_text(
+        json.dumps(
+            {"batch_id": batch.id, "input_file_id": file_obj.id, "split": split}
+        )
+        + "\n"
+    )
 
 
 _CITATION_PATTERN = re.compile(r"\(ref:\s*['\"][^'\"]+['\"]")
 _YEN_NUMBER_PATTERN = re.compile(r"¥([\d,]+(?:\.\d+)?)")
 
 
-def _retry(call: Any, attempts: int = 5) -> Any:
+def _retry(call: Callable[[], Any], attempts: int = 5) -> Any:
     """Invoke a zero-arg callable with bounded exponential backoff.
 
-    Retries on ``anthropic.APIError`` / ``anthropic.APIConnectionError`` when
+    Retries on ``openai.APIError`` / ``openai.APIConnectionError`` when
     available, plus ``Exception`` as a final safety net so transient errors
     from test doubles or unexpected wrappers still recover. Sleeps 1, 2, 4,
     8, 16 seconds between attempts. Re-raises the last exception if every
@@ -160,9 +176,9 @@ def _retry(call: Any, attempts: int = 5) -> Any:
     """
     retry_exc: tuple[type[BaseException], ...]
     try:
-        import anthropic
+        import openai
 
-        retry_exc = (anthropic.APIError, anthropic.APIConnectionError, Exception)
+        retry_exc = (openai.APIError, openai.APIConnectionError, Exception)
     except Exception:
         retry_exc = (Exception,)
 
@@ -185,19 +201,19 @@ def poll_batch(
     poll_interval_s: float = 30.0,
     max_wait_s: float = 90_000.0,
 ) -> list[dict[str, Any]]:
-    """Block until an Anthropic batch completes, then return structured results.
+    """Block until an OpenAI batch completes, then return structured results.
 
-    Transient failures in ``retrieve`` or ``results`` are retried up to five
-    times with exponential backoff (1/2/4/8/16s) so a single flaky API call
-    does not abort a multi-hour wait.
+    Transient failures in ``batches.retrieve`` or ``files.content`` are
+    retried up to five times with exponential backoff (1/2/4/8/16s) so a
+    single flaky API call does not abort a multi-hour wait.
 
     Args:
-        batch_id: The Anthropic batch ID returned by ``submit_batch``.
-        client: Optional pre-built ``anthropic.Anthropic`` client, injected for
+        batch_id: The OpenAI batch ID returned by ``submit_batch``.
+        client: Optional pre-built ``openai.OpenAI`` client, injected for
             tests. When ``None``, a client is constructed lazily from the
-            ``ANTHROPIC_API_KEY`` environment variable.
+            ``OPENAI_API_KEY`` environment variable.
         poll_interval_s: Seconds between status checks.
-        max_wait_s: Hard wait cap in seconds, matching Anthropic's 24h SLA plus
+        max_wait_s: Hard wait cap in seconds, matching OpenAI's 24h SLA plus
             buffer.
 
     Returns:
@@ -207,21 +223,23 @@ def poll_batch(
 
     Raises:
         TimeoutError: If ``max_wait_s`` elapses before the batch terminates.
-        RuntimeError: If the batch ends with ``processing_status`` in
-            ``{"canceled", "expired"}``.
+        RuntimeError: If the batch ends with ``status`` in
+            ``{"failed", "expired", "canceled"}``.
     """
     if client is None:
-        import anthropic
+        import openai
 
-        client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+        client = openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 
     start = time.monotonic()
+    output_file_id: str | None = None
     while True:
-        handle = _retry(lambda: client.messages.batches.retrieve(batch_id))
-        status = getattr(handle, "processing_status", None)
-        if status == "ended":
+        handle = _retry(lambda: client.batches.retrieve(batch_id))
+        status = getattr(handle, "status", None)
+        if status == "completed":
+            output_file_id = getattr(handle, "output_file_id", None)
             break
-        if status in {"canceled", "expired"}:
+        if status in {"failed", "expired", "canceled"}:
             raise RuntimeError(f"Batch {batch_id} terminated with status={status!r}")
         if time.monotonic() - start >= max_wait_s:
             raise TimeoutError(
@@ -229,39 +247,55 @@ def poll_batch(
             )
         time.sleep(poll_interval_s)
 
-    entries = _retry(lambda: list(client.messages.batches.results(batch_id)))
+    if output_file_id is None:
+        raise RuntimeError(
+            f"Batch {batch_id} completed without an output_file_id"
+        )
+
+    output = _retry(lambda: client.files.content(output_file_id))
+    output_text = getattr(output, "text", "") or ""
 
     records: list[dict[str, Any]] = []
-    for entry in entries:
-        custom_id = getattr(entry, "custom_id", None)
-        result = getattr(entry, "result", None)
-        result_type = getattr(result, "type", None)
+    for line in output_text.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        entry = json.loads(line)
+        custom_id = entry.get("custom_id")
+        response = entry.get("response")
+        error = entry.get("error")
 
-        if result_type == "succeeded":
-            message = getattr(result, "message", None)
-            content = getattr(message, "content", []) or []
-            text = ""
-            for block in content:
-                if getattr(block, "type", None) == "text":
-                    text = getattr(block, "text", "") or ""
-                    break
+        if response is not None and error is None:
+            body = response.get("body", {}) or {}
+            choices = body.get("choices", []) or []
+            memo = ""
+            finish_reason: str | None = None
+            if choices:
+                first = choices[0] or {}
+                message = first.get("message", {}) or {}
+                memo = message.get("content", "") or ""
+                finish_reason = first.get("finish_reason")
+            usage = body.get("usage", {}) or {}
             records.append(
                 {
                     "custom_id": custom_id,
-                    "memo": text,
-                    "usage": getattr(message, "usage", {}) or {},
-                    "stop_reason": getattr(message, "stop_reason", None),
+                    "memo": memo,
+                    "usage": usage,
+                    "stop_reason": finish_reason,
                 }
             )
         else:
-            error = getattr(result, "error", None)
+            if isinstance(error, dict):
+                message = error.get("message") or error.get("code") or "unknown"
+            else:
+                message = str(error) if error is not None else "unknown"
             records.append(
                 {
                     "custom_id": custom_id,
                     "memo": None,
                     "usage": {},
                     "stop_reason": None,
-                    "error": str(error) if error is not None else result_type or "unknown",
+                    "error": message,
                 }
             )
     return records

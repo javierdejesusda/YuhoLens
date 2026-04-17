@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 import pytest
@@ -128,8 +129,8 @@ def test_dedup_hash_differs_on_different_text() -> None:
 
 def test_write_results_jsonl_roundtrip(tmp_path: Path) -> None:
     results = [
-        {"custom_id": "a-0", "memo": "Memo A", "usage": {"in": 10}, "stop_reason": "end_turn"},
-        {"custom_id": "a-1", "memo": "Memo B", "usage": {"in": 12}, "stop_reason": "end_turn"},
+        {"custom_id": "a-0", "memo": "Memo A", "usage": {"in": 10}, "stop_reason": "stop"},
+        {"custom_id": "a-1", "memo": "Memo B", "usage": {"in": 12}, "stop_reason": "stop"},
     ]
     out = tmp_path / "sub" / "results.jsonl"
     count = write_results_jsonl(results, out)
@@ -167,11 +168,11 @@ def test_filter_memos_end_to_end() -> None:
     )
 
     results = [
-        {"custom_id": "a-0", "memo": good_memo, "usage": {}, "stop_reason": "end_turn"},
-        {"custom_id": "a-1", "memo": dup_memo, "usage": {}, "stop_reason": "end_turn"},
-        {"custom_id": "a-2", "memo": bad_citation_memo, "usage": {}, "stop_reason": "end_turn"},
-        {"custom_id": "a-3", "memo": too_short_memo, "usage": {}, "stop_reason": "end_turn"},
-        {"custom_id": "a-4", "memo": hallucinated_memo, "usage": {}, "stop_reason": "end_turn"},
+        {"custom_id": "a-0", "memo": good_memo, "usage": {}, "stop_reason": "stop"},
+        {"custom_id": "a-1", "memo": dup_memo, "usage": {}, "stop_reason": "stop"},
+        {"custom_id": "a-2", "memo": bad_citation_memo, "usage": {}, "stop_reason": "stop"},
+        {"custom_id": "a-3", "memo": too_short_memo, "usage": {}, "stop_reason": "stop"},
+        {"custom_id": "a-4", "memo": hallucinated_memo, "usage": {}, "stop_reason": "stop"},
     ]
 
     survivors = filter_memos(results, source_rows)
@@ -180,101 +181,128 @@ def test_filter_memos_end_to_end() -> None:
     assert "dedup_key" in survivors[0]
 
 
-class _FakeResult:
-    def __init__(self, type_: str, text: str | None = None, error: str | None = None) -> None:
-        self.type = type_
-        if type_ == "succeeded":
-            self.message = _FakeMessage(text or "")
-        self._error = error
+def _make_fake_oai_client(
+    retrieve_sequence: list[Any],
+    output_jsonl_text: str | None = None,
+) -> SimpleNamespace:
+    """Build a minimal OpenAI client mock from a sequence of retrieve responses.
 
-    @property
-    def error(self) -> str | None:
-        return self._error
+    Args:
+        retrieve_sequence: Items are either ``SimpleNamespace``-like batch
+            handles (with ``status`` and optionally ``output_file_id``) or
+            ``Exception`` instances, raised in the order given. The final
+            item is returned indefinitely after the sequence is exhausted.
+        output_jsonl_text: Body returned by ``client.files.content(...).text``.
 
+    Returns:
+        A ``SimpleNamespace`` with ``batches.retrieve`` and ``files.content``
+        attributes and a ``calls`` counter on ``batches``.
+    """
+    state = {"retrieve_calls": 0}
 
-class _FakeMessage:
-    def __init__(self, text: str) -> None:
-        self.content = [_FakeContentBlock(text)]
-        self.usage = {"input_tokens": 10, "output_tokens": 20}
-        self.stop_reason = "end_turn"
+    def retrieve(batch_id: str) -> Any:
+        idx = min(state["retrieve_calls"], len(retrieve_sequence) - 1)
+        result = retrieve_sequence[idx]
+        state["retrieve_calls"] += 1
+        if isinstance(result, Exception):
+            raise result
+        return result
 
+    def content(file_id: str) -> SimpleNamespace:
+        return SimpleNamespace(text=output_jsonl_text or "")
 
-class _FakeContentBlock:
-    def __init__(self, text: str) -> None:
-        self.type = "text"
-        self.text = text
-
-
-class _FakeEntry:
-    def __init__(self, custom_id: str, result: _FakeResult) -> None:
-        self.custom_id = custom_id
-        self.result = result
-
-
-class _FakeBatchHandle:
-    def __init__(self, status: str = "ended") -> None:
-        self.processing_status = status
-
-
-class _FakeBatches:
-    def __init__(self, entries: list[_FakeEntry]) -> None:
-        self._entries = entries
-        self.retrieve_calls = 0
-
-    def retrieve(self, batch_id: str) -> _FakeBatchHandle:
-        self.retrieve_calls += 1
-        return _FakeBatchHandle(status="ended")
-
-    def results(self, batch_id: str) -> Any:
-        for entry in self._entries:
-            yield entry
+    batches = SimpleNamespace(retrieve=retrieve, state=state)
+    files = SimpleNamespace(content=content)
+    return SimpleNamespace(batches=batches, files=files)
 
 
-class _FakeMessagesNamespace:
-    def __init__(self, batches: _FakeBatches) -> None:
-        self.batches = batches
+def _oai_success_row(custom_id: str, memo: str) -> dict[str, Any]:
+    return {
+        "id": f"batch_req_{custom_id}",
+        "custom_id": custom_id,
+        "response": {
+            "status_code": 200,
+            "request_id": "req-abc",
+            "body": {
+                "id": f"chatcmpl-{custom_id}",
+                "object": "chat.completion",
+                "created": 1234,
+                "model": "gpt-5-mini",
+                "choices": [
+                    {
+                        "index": 0,
+                        "message": {"role": "assistant", "content": memo},
+                        "finish_reason": "stop",
+                    }
+                ],
+                "usage": {
+                    "prompt_tokens": 1500,
+                    "completion_tokens": 800,
+                    "total_tokens": 2300,
+                },
+            },
+        },
+        "error": None,
+    }
 
 
-class _FakeClient:
-    def __init__(self, entries: list[_FakeEntry]) -> None:
-        self.messages = _FakeMessagesNamespace(_FakeBatches(entries))
+def _oai_failed_row(custom_id: str, message: str) -> dict[str, Any]:
+    return {
+        "id": f"batch_req_{custom_id}",
+        "custom_id": custom_id,
+        "response": None,
+        "error": {"code": "invalid_request", "message": message},
+    }
 
 
 def test_poll_batch_returns_ended_results() -> None:
-    entries = [
-        _FakeEntry("a-0", _FakeResult("succeeded", text="Memo one")),
-        _FakeEntry("a-1", _FakeResult("succeeded", text="Memo two")),
-        _FakeEntry("a-2", _FakeResult("errored", error="invalid_request")),
+    output_lines = [
+        _oai_success_row("a-0", "Memo one"),
+        _oai_success_row("a-1", "Memo two"),
+        _oai_failed_row("a-2", "invalid_request"),
     ]
-    client = _FakeClient(entries)
-    records = poll_batch("batch-xyz", client=client, poll_interval_s=0.0, max_wait_s=5.0)
+    output_text = "\n".join(json.dumps(row) for row in output_lines) + "\n"
+    handle = SimpleNamespace(status="completed", output_file_id="file-xyz")
+    client = _make_fake_oai_client([handle], output_jsonl_text=output_text)
+
+    records = poll_batch(
+        "batch-xyz", client=client, poll_interval_s=0.0, max_wait_s=5.0
+    )
+
     assert len(records) == 3
     by_id = {r["custom_id"]: r for r in records}
     assert by_id["a-0"]["memo"] == "Memo one"
+    assert by_id["a-0"]["stop_reason"] == "stop"
+    assert by_id["a-0"]["usage"]["prompt_tokens"] == 1500
     assert by_id["a-1"]["memo"] == "Memo two"
     assert by_id["a-2"]["memo"] is None
     assert by_id["a-2"]["error"] == "invalid_request"
 
 
 def test_poll_batch_timeout(monkeypatch: pytest.MonkeyPatch) -> None:
-    class _NeverEndingBatches:
-        def retrieve(self, batch_id: str) -> _FakeBatchHandle:
-            return _FakeBatchHandle(status="in_progress")
+    handle = SimpleNamespace(status="in_progress", output_file_id=None)
+    client = _make_fake_oai_client([handle], output_jsonl_text="")
 
-        def results(self, batch_id: str) -> Any:
-            return iter([])
+    fake_time = {"now": 0.0}
 
-    class _Client:
-        def __init__(self) -> None:
-            self.messages = _FakeMessagesNamespace(_NeverEndingBatches())
+    def fake_monotonic() -> float:
+        fake_time["now"] += 1.0
+        return fake_time["now"]
+
+    monkeypatch.setattr(
+        "yuholens.training.teacher.time.monotonic", fake_monotonic
+    )
+    monkeypatch.setattr("yuholens.training.teacher.time.sleep", lambda _s: None)
 
     with pytest.raises(TimeoutError):
-        poll_batch("batch-xyz", client=_Client(), poll_interval_s=0.01, max_wait_s=0.02)
+        poll_batch(
+            "batch-xyz", client=client, poll_interval_s=0.01, max_wait_s=0.5
+        )
 
 
 def test_write_results_jsonl_refuses_overwrite(tmp_path: Path) -> None:
     results = [
-        {"custom_id": "a-0", "memo": "Memo A", "usage": {}, "stop_reason": "end_turn"},
+        {"custom_id": "a-0", "memo": "Memo A", "usage": {}, "stop_reason": "stop"},
     ]
     out = tmp_path / "sub" / "results.jsonl"
 
@@ -284,7 +312,7 @@ def test_write_results_jsonl_refuses_overwrite(tmp_path: Path) -> None:
         write_results_jsonl(results, out)
 
     updated = [
-        {"custom_id": "a-1", "memo": "Memo B", "usage": {}, "stop_reason": "end_turn"},
+        {"custom_id": "a-1", "memo": "Memo B", "usage": {}, "stop_reason": "stop"},
     ]
     assert write_results_jsonl(updated, out, overwrite=True) == 1
     parsed = [json.loads(line) for line in out.read_text(encoding="utf-8").splitlines()]
@@ -292,53 +320,37 @@ def test_write_results_jsonl_refuses_overwrite(tmp_path: Path) -> None:
 
 
 def test_poll_batch_retries_transient_error(monkeypatch: pytest.MonkeyPatch) -> None:
-    class _FlakyBatches:
-        def __init__(self) -> None:
-            self.calls = 0
-
-        def retrieve(self, batch_id: str) -> _FakeBatchHandle:
-            self.calls += 1
-            if self.calls <= 2:
-                raise RuntimeError("transient network glitch")
-            return _FakeBatchHandle(status="ended")
-
-        def results(self, batch_id: str) -> Any:
-            return iter(
-                [_FakeEntry("a-0", _FakeResult("succeeded", text="Recovered memo"))]
-            )
-
-    class _Client:
-        def __init__(self) -> None:
-            self.messages = _FakeMessagesNamespace(_FlakyBatches())
+    output_lines = [_oai_success_row("a-0", "Recovered memo")]
+    output_text = "\n".join(json.dumps(row) for row in output_lines) + "\n"
+    completed = SimpleNamespace(status="completed", output_file_id="file-xyz")
+    retrieve_sequence: list[Any] = [
+        RuntimeError("transient network glitch"),
+        RuntimeError("transient network glitch"),
+        completed,
+    ]
+    client = _make_fake_oai_client(retrieve_sequence, output_jsonl_text=output_text)
 
     monkeypatch.setattr("yuholens.training.teacher.time.sleep", lambda _s: None)
-    client = _Client()
+
     records = poll_batch(
         "batch-xyz", client=client, poll_interval_s=0.0, max_wait_s=60.0
     )
+
     assert len(records) == 1
     assert records[0]["memo"] == "Recovered memo"
-    assert client.messages.batches.calls == 3
+    assert client.batches.state["retrieve_calls"] == 3
 
 
-def test_poll_batch_gives_up_after_max_retries(monkeypatch: pytest.MonkeyPatch) -> None:
-    class _AlwaysFailingBatches:
-        def __init__(self) -> None:
-            self.calls = 0
-
-        def retrieve(self, batch_id: str) -> _FakeBatchHandle:
-            self.calls += 1
-            raise RuntimeError("permanent outage")
-
-        def results(self, batch_id: str) -> Any:
-            return iter([])
-
-    class _Client:
-        def __init__(self) -> None:
-            self.messages = _FakeMessagesNamespace(_AlwaysFailingBatches())
+def test_poll_batch_gives_up_after_max_retries(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    retrieve_sequence: list[Any] = [RuntimeError("permanent outage")]
+    client = _make_fake_oai_client(retrieve_sequence, output_jsonl_text="")
 
     monkeypatch.setattr("yuholens.training.teacher.time.sleep", lambda _s: None)
-    client = _Client()
+
     with pytest.raises(RuntimeError, match="permanent outage"):
-        poll_batch("batch-xyz", client=client, poll_interval_s=0.0, max_wait_s=60.0)
-    assert client.messages.batches.calls == 5
+        poll_batch(
+            "batch-xyz", client=client, poll_interval_s=0.0, max_wait_s=60.0
+        )
+    assert client.batches.state["retrieve_calls"] == 5
