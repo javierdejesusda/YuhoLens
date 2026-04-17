@@ -56,6 +56,7 @@ dev = [
     "ruff>=0.9",
     "mypy>=1.13",
     "types-PyYAML",
+    "langdetect>=1.0.9",
 ]
 rocm = [
     "deepspeed>=0.16",

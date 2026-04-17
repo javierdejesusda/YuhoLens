@@ -12,8 +12,11 @@ spend on cache hits.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
+import re
+import time
 from pathlib import Path
 from typing import Any
 
@@ -129,6 +132,277 @@ def submit_batch(split: str, out_path: Path, limit: int | None) -> None:
     batch = client.messages.batches.create(requests=requests)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps({"batch_id": batch.id, "split": split}) + "\n")
+
+
+_CITATION_PATTERN = re.compile(r"\(ref:\s*['\"][^'\"]+['\"]")
+_YEN_NUMBER_PATTERN = re.compile(r"¥([\d,]+(?:\.\d+)?)")
+
+
+def poll_batch(
+    batch_id: str,
+    client: Any | None = None,
+    poll_interval_s: float = 30.0,
+    max_wait_s: float = 90_000.0,
+) -> list[dict[str, Any]]:
+    """Block until an Anthropic batch completes, then return structured results.
+
+    Args:
+        batch_id: The Anthropic batch ID returned by ``submit_batch``.
+        client: Optional pre-built ``anthropic.Anthropic`` client, injected for
+            tests. When ``None``, a client is constructed lazily from the
+            ``ANTHROPIC_API_KEY`` environment variable.
+        poll_interval_s: Seconds between status checks.
+        max_wait_s: Hard wait cap in seconds, matching Anthropic's 24h SLA plus
+            buffer.
+
+    Returns:
+        A list of records of the form ``{"custom_id", "memo", "usage",
+        "stop_reason"}``. Failed requests include ``memo=None`` and an
+        ``"error"`` field.
+
+    Raises:
+        TimeoutError: If ``max_wait_s`` elapses before the batch terminates.
+        RuntimeError: If the batch ends with ``processing_status`` in
+            ``{"canceled", "expired"}``.
+    """
+    if client is None:
+        import anthropic
+
+        client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+
+    elapsed = 0.0
+    while True:
+        handle = client.messages.batches.retrieve(batch_id)
+        status = getattr(handle, "processing_status", None)
+        if status == "ended":
+            break
+        if status in {"canceled", "expired"}:
+            raise RuntimeError(f"Batch {batch_id} terminated with status={status!r}")
+        if elapsed >= max_wait_s:
+            raise TimeoutError(
+                f"Batch {batch_id} did not end within {max_wait_s} seconds"
+            )
+        time.sleep(poll_interval_s)
+        elapsed += poll_interval_s
+
+    records: list[dict[str, Any]] = []
+    for entry in client.messages.batches.results(batch_id):
+        custom_id = getattr(entry, "custom_id", None)
+        result = getattr(entry, "result", None)
+        result_type = getattr(result, "type", None)
+
+        if result_type == "succeeded":
+            message = getattr(result, "message", None)
+            content = getattr(message, "content", []) or []
+            text = ""
+            for block in content:
+                if getattr(block, "type", None) == "text":
+                    text = getattr(block, "text", "") or ""
+                    break
+            records.append(
+                {
+                    "custom_id": custom_id,
+                    "memo": text,
+                    "usage": getattr(message, "usage", {}) or {},
+                    "stop_reason": getattr(message, "stop_reason", None),
+                }
+            )
+        else:
+            error = getattr(result, "error", None)
+            records.append(
+                {
+                    "custom_id": custom_id,
+                    "memo": None,
+                    "usage": {},
+                    "stop_reason": None,
+                    "error": str(error) if error is not None else result_type or "unknown",
+                }
+            )
+    return records
+
+
+def write_results_jsonl(results: list[dict[str, Any]], path: Path) -> int:
+    """Persist ``poll_batch`` results to JSONL, one row per dict.
+
+    The file is written in UTF-8 with no BOM. Parent directories are created
+    if missing.
+
+    Args:
+        results: The list returned by :func:`poll_batch`.
+        path: Destination path.
+
+    Returns:
+        The count of rows written.
+    """
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8") as fh:
+        count = 0
+        for row in results:
+            fh.write(json.dumps(row, ensure_ascii=False) + "\n")
+            count += 1
+    return count
+
+
+def dedup_hash(row: dict[str, Any]) -> str:
+    """Return a SHA-256 hex digest of the row's source text prefix.
+
+    The first 1024 characters of ``row["text"]`` (after stripping whitespace)
+    are hashed. Missing text is treated as an empty string.
+
+    Args:
+        row: An EDINET-Bench row (or any dict with a ``text`` key).
+
+    Returns:
+        The hex digest as a lowercase string.
+    """
+    text = (row.get("text") or "")[:1024].strip()
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def citation_gate(memo: str, min_citations: int = 3) -> bool:
+    """Return True iff the memo contains enough inline span citations.
+
+    Args:
+        memo: The generated English memo.
+        min_citations: Minimum required number of ``(ref: '...')`` matches.
+
+    Returns:
+        True if the number of distinct regex matches is at least
+        ``min_citations``.
+    """
+    matches = _CITATION_PATTERN.findall(memo)
+    return len(matches) >= min_citations
+
+
+def hallucinated_number_gate(memo: str, row: dict[str, Any]) -> bool:
+    """Return True iff every ``¥<number>`` in the memo is grounded in the row.
+
+    Numbers are normalised by stripping commas (decimals preserved). Each
+    normalised number must appear as a substring in one of ``text``, ``bs``,
+    ``pl``, or ``cf``. Non-string sources are serialised via ``json.dumps``.
+    When the memo has no ``¥`` tokens the gate trivially passes.
+
+    Args:
+        memo: The generated English memo.
+        row: The original EDINET-Bench source row.
+
+    Returns:
+        True iff every yen-denominated number is found in the source row.
+    """
+    numbers = _YEN_NUMBER_PATTERN.findall(memo)
+    if not numbers:
+        return True
+
+    haystacks: list[str] = []
+    text = row.get("text") or ""
+    haystacks.append(text.replace(",", ""))
+    for key in ("bs", "pl", "cf"):
+        value = row.get(key)
+        if value is None:
+            continue
+        rendered = value if isinstance(value, str) else json.dumps(value, ensure_ascii=False)
+        haystacks.append(rendered.replace(",", ""))
+
+    for raw_number in numbers:
+        normalised = raw_number.replace(",", "")
+        if not any(normalised in haystack for haystack in haystacks):
+            return False
+    return True
+
+
+def length_gate(memo: str, min_tokens: int = 800, max_tokens: int = 2200) -> bool:
+    """Return True iff the memo's word count falls in ``[min_tokens, max_tokens]``.
+
+    Uses ``len(memo.split())`` as a coarse proxy. A real tokenizer is deferred
+    because tiktoken adds a heavy dependency for marginal accuracy.
+
+    Args:
+        memo: The generated English memo.
+        min_tokens: Inclusive lower bound on word count.
+        max_tokens: Inclusive upper bound on word count.
+
+    Returns:
+        True iff the memo's whitespace-split word count lies within bounds.
+    """
+    words = len(memo.split())
+    return min_tokens <= words <= max_tokens
+
+
+def language_gate(memo: str, min_english: float = 0.9) -> bool:
+    """Return True iff ``langdetect`` assigns English at least ``min_english`` probability.
+
+    Args:
+        memo: The generated memo.
+        min_english: Minimum probability assigned to the ``en`` language.
+
+    Returns:
+        True iff the ``en`` probability meets the threshold. False on
+        ``LangDetectException`` for degenerate inputs.
+    """
+    from langdetect import DetectorFactory, detect_langs
+    from langdetect.lang_detect_exception import LangDetectException
+
+    DetectorFactory.seed = 0
+    try:
+        detections = detect_langs(memo)
+    except LangDetectException:
+        return False
+
+    for lang in detections:
+        if getattr(lang, "lang", None) == "en":
+            return float(getattr(lang, "prob", 0.0)) >= min_english
+    return False
+
+
+def filter_memos(
+    results: list[dict[str, Any]],
+    source_rows: dict[str, dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Apply the five quality gates and deduplication to batch results.
+
+    Each gate short-circuits fast-reject. Results without a matching source
+    row are dropped. Duplicates are detected via :func:`dedup_hash` on the
+    source row, keeping the first occurrence.
+
+    Args:
+        results: Output of :func:`poll_batch`.
+        source_rows: Mapping from ``custom_id`` to the original EDINET-Bench
+            row used by the hallucinated-number gate and deduplication.
+
+    Returns:
+        The subset of results that pass every gate, each augmented with a
+        ``dedup_key`` field.
+    """
+    survivors: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for row in results:
+        memo = row.get("memo")
+        if memo is None:
+            continue
+
+        custom_id = row.get("custom_id")
+        source = source_rows.get(custom_id) if custom_id is not None else None
+        if source is None:
+            continue
+
+        if not citation_gate(memo):
+            continue
+        if not length_gate(memo):
+            continue
+        if not hallucinated_number_gate(memo, source):
+            continue
+        if not language_gate(memo):
+            continue
+
+        key = dedup_hash(source)
+        if key in seen:
+            continue
+        seen.add(key)
+
+        enriched = dict(row)
+        enriched["dedup_key"] = key
+        survivors.append(enriched)
+    return survivors
 
 
 def main() -> None:
