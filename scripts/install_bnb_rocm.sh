@@ -12,18 +12,35 @@ repo_url="https://github.com/ROCm/bitsandbytes.git"
 repo_branch="rocm_enabled"
 rocm_arch="gfx942"
 
+for tool in cmake git make pip; do
+  if ! command -v "${tool}" >/dev/null 2>&1; then
+    echo "[install_bnb_rocm] ERROR: required tool '${tool}' not found in PATH" >&2
+    exit 1
+  fi
+done
+
 mkdir -p "${build_dir}"
 cd "${build_dir}"
 
 # Clone with submodules (bitsandbytes/cpu_ops is required for the build).
-git clone \
-  --branch "${repo_branch}" \
-  --recurse-submodules \
-  --depth 1 \
-  "${repo_url}" \
-  bitsandbytes
+# Re-run safe: refresh if the target is already a valid clone of this remote+branch.
+clone_dir="bitsandbytes"
+if [[ -d "${clone_dir}/.git" ]] \
+    && [[ "$(git -C "${clone_dir}" config --get remote.origin.url || true)" == "${repo_url}" ]]; then
+  git -C "${clone_dir}" fetch --depth 1 origin "${repo_branch}"
+  git -C "${clone_dir}" reset --hard FETCH_HEAD
+  git -C "${clone_dir}" submodule update --init --recursive --depth 1
+else
+  rm -rf "${clone_dir}"
+  git clone \
+    --branch "${repo_branch}" \
+    --recurse-submodules \
+    --depth 1 \
+    "${repo_url}" \
+    "${clone_dir}"
+fi
 
-cd bitsandbytes
+cd "${clone_dir}"
 
 pip install -r requirements-dev.txt
 
