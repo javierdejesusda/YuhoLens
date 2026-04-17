@@ -276,14 +276,16 @@ def judge_coherence(
     rubric: str = DEFAULT_RUBRIC,
     model: str = "gpt-5-mini",
     client: Any | None = None,
+    min_parse_rate: float = 0.9,
 ) -> float:
     """Score memo coherence with an LLM judge and return the mean score.
 
     For each memo, one real-time Chat Completions request is sent with the
     rubric as the system prompt. The assistant's reply is parsed for a
-    single integer in ``[1, 5]``; unparseable replies are skipped (not
-    zero-padded). The returned value is the arithmetic mean of successfully
-    parsed scores.
+    single integer in ``[1, 5]``. The returned value is the arithmetic mean
+    of successfully parsed scores. To protect kill-gate decisions from
+    survivorship bias when the judge regresses, the function raises
+    ``ValueError`` whenever the parse rate falls below ``min_parse_rate``.
 
     The rubric is deliberately long (>= 1024 tokens) so OpenAI's automatic
     prefix caching kicks in across the batch, reducing input-token cost on
@@ -299,10 +301,20 @@ def judge_coherence(
         client: Optional pre-built ``openai.OpenAI`` client, injected for
             tests. When ``None``, a client is constructed lazily from the
             ``OPENAI_API_KEY`` environment variable.
+        min_parse_rate: Minimum fraction of memos whose judge response must
+            parse to a valid Likert score. When the observed parse rate is
+            below this threshold, ``ValueError`` is raised so the caller
+            cannot silently accept a biased mean. Set to ``0.0`` to disable
+            the guard (e.g. for ad-hoc exploration).
 
     Returns:
         Mean Likert score as a ``float``. Returns ``0.0`` if ``memos`` is
-        empty or if every response fails to parse.
+        empty.
+
+    Raises:
+        ValueError: When the parse rate over ``memos`` falls below
+            ``min_parse_rate``. The error message reports the observed
+            parse rate so the caller can triage the judge or prompt.
     """
     memos = list(memos)
     if not memos:
@@ -343,6 +355,12 @@ def judge_coherence(
             continue
         scores.append(int(match.group(1)))
 
+    parse_rate = len(scores) / len(memos)
+    if parse_rate < min_parse_rate:
+        raise ValueError(
+            f"Judge parse rate {parse_rate:.1%} below minimum "
+            f"{min_parse_rate:.1%} ({len(scores)}/{len(memos)} memos parsed)"
+        )
     if not scores:
         return 0.0
     return sum(scores) / len(scores)

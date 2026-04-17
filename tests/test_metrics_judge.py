@@ -66,10 +66,18 @@ def test_judge_coherence_skips_unparseable_responses() -> None:
     client = _fake_client(["4", "no number here", "2"])
     memos = ["memo one", "memo two", "memo three"]
 
-    score = judge_coherence(memos, client=client)
+    score = judge_coherence(memos, client=client, min_parse_rate=0.5)
 
     assert score == pytest.approx(3.0, abs=1e-6)
     assert client.state["calls"] == 3
+
+
+def test_judge_coherence_raises_when_parse_rate_too_low() -> None:
+    client = _fake_client(["4", "no number here", "also no number"])
+    memos = ["memo one", "memo two", "memo three"]
+
+    with pytest.raises(ValueError, match="parse rate"):
+        judge_coherence(memos, client=client, min_parse_rate=0.9)
 
 
 def test_judge_coherence_returns_zero_on_empty_input() -> None:
