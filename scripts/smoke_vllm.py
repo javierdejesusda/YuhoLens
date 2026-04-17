@@ -44,7 +44,7 @@ def main() -> int:
             "--dtype",
             "bfloat16",
             "--max-model-len",
-            "8192",
+            "12288",
             "--gpu-memory-utilization",
             "0.85",
             "--port",
