@@ -138,6 +138,47 @@ _CITATION_PATTERN = re.compile(r"\(ref:\s*['\"][^'\"]+['\"]")
 _YEN_NUMBER_PATTERN = re.compile(r"¥([\d,]+(?:\.\d+)?)")
 
 
+def _retry(call: Any, attempts: int = 5) -> Any:
+    """Invoke a zero-arg callable with bounded exponential backoff.
+
+    Retries on ``anthropic.APIError`` / ``anthropic.APIConnectionError`` when
+    available, plus ``Exception`` as a final safety net so transient errors
+    from test doubles or unexpected wrappers still recover. Sleeps 1, 2, 4,
+    8, 16 seconds between attempts. Re-raises the last exception if every
+    attempt fails.
+
+    Args:
+        call: Zero-argument callable whose return value is forwarded.
+        attempts: Maximum consecutive attempts before re-raising.
+
+    Returns:
+        The value returned by ``call`` on its first successful invocation.
+
+    Raises:
+        Exception: Whatever ``call`` last raised, once ``attempts`` is
+            exhausted.
+    """
+    retry_exc: tuple[type[BaseException], ...]
+    try:
+        import anthropic
+
+        retry_exc = (anthropic.APIError, anthropic.APIConnectionError, Exception)
+    except Exception:
+        retry_exc = (Exception,)
+
+    last_exc: BaseException | None = None
+    for attempt in range(attempts):
+        try:
+            return call()
+        except retry_exc as exc:
+            last_exc = exc
+            if attempt == attempts - 1:
+                break
+            time.sleep(2 ** attempt)
+    assert last_exc is not None
+    raise last_exc
+
+
 def poll_batch(
     batch_id: str,
     client: Any | None = None,
@@ -145,6 +186,10 @@ def poll_batch(
     max_wait_s: float = 90_000.0,
 ) -> list[dict[str, Any]]:
     """Block until an Anthropic batch completes, then return structured results.
+
+    Transient failures in ``retrieve`` or ``results`` are retried up to five
+    times with exponential backoff (1/2/4/8/16s) so a single flaky API call
+    does not abort a multi-hour wait.
 
     Args:
         batch_id: The Anthropic batch ID returned by ``submit_batch``.
@@ -170,23 +215,24 @@ def poll_batch(
 
         client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
 
-    elapsed = 0.0
+    start = time.monotonic()
     while True:
-        handle = client.messages.batches.retrieve(batch_id)
+        handle = _retry(lambda: client.messages.batches.retrieve(batch_id))
         status = getattr(handle, "processing_status", None)
         if status == "ended":
             break
         if status in {"canceled", "expired"}:
             raise RuntimeError(f"Batch {batch_id} terminated with status={status!r}")
-        if elapsed >= max_wait_s:
+        if time.monotonic() - start >= max_wait_s:
             raise TimeoutError(
-                f"Batch {batch_id} did not end within {max_wait_s} seconds"
+                f"Batch {batch_id} did not complete within {max_wait_s}s"
             )
         time.sleep(poll_interval_s)
-        elapsed += poll_interval_s
+
+    entries = _retry(lambda: list(client.messages.batches.results(batch_id)))
 
     records: list[dict[str, Any]] = []
-    for entry in client.messages.batches.results(batch_id):
+    for entry in entries:
         custom_id = getattr(entry, "custom_id", None)
         result = getattr(entry, "result", None)
         result_type = getattr(result, "type", None)
@@ -221,19 +267,34 @@ def poll_batch(
     return records
 
 
-def write_results_jsonl(results: list[dict[str, Any]], path: Path) -> int:
+def write_results_jsonl(
+    results: list[dict[str, Any]],
+    path: Path,
+    *,
+    overwrite: bool = False,
+) -> int:
     """Persist ``poll_batch`` results to JSONL, one row per dict.
 
     The file is written in UTF-8 with no BOM. Parent directories are created
-    if missing.
+    if missing. Existing files are refused unless ``overwrite=True`` so
+    bootstrap runs cannot silently clobber prior outputs.
 
     Args:
         results: The list returned by :func:`poll_batch`.
         path: Destination path.
+        overwrite: When False (default), refuse to clobber an existing file.
 
     Returns:
         The count of rows written.
+
+    Raises:
+        FileExistsError: When ``path`` already exists and ``overwrite`` is
+            False.
     """
+    if path.exists() and not overwrite:
+        raise FileExistsError(
+            f"{path} already exists; pass overwrite=True to replace"
+        )
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8") as fh:
         count = 0
@@ -267,8 +328,7 @@ def citation_gate(memo: str, min_citations: int = 3) -> bool:
         min_citations: Minimum required number of ``(ref: '...')`` matches.
 
     Returns:
-        True if the number of distinct regex matches is at least
-        ``min_citations``.
+        True if the number of regex matches is at least ``min_citations``.
     """
     matches = _CITATION_PATTERN.findall(memo)
     return len(matches) >= min_citations
@@ -328,6 +388,9 @@ def length_gate(memo: str, min_tokens: int = 800, max_tokens: int = 2200) -> boo
     return min_tokens <= words <= max_tokens
 
 
+_LANGDETECT_SEEDED = False
+
+
 def language_gate(memo: str, min_english: float = 0.9) -> bool:
     """Return True iff ``langdetect`` assigns English at least ``min_english`` probability.
 
@@ -339,10 +402,14 @@ def language_gate(memo: str, min_english: float = 0.9) -> bool:
         True iff the ``en`` probability meets the threshold. False on
         ``LangDetectException`` for degenerate inputs.
     """
+    global _LANGDETECT_SEEDED
     from langdetect import DetectorFactory, detect_langs
     from langdetect.lang_detect_exception import LangDetectException
 
-    DetectorFactory.seed = 0
+    if not _LANGDETECT_SEEDED:
+        DetectorFactory.seed = 0
+        _LANGDETECT_SEEDED = True
+
     try:
         detections = detect_langs(memo)
     except LangDetectException:

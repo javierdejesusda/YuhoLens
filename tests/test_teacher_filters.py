@@ -270,3 +270,75 @@ def test_poll_batch_timeout(monkeypatch: pytest.MonkeyPatch) -> None:
 
     with pytest.raises(TimeoutError):
         poll_batch("batch-xyz", client=_Client(), poll_interval_s=0.01, max_wait_s=0.02)
+
+
+def test_write_results_jsonl_refuses_overwrite(tmp_path: Path) -> None:
+    results = [
+        {"custom_id": "a-0", "memo": "Memo A", "usage": {}, "stop_reason": "end_turn"},
+    ]
+    out = tmp_path / "sub" / "results.jsonl"
+
+    assert write_results_jsonl(results, out) == 1
+
+    with pytest.raises(FileExistsError):
+        write_results_jsonl(results, out)
+
+    updated = [
+        {"custom_id": "a-1", "memo": "Memo B", "usage": {}, "stop_reason": "end_turn"},
+    ]
+    assert write_results_jsonl(updated, out, overwrite=True) == 1
+    parsed = [json.loads(line) for line in out.read_text(encoding="utf-8").splitlines()]
+    assert parsed == updated
+
+
+def test_poll_batch_retries_transient_error(monkeypatch: pytest.MonkeyPatch) -> None:
+    class _FlakyBatches:
+        def __init__(self) -> None:
+            self.calls = 0
+
+        def retrieve(self, batch_id: str) -> _FakeBatchHandle:
+            self.calls += 1
+            if self.calls <= 2:
+                raise RuntimeError("transient network glitch")
+            return _FakeBatchHandle(status="ended")
+
+        def results(self, batch_id: str) -> Any:
+            return iter(
+                [_FakeEntry("a-0", _FakeResult("succeeded", text="Recovered memo"))]
+            )
+
+    class _Client:
+        def __init__(self) -> None:
+            self.messages = _FakeMessagesNamespace(_FlakyBatches())
+
+    monkeypatch.setattr("yuholens.training.teacher.time.sleep", lambda _s: None)
+    client = _Client()
+    records = poll_batch(
+        "batch-xyz", client=client, poll_interval_s=0.0, max_wait_s=60.0
+    )
+    assert len(records) == 1
+    assert records[0]["memo"] == "Recovered memo"
+    assert client.messages.batches.calls == 3
+
+
+def test_poll_batch_gives_up_after_max_retries(monkeypatch: pytest.MonkeyPatch) -> None:
+    class _AlwaysFailingBatches:
+        def __init__(self) -> None:
+            self.calls = 0
+
+        def retrieve(self, batch_id: str) -> _FakeBatchHandle:
+            self.calls += 1
+            raise RuntimeError("permanent outage")
+
+        def results(self, batch_id: str) -> Any:
+            return iter([])
+
+    class _Client:
+        def __init__(self) -> None:
+            self.messages = _FakeMessagesNamespace(_AlwaysFailingBatches())
+
+    monkeypatch.setattr("yuholens.training.teacher.time.sleep", lambda _s: None)
+    client = _Client()
+    with pytest.raises(RuntimeError, match="permanent outage"):
+        poll_batch("batch-xyz", client=client, poll_interval_s=0.0, max_wait_s=60.0)
+    assert client.messages.batches.calls == 5
