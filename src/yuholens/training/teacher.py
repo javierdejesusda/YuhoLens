@@ -96,20 +96,100 @@ def iter_split(split: str, limit: int | None = None) -> Any:
         yield row
 
 
+def _manifest_path(out_path: Path) -> Path:
+    """Return the sidecar manifest path for a batch-id JSON file.
+
+    Args:
+        out_path: The ``out_path`` argument passed to :func:`submit_batch`.
+
+    Returns:
+        The sibling path with a ``.source_rows.jsonl`` suffix.
+    """
+    return out_path.with_suffix(".source_rows.jsonl")
+
+
+def _write_source_manifest(
+    split: str,
+    manifest_path: Path,
+    rows: list[dict[str, Any]] | None = None,
+) -> int:
+    """Persist the ``custom_id``-to-source-row mapping to a JSONL sidecar.
+
+    Writing a snapshot at submit time pins the exact rows a batch was
+    dispatched against so that polling later on cannot be silently paired
+    with a drifted dataset. Each line is a JSON object
+    ``{"custom_id": ..., "row": ...}`` preserving row order.
+
+    Args:
+        split: EDINET-Bench subset name. Only used when ``rows`` is ``None``
+            so the function can materialise the dataset itself.
+        manifest_path: Destination JSONL file. Parent directories are
+            created if missing.
+        rows: Optional pre-materialised list of dataset rows. When supplied,
+            the dataset is not re-loaded — this enables retrofitting a
+            manifest for an already-submitted batch without double-work.
+
+    Returns:
+        The number of rows written to the manifest.
+    """
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    source_iter = iter(rows) if rows is not None else iter_split(split)
+    count = 0
+    with manifest_path.open("w", encoding="utf-8") as fh:
+        for idx, row in enumerate(source_iter):
+            record = {"custom_id": f"{split}-{idx:05d}", "row": row}
+            fh.write(json.dumps(record, ensure_ascii=False) + "\n")
+            count += 1
+    return count
+
+
+def _load_source_manifest(manifest_path: Path) -> dict[str, dict[str, Any]]:
+    """Load a previously-written source manifest into a custom-id-keyed dict.
+
+    Args:
+        manifest_path: Path to a sidecar produced by
+            :func:`_write_source_manifest`.
+
+    Returns:
+        Mapping from ``custom_id`` to the serialised source row. Malformed
+        lines are skipped.
+    """
+    source_rows: dict[str, dict[str, Any]] = {}
+    with manifest_path.open("r", encoding="utf-8") as fh:
+        for line in fh:
+            line = line.strip()
+            if not line:
+                continue
+            record = json.loads(line)
+            custom_id = record.get("custom_id")
+            row = record.get("row")
+            if isinstance(custom_id, str) and isinstance(row, dict):
+                source_rows[custom_id] = row
+    return source_rows
+
+
 def submit_batch(split: str, out_path: Path, limit: int | None) -> None:
     """Build an OpenAI batch request and persist its identifiers to ``out_path``.
 
     Writes the per-row chat-completion requests to ``out_path`` with a
     ``.requests.jsonl`` suffix, uploads that file to OpenAI with
-    ``purpose="batch"``, creates the batch job, and finally writes the
-    returned ``batch_id`` (plus the uploaded ``input_file_id`` and split
-    name) as a single JSON line to ``out_path`` for the poller to consume.
+    ``purpose="batch"``, creates the batch job, writes a
+    ``.source_rows.jsonl`` sidecar pinning the exact rows the batch was
+    submitted against, and finally writes the returned ``batch_id`` (plus
+    the uploaded ``input_file_id`` and split name) as a single JSON line to
+    ``out_path`` for the poller to consume.
+
+    The source-row sidecar is what :func:`poll_and_filter` uses to rebuild
+    the ``custom_id``-to-row mapping, so filtering cannot be paired with a
+    drifted dataset if the upstream split is updated between submit and
+    poll.
 
     Args:
         split: EDINET-Bench subset name.
         out_path: Destination JSON file receiving the ``batch_id`` record.
             Its sibling ``.requests.jsonl`` path is used as the uploaded
-            request file and is kept on disk for debugging.
+            request file and its sibling ``.source_rows.jsonl`` path is used
+            as the source-row manifest.
         limit: Optional row cap.
     """
     import openai
@@ -117,9 +197,12 @@ def submit_batch(split: str, out_path: Path, limit: int | None) -> None:
     client = openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
     out_path.parent.mkdir(parents=True, exist_ok=True)
     requests_path = out_path.with_suffix(".requests.jsonl")
+    manifest_path = _manifest_path(out_path)
 
+    materialised_rows: list[dict[str, Any]] = []
     with requests_path.open("w", encoding="utf-8") as fh:
         for idx, row in enumerate(iter_split(split, limit)):
+            materialised_rows.append(row)
             req = {
                 "custom_id": f"{split}-{idx:05d}",
                 "method": "POST",
@@ -134,6 +217,8 @@ def submit_batch(split: str, out_path: Path, limit: int | None) -> None:
                 },
             }
             fh.write(json.dumps(req, ensure_ascii=False) + "\n")
+
+    _write_source_manifest(split, manifest_path, rows=materialised_rows)
 
     with requests_path.open("rb") as upload_fh:
         file_obj = client.files.create(file=upload_fh, purpose="batch")
@@ -554,25 +639,29 @@ def poll_and_filter(
     results = poll_batch(batch_id)
     raw_written = write_results_jsonl(results, Path(raw_out), overwrite=overwrite)
 
-    wanted_indices: dict[int, str] = {}
-    for record in results:
-        custom_id = record.get("custom_id")
-        if not isinstance(custom_id, str):
-            continue
-        match = _CUSTOM_ID_INDEX_PATTERN.search(custom_id)
-        if match is None:
-            continue
-        wanted_indices[int(match.group(1))] = custom_id
+    manifest_path = _manifest_path(Path(batch_json))
+    if manifest_path.exists():
+        source_rows = _load_source_manifest(manifest_path)
+    else:
+        wanted_indices: dict[int, str] = {}
+        for record in results:
+            custom_id = record.get("custom_id")
+            if not isinstance(custom_id, str):
+                continue
+            match = _CUSTOM_ID_INDEX_PATTERN.search(custom_id)
+            if match is None:
+                continue
+            wanted_indices[int(match.group(1))] = custom_id
 
-    source_rows: dict[str, dict[str, Any]] = {}
-    if wanted_indices:
-        max_index = max(wanted_indices)
-        for idx, row in enumerate(iter_split(split)):
-            custom_id = wanted_indices.get(idx)
-            if custom_id is not None:
-                source_rows[custom_id] = row
-            if idx >= max_index:
-                break
+        source_rows = {}
+        if wanted_indices:
+            max_index = max(wanted_indices)
+            for idx, row in enumerate(iter_split(split)):
+                custom_id = wanted_indices.get(idx)
+                if custom_id is not None:
+                    source_rows[custom_id] = row
+                if idx >= max_index:
+                    break
 
     filtered = filter_memos(results, source_rows)
     filtered_written = write_results_jsonl(

@@ -506,3 +506,77 @@ def test_poll_and_filter_uses_source_split_override(
     assert iter_split_calls, "iter_split was never invoked"
     assert iter_split_calls[0][0] == "earnings_forecast"
     assert all(call[0] != "fraud_detection" for call in iter_split_calls)
+
+
+def test_poll_and_filter_prefers_source_manifest_over_iter_split(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """When a sidecar manifest exists, it is used verbatim and ``iter_split`` is skipped."""
+    good_memo = (
+        _long_english_memo(1000)
+        + " (ref: 'alpha' p.1) (ref: 'beta' p.2) (ref: 'gamma' p.3)"
+    )
+    poll_results = [
+        {
+            "custom_id": "fraud_detection-00000",
+            "memo": good_memo,
+            "usage": {},
+            "stop_reason": "stop",
+        },
+    ]
+
+    iter_split_calls: list[str] = []
+
+    def fake_iter_split(split: str, limit: int | None = None) -> Any:
+        iter_split_calls.append(split)
+        # Yield a row that would NOT pass the filters so we can prove the
+        # manifest path was used instead.
+        yield {"text": "poisoned", "bs": {}, "pl": {}, "cf": {}}
+
+    def fake_poll_batch(batch_id: str) -> list[dict[str, Any]]:
+        return poll_results
+
+    monkeypatch.setattr("yuholens.training.teacher.iter_split", fake_iter_split)
+    monkeypatch.setattr("yuholens.training.teacher.poll_batch", fake_poll_batch)
+
+    batch_json = tmp_path / "batch.json"
+    batch_json.write_text(
+        json.dumps(
+            {
+                "batch_id": "batch-snap",
+                "input_file_id": "file-snap",
+                "split": "fraud_detection",
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    manifest_path = tmp_path / "batch.source_rows.jsonl"
+    manifest_path.write_text(
+        json.dumps(
+            {
+                "custom_id": "fraud_detection-00000",
+                "row": {
+                    "text": "Genuine pinned source row.",
+                    "bs": {},
+                    "pl": {},
+                    "cf": {},
+                },
+            },
+            ensure_ascii=False,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    raw_out = tmp_path / "raw.jsonl"
+    filtered_out = tmp_path / "filtered.jsonl"
+
+    summary = poll_and_filter(batch_json, raw_out, filtered_out)
+
+    assert summary == {"polled": 1, "raw_written": 1, "filtered": 1}
+    assert iter_split_calls == [], "iter_split must not be called when manifest exists"
+    filtered_rows = [
+        json.loads(line)
+        for line in filtered_out.read_text(encoding="utf-8").splitlines()
+    ]
+    assert filtered_rows[0]["custom_id"] == "fraud_detection-00000"
