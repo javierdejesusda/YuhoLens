@@ -86,6 +86,12 @@ def test_build_pipeline_compiles() -> None:
     assert hasattr(app, "invoke")
 
 
+def test_build_pipeline_warns_when_tables_gate_auto_relaxes() -> None:
+    """Default-loader build_pipeline must emit a UserWarning about degraded mode."""
+    with pytest.warns(UserWarning, match="degraded mode"):
+        build_pipeline()
+
+
 def test_ingestor_populates_sections() -> None:
     """``_ingestor`` runs ``split_yuho`` and records the resulting sections."""
     state: PipelineState = {"yuho_path": "ignored-by-fake-loader.txt"}

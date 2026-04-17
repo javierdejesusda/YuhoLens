@@ -14,6 +14,7 @@ tests can inject a deterministic fake without touching the network.
 from __future__ import annotations
 
 import json
+import warnings
 from functools import partial
 from pathlib import Path
 from typing import Any, Callable, Protocol, TypedDict
@@ -421,6 +422,17 @@ def build_pipeline(
     """
     if require_tables is None:
         require_tables = loader is not None
+        if not require_tables:
+            warnings.warn(
+                "build_pipeline() is using the default text-only loader, which "
+                "cannot populate BS/PL/CF tables; require_tables auto-derived "
+                "to False. Pass-2 will run in degraded mode and the composer "
+                "may fabricate or skip accrual-quality / earnings-direction "
+                "analysis. Supply a custom loader that populates raw_tables "
+                "to re-enable the strict gate.",
+                UserWarning,
+                stacklevel=2,
+            )
     from langgraph.graph import END, StateGraph
 
     ingestor_node = partial(_ingestor, loader=loader)
