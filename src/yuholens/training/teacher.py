@@ -218,7 +218,8 @@ def submit_batch(split: str, out_path: Path, limit: int | None) -> None:
                 "url": "/v1/chat/completions",
                 "body": {
                     "model": TEACHER_MODEL,
-                    "max_completion_tokens": 2048,
+                    "max_completion_tokens": 4000,
+                    "reasoning_effort": "minimal",
                     "messages": [
                         {"role": "system", "content": SYSTEM_PROMPT},
                         {"role": "user", "content": build_user_prompt(row)},
@@ -462,20 +463,51 @@ def citation_gate(memo: str, min_citations: int = 3) -> bool:
     return len(matches) >= min_citations
 
 
-def hallucinated_number_gate(memo: str, row: dict[str, Any]) -> bool:
-    """Return True iff every ``¥<number>`` in the memo is grounded in the row.
+_SCALE_FACTORS: tuple[int, ...] = (
+    10, 100, 1_000, 10_000, 100_000, 1_000_000, 10_000_000, 100_000_000,
+)
+
+
+def hallucinated_number_gate(
+    memo: str,
+    row: dict[str, Any],
+    max_miss_fraction: float = 0.2,
+) -> bool:
+    """Return True iff the memo's ``¥<number>`` tokens are grounded in the row.
 
     Numbers are normalised by stripping commas (decimals preserved). Each
     normalised number must appear as a substring in one of ``text``, ``bs``,
     ``pl``, or ``cf``. Non-string sources are serialised via ``json.dumps``.
+
+    Japanese filings express yen amounts in multiple units (raw 円, 千円,
+    百万円, 億円, 兆円) that a faithful English memo frequently converts to
+    ``¥N million`` or ``¥N billion``. A literal substring check therefore
+    rejects legitimate unit conversions — e.g. the memo's ``¥614,100 million``
+    is a correct rendering of the source's ``6,141億円`` but the digits
+    ``614100`` do not appear in ``6,141``. To keep faithful conversions, the
+    gate tries each integer power-of-ten scaling of the memo number
+    against the haystack in both directions (``/ 10``, ``/ 100`` ... ``× 1e8``)
+    and treats a match on any scaled form as grounded.
+
+    Even with scale-aware matching, analytical memos naturally include a
+    handful of derived figures (period-over-period deltas, sums, averages)
+    that do not appear verbatim in the source. ``max_miss_fraction``
+    tolerates up to that fraction of unmatched numbers before the gate
+    fails, so a memo with ~30 yen amounts and 3 legitimate deltas passes
+    while a memo with 1 fabricated figure out of 2 total is rejected.
+
     When the memo has no ``¥`` tokens the gate trivially passes.
 
     Args:
         memo: The generated English memo.
         row: The original EDINET-Bench source row.
+        max_miss_fraction: Maximum permitted fraction of unmatched
+            ``¥<number>`` tokens. Defaults to ``0.2``.
 
     Returns:
-        True iff every yen-denominated number is found in the source row.
+        True iff the unmatched fraction of yen-denominated numbers stays
+        at or below ``max_miss_fraction``. A memo with zero yen numbers
+        trivially passes.
     """
     numbers = _YEN_NUMBER_PATTERN.findall(memo)
     if not numbers:
@@ -491,11 +523,23 @@ def hallucinated_number_gate(memo: str, row: dict[str, Any]) -> bool:
         rendered = value if isinstance(value, str) else json.dumps(value, ensure_ascii=False)
         haystacks.append(rendered.replace(",", ""))
 
+    missing = 0
     for raw_number in numbers:
         normalised = raw_number.replace(",", "")
-        if not any(normalised in haystack for haystack in haystacks):
-            return False
-    return True
+        candidates: set[str] = {normalised}
+        integer_part = normalised.split(".", 1)[0]
+        try:
+            int_value = int(integer_part)
+        except ValueError:
+            int_value = None
+        if int_value is not None and int_value > 0:
+            for factor in _SCALE_FACTORS:
+                if int_value % factor == 0:
+                    candidates.add(str(int_value // factor))
+                candidates.add(str(int_value * factor))
+        if not any(c in haystack for c in candidates for haystack in haystacks):
+            missing += 1
+    return (missing / len(numbers)) <= max_miss_fraction
 
 
 def length_gate(memo: str, min_tokens: int = 800, max_tokens: int = 2200) -> bool:
