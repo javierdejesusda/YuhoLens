@@ -77,10 +77,74 @@ def system_prompt_for(custom_id: str) -> str:
     return SYSTEM_PROMPT_ALT if _V2_SUFFIX_PATTERN.search(custom_id) else SYSTEM_PROMPT
 
 
+_TEXT_TOKEN_BUDGET = 6500
+_TEXT_SAFETY_MARGIN = 200
+
+
+def _fit_user_to_budget(
+    system_text: str,
+    user_text: str,
+    assistant_text: str,
+    tokenizer: Any,
+    max_tokens: int = _TEXT_TOKEN_BUDGET,
+) -> str:
+    """Left-truncate the user turn so the full ChatML fits under ``max_tokens``.
+
+    The nekomata tokenizer encodes typical Yuho user prompts at 20K+ tokens,
+    comfortably exceeding the 8192-token ``max_position_embeddings`` of the
+    base model. Right-truncation would silently discard the assistant memo
+    (the only tokens that carry SFT loss signal), so we instead trim the
+    user turn from the left until the assembled ``text`` field is within
+    budget. System and assistant turns are preserved verbatim.
+
+    Args:
+        system_text: Raw system-message body (no ChatML wrappers).
+        user_text: Raw user-message body.
+        assistant_text: Raw assistant-message body.
+        tokenizer: A HuggingFace tokenizer to measure token counts
+            (typically the nekomata/Qwen1 tokenizer).
+        max_tokens: Upper bound for the fully-rendered ChatML string.
+
+    Returns:
+        The (possibly left-truncated) user body. When it already fits,
+        the original ``user_text`` is returned unchanged.
+    """
+    assembled = render_qwen_chatml(
+        [
+            {"role": "system", "content": system_text},
+            {"role": "user", "content": user_text},
+            {"role": "assistant", "content": assistant_text},
+        ]
+    )
+    if len(tokenizer.encode(assembled)) <= max_tokens:
+        return user_text
+
+    system_tokens = len(
+        tokenizer.encode(f"<|im_start|>system\n{system_text}<|im_end|>\n")
+    )
+    assistant_tokens = len(
+        tokenizer.encode(f"<|im_start|>assistant\n{assistant_text}<|im_end|>\n")
+    )
+    user_wrapper_tokens = len(tokenizer.encode("<|im_start|>user\n<|im_end|>\n"))
+    budget = (
+        max_tokens - system_tokens - assistant_tokens - user_wrapper_tokens - _TEXT_SAFETY_MARGIN
+    )
+    if budget <= 0:
+        return ""
+
+    user_ids = tokenizer.encode(user_text, add_special_tokens=False)
+    if len(user_ids) <= budget:
+        return user_text
+    kept = user_ids[-budget:]
+    return tokenizer.decode(kept, skip_special_tokens=True)
+
+
 def convert_filtered_to_sft_messages(
     filtered_path: Path,
     manifest_path: Path,
     out_path: Path | None = None,
+    tokenizer: Any | None = None,
+    max_tokens: int = _TEXT_TOKEN_BUDGET,
 ) -> list[dict[str, Any]]:
     """Convert one ``*_filtered.jsonl`` into conversational SFT rows.
 
@@ -91,6 +155,10 @@ def convert_filtered_to_sft_messages(
             the original user prompt from the EDINET-Bench row.
         out_path: Optional sink. When provided, each converted row is
             written as one JSONL line; parent directories are created.
+        tokenizer: Optional tokenizer used to left-truncate the user body
+            so the full ChatML fits within ``max_tokens``. When ``None``
+            the user turn is kept verbatim (useful for unit tests).
+        max_tokens: Budget enforced when ``tokenizer`` is supplied.
 
     Returns:
         The list of conversational records. Each has the shape
@@ -113,9 +181,15 @@ def convert_filtered_to_sft_messages(
             source = manifest.get(custom_id)
             if source is None:
                 continue
+            system_text = system_prompt_for(custom_id)
+            user_text = build_user_prompt(source)
+            if tokenizer is not None:
+                user_text = _fit_user_to_budget(
+                    system_text, user_text, memo, tokenizer, max_tokens=max_tokens
+                )
             messages = [
-                {"role": "system", "content": system_prompt_for(custom_id)},
-                {"role": "user", "content": build_user_prompt(source)},
+                {"role": "system", "content": system_text},
+                {"role": "user", "content": user_text},
                 {"role": "assistant", "content": memo},
             ]
             record = {
@@ -137,6 +211,8 @@ def convert_filtered_to_sft_messages(
 def build_sft_dataset(
     pairs: list[tuple[Path, Path]],
     out_path: Path,
+    tokenizer: Any | None = None,
+    max_tokens: int = _TEXT_TOKEN_BUDGET,
 ) -> int:
     """Merge multiple ``(filtered, manifest)`` pairs into one SFT JSONL.
 
@@ -144,6 +220,11 @@ def build_sft_dataset(
         pairs: Iterable of ``(filtered_path, manifest_path)`` tuples in the
             order they should appear in the merged output.
         out_path: Destination JSONL.
+        tokenizer: Optional tokenizer forwarded to
+            :func:`convert_filtered_to_sft_messages` for per-row
+            left-truncation so the assistant memo stays intact inside
+            ``max_tokens``.
+        max_tokens: Budget applied when ``tokenizer`` is provided.
 
     Returns:
         The total number of rows written to ``out_path``.
@@ -152,7 +233,12 @@ def build_sft_dataset(
     total = 0
     with out_path.open("w", encoding="utf-8") as out_fh:
         for filtered_path, manifest_path in pairs:
-            for record in convert_filtered_to_sft_messages(filtered_path, manifest_path):
+            for record in convert_filtered_to_sft_messages(
+                filtered_path,
+                manifest_path,
+                tokenizer=tokenizer,
+                max_tokens=max_tokens,
+            ):
                 out_fh.write(json.dumps(record, ensure_ascii=False) + "\n")
                 total += 1
     return total
@@ -173,7 +259,29 @@ def main() -> None:
         "--stems", nargs="+", required=True,
         help="Stem names (without suffix) to include, in order.",
     )
+    parser.add_argument(
+        "--tokenizer",
+        default="pfnet/nekomata-14b-pfn-qfin",
+        help=(
+            "Tokenizer to use for left-truncation. Pass 'none' to disable "
+            "truncation and emit rows verbatim (useful for tests)."
+        ),
+    )
+    parser.add_argument(
+        "--max-tokens",
+        type=int,
+        default=_TEXT_TOKEN_BUDGET,
+        help="Token budget per row when tokenizer-based truncation is active.",
+    )
     args = parser.parse_args()
+
+    tokenizer = None
+    if args.tokenizer.lower() != "none":
+        from transformers import AutoTokenizer
+
+        tokenizer = AutoTokenizer.from_pretrained(
+            args.tokenizer, trust_remote_code=True
+        )
 
     pairs: list[tuple[Path, Path]] = []
     for stem in args.stems:
@@ -183,7 +291,9 @@ def main() -> None:
             print(f"skip {stem}: missing {filtered} or {manifest}")
             continue
         pairs.append((filtered, manifest))
-    total = build_sft_dataset(pairs, args.out)
+    total = build_sft_dataset(
+        pairs, args.out, tokenizer=tokenizer, max_tokens=args.max_tokens
+    )
     print(f"wrote {args.out} rows={total}")
 
 

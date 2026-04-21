@@ -54,6 +54,9 @@ def build_model_and_tokenizer(model_id: str) -> tuple[Any, Any]:
     cfg.use_logn_attn = True
 
     tokenizer = AutoTokenizer.from_pretrained(model_id, trust_remote_code=True)
+    tokenizer.truncation_side = "left"
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
     model = AutoModelForCausalLM.from_pretrained(
         model_id,
         config=cfg,

@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 
 from yuholens.training.sft_data import (
+    _fit_user_to_budget,
     build_sft_dataset,
     convert_filtered_to_sft_messages,
     render_qwen_chatml,
@@ -68,6 +69,36 @@ def test_convert_emits_messages_with_correct_roles(tmp_path: Path) -> None:
     assert v1["text"].startswith("<|im_start|>system")
     assert "<|im_start|>assistant" in v1["text"]
     assert v1["text"].rstrip().endswith("<|im_end|>")
+
+
+class _FakeTokenizer:
+    """Deterministic whitespace tokenizer for budget-math tests."""
+
+    def encode(self, text: str, add_special_tokens: bool = True) -> list[int]:
+        return list(range(len(text.split())))
+
+    def decode(self, ids: list[int], skip_special_tokens: bool = True) -> str:
+        return " ".join(f"tok{i}" for i in ids)
+
+
+def test_fit_user_to_budget_left_truncates_user_when_over_budget() -> None:
+    tok = _FakeTokenizer()
+    system = "sys"
+    user = " ".join(f"u{i}" for i in range(1000))
+    assistant = "assistant tail"
+    kept = _fit_user_to_budget(system, user, assistant, tok, max_tokens=500)
+    kept_tokens = tok.encode(kept, add_special_tokens=False)
+    full_tokens = tok.encode(user, add_special_tokens=False)
+    assert 0 < len(kept_tokens) < len(full_tokens)
+
+
+def test_fit_user_to_budget_returns_user_when_already_fits() -> None:
+    tok = _FakeTokenizer()
+    system = "sys"
+    user = "already short user"
+    assistant = "short assistant"
+    kept = _fit_user_to_budget(system, user, assistant, tok, max_tokens=1000)
+    assert kept == user
 
 
 def test_render_qwen_chatml_roundtrip_roles() -> None:
