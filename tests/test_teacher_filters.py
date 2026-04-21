@@ -182,6 +182,27 @@ def test_filter_memos_end_to_end() -> None:
     assert "dedup_key" in survivors[0]
 
 
+def test_filter_memos_dedup_false_keeps_same_source_pairs() -> None:
+    """Phase C augmentation keeps v1 and v2 memos that share a source row."""
+    source_rows = {
+        "split-00000": {"text": "Shared source body text.", "bs": {}, "pl": {}, "cf": {}},
+        "split_v2-00000": {"text": "Shared source body text.", "bs": {}, "pl": {}, "cf": {}},
+    }
+    memo = (
+        _long_english_memo(1000)
+        + " (ref: 'alpha' p.1) (ref: 'beta' p.2) (ref: 'gamma' p.3)"
+    )
+    results = [
+        {"custom_id": "split-00000", "memo": memo, "usage": {}, "stop_reason": "stop"},
+        {"custom_id": "split_v2-00000", "memo": memo, "usage": {}, "stop_reason": "stop"},
+    ]
+    deduped = filter_memos(results, source_rows, dedup=True)
+    kept = filter_memos(results, source_rows, dedup=False)
+    assert len(deduped) == 1
+    assert len(kept) == 2
+    assert kept[0]["dedup_key"] == kept[1]["dedup_key"]
+
+
 def _make_fake_oai_client(
     retrieve_sequence: list[Any],
     output_jsonl_text: str | None = None,

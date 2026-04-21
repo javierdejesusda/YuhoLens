@@ -2,7 +2,7 @@
 # Reference-free (trl.experimental.orpo.ORPOTrainer).
 
 model_id: output/yuholens-14b-sft
-preference_data: data/teacher/preferences.jsonl
+preference_data: data/teacher/orpo.jsonl
 output_dir: output/yuholens-14b-orpo
 per_device_train_batch_size: 1
 gradient_accumulation_steps: 16

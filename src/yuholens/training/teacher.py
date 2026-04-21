@@ -46,6 +46,24 @@ Hard rules:
 """
 
 
+SYSTEM_PROMPT_ALT = SYSTEM_PROMPT.rstrip() + (
+    "\n\nFor THIS memo specifically, structure the executive summary so the "
+    "first sentence surfaces the single most material red flag the source "
+    "discloses; keep every other section's tone balanced and evidence-first "
+    "as above."
+)
+"""Red-flag-first reframing of :data:`SYSTEM_PROMPT` used for Phase C
+augmentation. Kept structurally identical to the default prompt so that
+``gpt-5-mini`` does not slip into unbounded reasoning at
+``reasoning_effort='minimal'`` — a prior, more aggressive alt prompt
+exhausted the 4000-token completion budget as pure reasoning on 80% of
+probe rows. This variant preserves the 7-section layout and hard rules
+while biasing the executive-summary framing toward red flags, giving the
+student two complementary drafts per source without requiring a deeper
+analytical lift from the teacher.
+"""
+
+
 def build_user_prompt(row: dict[str, Any]) -> str:
     """Assemble the per-row user message sent to the teacher.
 
@@ -112,6 +130,7 @@ def _write_source_manifest(
     split: str,
     manifest_path: Path,
     rows: list[dict[str, Any]] | None = None,
+    custom_id_prefix: str | None = None,
 ) -> int:
     """Persist the ``custom_id``-to-source-row mapping to a JSONL sidecar.
 
@@ -128,16 +147,21 @@ def _write_source_manifest(
         rows: Optional pre-materialised list of dataset rows. When supplied,
             the dataset is not re-loaded — this enables retrofitting a
             manifest for an already-submitted batch without double-work.
+        custom_id_prefix: Optional override for the ``custom_id`` prefix.
+            Defaults to ``split``. Must match the prefix passed to
+            :func:`submit_batch` so the sidecar's keys line up with the
+            batch's request ``custom_id``s.
 
     Returns:
         The number of rows written to the manifest.
     """
+    prefix = custom_id_prefix if custom_id_prefix is not None else split
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
     source_iter = iter(rows) if rows is not None else iter_split(split)
     count = 0
     with manifest_path.open("w", encoding="utf-8") as fh:
         for idx, row in enumerate(source_iter):
-            record = {"custom_id": f"{split}-{idx:05d}", "row": row}
+            record = {"custom_id": f"{prefix}-{idx:05d}", "row": row}
             fh.write(json.dumps(record, ensure_ascii=False) + "\n")
             count += 1
     return count
@@ -177,7 +201,13 @@ def _load_source_manifest(manifest_path: Path) -> dict[str, dict[str, Any]]:
     return source_rows
 
 
-def submit_batch(split: str, out_path: Path, limit: int | None) -> None:
+def submit_batch(
+    split: str,
+    out_path: Path,
+    limit: int | None,
+    system_prompt: str = SYSTEM_PROMPT,
+    custom_id_prefix: str | None = None,
+) -> None:
     """Build an OpenAI batch request and persist its identifiers to ``out_path``.
 
     Writes the per-row chat-completion requests to ``out_path`` with a
@@ -200,6 +230,13 @@ def submit_batch(split: str, out_path: Path, limit: int | None) -> None:
             request file and its sibling ``.source_rows.jsonl`` path is used
             as the source-row manifest.
         limit: Optional row cap.
+        system_prompt: System-message text. Defaults to :data:`SYSTEM_PROMPT`.
+            Used by Phase C augmentation to run a second pass with
+            :data:`SYSTEM_PROMPT_ALT` over the same sources.
+        custom_id_prefix: Optional override for the ``custom_id`` prefix.
+            When ``None``, the split name is used (matching the original
+            single-pass naming). Phase C augmentation passes e.g. ``"v2"``
+            so v2 rows get ``custom_id``s that do not collide with v1.
     """
     import openai
 
@@ -208,12 +245,14 @@ def submit_batch(split: str, out_path: Path, limit: int | None) -> None:
     requests_path = out_path.with_suffix(".requests.jsonl")
     manifest_path = _manifest_path(out_path)
 
+    prefix = custom_id_prefix if custom_id_prefix is not None else split
+
     materialised_rows: list[dict[str, Any]] = []
     with requests_path.open("w", encoding="utf-8") as fh:
         for idx, row in enumerate(iter_split(split, limit)):
             materialised_rows.append(row)
             req = {
-                "custom_id": f"{split}-{idx:05d}",
+                "custom_id": f"{prefix}-{idx:05d}",
                 "method": "POST",
                 "url": "/v1/chat/completions",
                 "body": {
@@ -221,14 +260,16 @@ def submit_batch(split: str, out_path: Path, limit: int | None) -> None:
                     "max_completion_tokens": 4000,
                     "reasoning_effort": "minimal",
                     "messages": [
-                        {"role": "system", "content": SYSTEM_PROMPT},
+                        {"role": "system", "content": system_prompt},
                         {"role": "user", "content": build_user_prompt(row)},
                     ],
                 },
             }
             fh.write(json.dumps(req, ensure_ascii=False) + "\n")
 
-    _write_source_manifest(split, manifest_path, rows=materialised_rows)
+    _write_source_manifest(
+        split, manifest_path, rows=materialised_rows, custom_id_prefix=prefix
+    )
 
     with requests_path.open("rb") as upload_fh:
         file_obj = client.files.create(file=upload_fh, purpose="batch")
@@ -596,6 +637,7 @@ def language_gate(memo: str, min_english: float = 0.9) -> bool:
 def filter_memos(
     results: list[dict[str, Any]],
     source_rows: dict[str, dict[str, Any]],
+    dedup: bool = True,
 ) -> list[dict[str, Any]]:
     """Apply the five quality gates and deduplication to batch results.
 
@@ -607,6 +649,13 @@ def filter_memos(
         results: Output of :func:`poll_batch`.
         source_rows: Mapping from ``custom_id`` to the original EDINET-Bench
             row used by the hallucinated-number gate and deduplication.
+        dedup: When True (default) drop any row whose source text prefix
+            hash has already been seen. Phase C augmentation re-runs the
+            teacher over the same sources with :data:`SYSTEM_PROMPT_ALT`
+            to generate complementary training examples; passing
+            ``dedup=False`` keeps those second-pass memos. The emitted
+            ``dedup_key`` field is still populated so downstream tools can
+            detect same-source pairs.
 
     Returns:
         The subset of results that pass every gate, each augmented with a
@@ -634,9 +683,10 @@ def filter_memos(
             continue
 
         key = dedup_hash(source)
-        if key in seen:
-            continue
-        seen.add(key)
+        if dedup:
+            if key in seen:
+                continue
+            seen.add(key)
 
         enriched = dict(row)
         enriched["dedup_key"] = key
@@ -654,6 +704,7 @@ def poll_and_filter(
     source_split: str | None = None,
     overwrite: bool = False,
     allow_live_fallback: bool = False,
+    dedup: bool = True,
 ) -> dict[str, int]:
     """Poll a submitted OpenAI batch, persist raw results, and apply quality gates.
 
@@ -754,7 +805,7 @@ def poll_and_filter(
                 if idx >= max_index:
                     break
 
-    filtered = filter_memos(results, source_rows)
+    filtered = filter_memos(results, source_rows, dedup=dedup)
     filtered_written = write_results_jsonl(
         filtered, Path(filtered_out), overwrite=overwrite
     )
@@ -784,6 +835,25 @@ def main() -> None:
     submit_parser.add_argument("--split", required=True)
     submit_parser.add_argument("--out", type=Path, required=True)
     submit_parser.add_argument("--limit", type=int, default=None)
+    submit_parser.add_argument(
+        "--prompt",
+        choices=["default", "alt"],
+        default="default",
+        help=(
+            "Which system prompt to use. 'default' is SYSTEM_PROMPT (balanced "
+            "analyst memo); 'alt' is SYSTEM_PROMPT_ALT (short-biased red-flag "
+            "memo) used for Phase C augmentation."
+        ),
+    )
+    submit_parser.add_argument(
+        "--custom-id-prefix",
+        default=None,
+        help=(
+            "Override the custom_id prefix. Defaults to the split name. "
+            "Pass e.g. '--custom-id-prefix fraud_detection_v2' when running "
+            "an alt-prompt pass to avoid collisions with the v1 manifest."
+        ),
+    )
 
     poll_parser = subparsers.add_parser(
         "poll-and-filter",
@@ -794,11 +864,27 @@ def main() -> None:
     poll_parser.add_argument("--filtered-out", type=Path, required=True)
     poll_parser.add_argument("--source-split", default=None)
     poll_parser.add_argument("--overwrite", action="store_true")
+    poll_parser.add_argument(
+        "--no-dedup",
+        action="store_true",
+        help=(
+            "Disable dedup_hash deduplication in filter_memos. Used by "
+            "Phase C augmentation so alt-prompt memos on the same sources "
+            "survive alongside v1."
+        ),
+    )
 
     args = parser.parse_args()
 
     if args.cmd == "submit":
-        submit_batch(args.split, args.out, args.limit)
+        prompt = SYSTEM_PROMPT if args.prompt == "default" else SYSTEM_PROMPT_ALT
+        submit_batch(
+            args.split,
+            args.out,
+            args.limit,
+            system_prompt=prompt,
+            custom_id_prefix=args.custom_id_prefix,
+        )
     elif args.cmd == "poll-and-filter":
         poll_and_filter(
             args.batch_json,
@@ -806,6 +892,7 @@ def main() -> None:
             args.filtered_out,
             source_split=args.source_split,
             overwrite=args.overwrite,
+            dedup=not args.no_dedup,
         )
 
 

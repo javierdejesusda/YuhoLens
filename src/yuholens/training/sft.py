@@ -89,6 +89,8 @@ def main() -> None:
         logging_steps=10,
         save_steps=config.get("save_steps", 200),
         optim="adamw_bnb_8bit",
+        dataset_text_field="text",
+        packing=False,
     )
 
     trainer = SFTTrainer(
