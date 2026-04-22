@@ -16,6 +16,8 @@ Notes:
 from __future__ import annotations
 
 import argparse
+import inspect
+import warnings
 from pathlib import Path
 from typing import Any
 
@@ -68,8 +70,6 @@ def build_model_and_tokenizer(model_id: str) -> tuple[Any, Any]:
 
 def main() -> None:
     """Entry point: parse CLI, load config, run SFT."""
-    import inspect
-
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, required=True)
     args = parser.parse_args()
@@ -93,6 +93,7 @@ def main() -> None:
         "bf16_full_eval": config.get("bf16_full_eval", True),
         "gradient_checkpointing": config.get("gradient_checkpointing", False),
         "logging_steps": config.get("logging_steps", 10),
+        "report_to": config.get("report_to", "none"),
         "save_steps": config.get("save_steps", 200),
         "optim": config.get("optim", "paged_adamw_8bit"),
         "dataloader_num_workers": config.get("dataloader_num_workers", 4),
@@ -106,7 +107,10 @@ def main() -> None:
     sft_kwargs = {k: v for k, v in candidate_kwargs.items() if k in supported}
     dropped = sorted(set(candidate_kwargs) - set(sft_kwargs))
     if dropped:
-        print(f"[sft] dropped unsupported SFTConfig kwargs: {dropped}")
+        warnings.warn(
+            f"[sft] dropped unsupported SFTConfig kwargs: {dropped}",
+            stacklevel=2,
+        )
 
     sft_args = SFTConfig(**sft_kwargs)
 

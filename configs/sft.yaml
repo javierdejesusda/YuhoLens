@@ -19,3 +19,4 @@ dataloader_pin_memory: true
 group_by_length: true
 remove_unused_columns: false
 logging_steps: 10
+report_to: none
