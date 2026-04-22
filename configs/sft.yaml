@@ -10,3 +10,12 @@ num_train_epochs: 2
 learning_rate: 1.0e-5
 max_length: 8192
 save_steps: 200
+
+gradient_checkpointing: false
+optim: paged_adamw_8bit
+bf16_full_eval: true
+dataloader_num_workers: 4
+dataloader_pin_memory: true
+group_by_length: true
+remove_unused_columns: false
+logging_steps: 10

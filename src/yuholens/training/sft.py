@@ -68,6 +68,8 @@ def build_model_and_tokenizer(model_id: str) -> tuple[Any, Any]:
 
 def main() -> None:
     """Entry point: parse CLI, load config, run SFT."""
+    import inspect
+
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, required=True)
     args = parser.parse_args()
@@ -80,21 +82,33 @@ def main() -> None:
     model, tokenizer = build_model_and_tokenizer(config["model_id"])
     dataset = load_dataset("json", data_files=config["train_data"], split="train")
 
-    sft_args = SFTConfig(
-        output_dir=config["output_dir"],
-        per_device_train_batch_size=config["per_device_train_batch_size"],
-        gradient_accumulation_steps=config["gradient_accumulation_steps"],
-        num_train_epochs=config["num_train_epochs"],
-        learning_rate=config["learning_rate"],
-        max_length=config["max_length"],
-        bf16=True,
-        gradient_checkpointing=True,
-        logging_steps=10,
-        save_steps=config.get("save_steps", 200),
-        optim="adamw_bnb_8bit",
-        dataset_text_field="text",
-        packing=False,
-    )
+    candidate_kwargs = {
+        "output_dir": config["output_dir"],
+        "per_device_train_batch_size": config["per_device_train_batch_size"],
+        "gradient_accumulation_steps": config["gradient_accumulation_steps"],
+        "num_train_epochs": config["num_train_epochs"],
+        "learning_rate": config["learning_rate"],
+        "max_length": config["max_length"],
+        "bf16": True,
+        "bf16_full_eval": config.get("bf16_full_eval", True),
+        "gradient_checkpointing": config.get("gradient_checkpointing", False),
+        "logging_steps": config.get("logging_steps", 10),
+        "save_steps": config.get("save_steps", 200),
+        "optim": config.get("optim", "paged_adamw_8bit"),
+        "dataloader_num_workers": config.get("dataloader_num_workers", 4),
+        "dataloader_pin_memory": config.get("dataloader_pin_memory", True),
+        "group_by_length": config.get("group_by_length", True),
+        "remove_unused_columns": config.get("remove_unused_columns", False),
+        "dataset_text_field": "text",
+        "packing": False,
+    }
+    supported = set(inspect.signature(SFTConfig).parameters)
+    sft_kwargs = {k: v for k, v in candidate_kwargs.items() if k in supported}
+    dropped = sorted(set(candidate_kwargs) - set(sft_kwargs))
+    if dropped:
+        print(f"[sft] dropped unsupported SFTConfig kwargs: {dropped}")
+
+    sft_args = SFTConfig(**sft_kwargs)
 
     trainer = SFTTrainer(
         model=model,
