@@ -93,6 +93,13 @@ def main() -> None:
     model, tokenizer = build_model_and_tokenizer(config["model_id"])
     dataset = load_dataset("json", data_files=config["train_data"], split="train")
 
+    # TRL 1.2 auto-detects a `messages` column and tries to apply the
+    # tokenizer's chat_template, but Qwen1 ships no `chat_template`. Our rows
+    # already carry a fully-formatted ChatML `text` field, so drop `messages`
+    # to force TRL onto the `text` path.
+    if "messages" in dataset.column_names:
+        dataset = dataset.remove_columns(["messages"])
+
     candidate_kwargs = {
         "output_dir": config["output_dir"],
         "per_device_train_batch_size": config["per_device_train_batch_size"],
