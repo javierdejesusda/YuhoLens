@@ -51,7 +51,7 @@ def build_model_and_tokenizer(model_id: str) -> tuple[Any, Any]:
     from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer
 
     cfg = AutoConfig.from_pretrained(model_id, trust_remote_code=True)
-    cfg.use_flash_attn = "auto"
+    cfg.use_flash_attn = False
     cfg.use_dynamic_ntk = True
     cfg.use_logn_attn = True
 
