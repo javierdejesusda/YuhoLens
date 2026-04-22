@@ -57,8 +57,19 @@ def build_model_and_tokenizer(model_id: str) -> tuple[Any, Any]:
 
     tokenizer = AutoTokenizer.from_pretrained(model_id, trust_remote_code=True)
     tokenizer.truncation_side = "left"
-    if tokenizer.pad_token is None:
-        tokenizer.pad_token = tokenizer.eos_token
+
+    # Qwen1 QWenTokenizer.get_vocab() omits special tokens, so TRL 1.2's
+    # pad-token validation (`pad_token in tokenizer.get_vocab()`) rejects
+    # both '<|extra_204|>' (default pad) and '<|endoftext|>' (eos). Merge the
+    # special-token encoder into get_vocab so TRL accepts eos as the pad.
+    _orig_get_vocab = tokenizer.get_vocab
+    _specials = getattr(tokenizer, "special_tokens", None) or getattr(
+        tokenizer, "added_tokens_encoder", {}
+    )
+    tokenizer.get_vocab = lambda: {**_orig_get_vocab(), **_specials}
+
+    tokenizer.pad_token = tokenizer.eos_token
+    tokenizer.pad_token_id = tokenizer.eos_token_id
     model = AutoModelForCausalLM.from_pretrained(
         model_id,
         config=cfg,
