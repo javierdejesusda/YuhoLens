@@ -1,10 +1,10 @@
-"""KG 2 evaluation runner — serves the SFT checkpoint over an OpenAI-style
-endpoint, generates memos on the held-out test set, and scores them on the
-three KG-2 gates.
+"""KG 2 evaluation runner — loads the SFT checkpoint directly via
+transformers, generates memos on the held-out test set, and scores them on
+the three KG-2 gates.
 
-Kill-gates (from design §7):
+Kill-gates (design §7):
     - citation presence rate >= 0.7
-    - mean judge coherence >= 3.8 (on 1..5 Likert)
+    - mean judge coherence >= 3.8 (1..5 Likert via external judge)
     - mean section coverage >= 0.6 (averaged over the four target sections)
 """
 
@@ -14,9 +14,8 @@ import argparse
 import json
 import os
 import sys
+import time
 from pathlib import Path
-
-from openai import OpenAI
 
 from yuholens.eval.metrics import (
     citation_presence_rate,
@@ -25,74 +24,93 @@ from yuholens.eval.metrics import (
 )
 
 
+def build_chatml_prompt(messages):
+    parts = []
+    for m in messages:
+        parts.append(f"<|im_start|>{m['role']}\n{m['content']}<|im_end|>")
+    parts.append("<|im_start|>assistant\n")
+    return "\n".join(parts)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
-        "--model-url",
-        required=True,
-        help="vLLM / OpenAI-compatible base URL, e.g. http://localhost:8000/v1",
-    )
-    parser.add_argument(
-        "--served-model",
-        default="yuholens-14b-sft",
-        help="Model name the vLLM server advertises.",
-    )
+    parser.add_argument("--model-path", type=Path, required=True)
     parser.add_argument("--test-rows", type=Path, required=True)
-    parser.add_argument(
-        "--max-rows",
-        type=int,
-        default=0,
-        help="Cap on test rows (0 = all).",
-    )
-    parser.add_argument(
-        "--out",
-        type=Path,
-        default=None,
-        help="Optional path to write the generated memos as JSONL.",
-    )
-    parser.add_argument(
-        "--judge-model",
-        default="gpt-5-mini",
-        help="OpenAI model name for coherence judge.",
-    )
-    parser.add_argument(
-        "--judge-parse-min",
-        type=float,
-        default=0.9,
-        help="Minimum judge parse rate; below this, the run fails.",
-    )
-    parser.add_argument(
-        "--max-tokens", type=int, default=2048, help="Generation budget per memo."
-    )
+    parser.add_argument("--max-rows", type=int, default=0)
+    parser.add_argument("--max-new-tokens", type=int, default=2048)
+    parser.add_argument("--temperature", type=float, default=0.2)
+    parser.add_argument("--top-p", type=float, default=0.9)
+    parser.add_argument("--out", type=Path, default=None)
+    parser.add_argument("--judge-model", default="gpt-5-mini")
+    parser.add_argument("--judge-parse-min", type=float, default=0.9)
     args = parser.parse_args()
 
-    sft_client = OpenAI(base_url=args.model_url, api_key="none")
+    import torch
+    from transformers import AutoModelForCausalLM, AutoTokenizer
 
-    memos: list[str] = []
+    t0 = time.time()
+    print(f"[kg2] loading model from {args.model_path}", flush=True)
+    tokenizer = AutoTokenizer.from_pretrained(
+        args.model_path, trust_remote_code=True
+    )
+    tokenizer.truncation_side = "left"
+    model = AutoModelForCausalLM.from_pretrained(
+        args.model_path,
+        torch_dtype=torch.bfloat16,
+        trust_remote_code=True,
+        device_map="cuda",
+    )
+    model.eval()
+    print(f"[kg2] model ready in {time.time()-t0:.1f}s", flush=True)
+
     with args.test_rows.open("r", encoding="utf-8") as fh:
-        for n, line in enumerate(fh):
-            if args.max_rows and n >= args.max_rows:
-                break
-            row = json.loads(line)
-            prompt_messages = row["messages"][:-1]  # strip the assistant target
-            completion = sft_client.chat.completions.create(
-                model=args.served_model,
-                messages=prompt_messages,
-                max_tokens=args.max_tokens,
-                temperature=0.2,
+        rows = [json.loads(l) for l in fh]
+    if args.max_rows:
+        rows = rows[: args.max_rows]
+
+    im_end_id = tokenizer.convert_tokens_to_ids("<|im_end|>")
+    eos_ids = [tokenizer.eos_token_id]
+    if im_end_id is not None and im_end_id >= 0:
+        eos_ids.append(im_end_id)
+
+    memos = []
+    for idx, row in enumerate(rows):
+        prompt_text = build_chatml_prompt(row["messages"][:-1])
+        inputs = tokenizer(
+            prompt_text,
+            return_tensors="pt",
+            truncation=True,
+            max_length=8192 - args.max_new_tokens,
+        ).to(model.device)
+        t_gen = time.time()
+        with torch.inference_mode():
+            out = model.generate(
+                **inputs,
+                max_new_tokens=args.max_new_tokens,
+                do_sample=True,
+                temperature=args.temperature,
+                top_p=args.top_p,
+                pad_token_id=tokenizer.eos_token_id,
+                eos_token_id=eos_ids,
             )
-            memo = completion.choices[0].message.content or ""
-            memos.append(memo)
-            if args.out is not None:
-                args.out.parent.mkdir(parents=True, exist_ok=True)
-                with args.out.open("a", encoding="utf-8") as fout:
-                    fout.write(
-                        json.dumps(
-                            {"custom_id": row.get("custom_id"), "memo": memo},
-                            ensure_ascii=False,
-                        )
-                        + "\n"
+        new_tokens = out[0][inputs["input_ids"].shape[1]:]
+        memo = tokenizer.decode(new_tokens, skip_special_tokens=True).strip()
+        memos.append(memo)
+        print(
+            f"[kg2] row {idx+1}/{len(rows)} tokens={new_tokens.numel()} "
+            f"dt={time.time()-t_gen:.1f}s",
+            flush=True,
+        )
+        if args.out is not None:
+            args.out.parent.mkdir(parents=True, exist_ok=True)
+            with args.out.open("a", encoding="utf-8") as fout:
+                fout.write(
+                    json.dumps(
+                        {"custom_id": row.get("custom_id"), "memo": memo},
+                        ensure_ascii=False,
                     )
+                    + "\n"
+                )
 
     if not memos:
         print("no memos generated", file=sys.stderr)
@@ -103,10 +121,7 @@ def main() -> int:
     section_mean = sum(section.values()) / max(len(section), 1)
 
     if not os.environ.get("OPENAI_API_KEY"):
-        print(
-            "OPENAI_API_KEY missing; skipping coherence judge.",
-            file=sys.stderr,
-        )
+        print("OPENAI_API_KEY missing; skipping coherence judge.", file=sys.stderr)
         coherence = float("nan")
     else:
         coherence = judge_coherence(
@@ -115,34 +130,30 @@ def main() -> int:
             min_parse_rate=args.judge_parse_min,
         )
 
+    coherence_display = f"{coherence:.2f}" if coherence == coherence else "nan"
     print(
-        f"citation={citation:.3f} "
-        f"coherence={coherence:.2f} "
-        f"section_coverage={section_mean:.3f}"
+        f"citation={citation:.3f} coherence={coherence_display} "
+        f"section_coverage={section_mean:.3f}",
+        flush=True,
     )
     print(
         "section_detail="
-        + json.dumps({k: round(v, 3) for k, v in section.items()}, ensure_ascii=False)
+        + json.dumps({k: round(v, 3) for k, v in section.items()}, ensure_ascii=False),
+        flush=True,
     )
 
+    coherence_pass = coherence == coherence and coherence >= 3.8
     gates = {
         "citation": citation >= 0.7,
-        "coherence": coherence >= 3.8 if coherence == coherence else False,
+        "coherence": coherence_pass,
         "section": section_mean >= 0.6,
     }
     hard_pass = all(gates.values())
-    soft = (
-        (0.6 <= citation < 0.7)
-        or (3.2 <= coherence < 3.8 if coherence == coherence else False)
+    soft = (0.6 <= citation < 0.7) or (
+        coherence == coherence and 3.2 <= coherence < 3.8
     )
-
-    if hard_pass:
-        verdict = "PASS"
-    elif soft:
-        verdict = "SOFT"
-    else:
-        verdict = "HARD"
-    print(f"gates={json.dumps(gates)} verdict={verdict}")
+    verdict = "PASS" if hard_pass else ("SOFT" if soft else "HARD")
+    print(f"gates={json.dumps(gates)} verdict={verdict}", flush=True)
     return 0 if hard_pass else 1
 
 
