@@ -9,7 +9,7 @@ gradient_accumulation_steps: 32
 num_train_epochs: 2
 learning_rate: 1.0e-5
 max_length: 8192
-save_steps: 200
+save_steps: 50
 
 gradient_checkpointing: false
 optim: paged_adamw_8bit
