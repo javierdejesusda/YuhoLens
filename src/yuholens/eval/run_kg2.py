@@ -37,7 +37,7 @@ def main() -> int:
     parser.add_argument("--model-path", type=Path, required=True)
     parser.add_argument("--test-rows", type=Path, required=True)
     parser.add_argument("--max-rows", type=int, default=0)
-    parser.add_argument("--max-new-tokens", type=int, default=2048)
+    parser.add_argument("--max-new-tokens", type=int, default=4096)
     parser.add_argument("--temperature", type=float, default=0.2)
     parser.add_argument("--top-p", type=float, default=0.9)
     parser.add_argument("--out", type=Path, default=None)
@@ -61,7 +61,10 @@ def main() -> int:
         device_map="cuda",
     )
     model.eval()
-    print(f"[kg2] model ready in {time.time()-t0:.1f}s", flush=True)
+    from yuholens.compat.qwen1_cache_compat import install as _install_cache_compat
+
+    _install_cache_compat(model)
+    print(f"[kg2] model ready in {time.time()-t0:.1f}s (cache-compat installed)", flush=True)
 
     with args.test_rows.open("r", encoding="utf-8") as fh:
         rows = [json.loads(l) for l in fh]

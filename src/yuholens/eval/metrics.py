@@ -4,8 +4,11 @@ Three kill-gate metrics (build-spec §2 KILL GATE 2):
 
     * Citation presence rate: fraction of memos that cite at least one
       Japanese source span via inline parenthetical.
-    * Section coverage: fraction of the four target sections each memo
-      mentions (企業の概況, 事業の状況, 経理の状況, 関連当事者取引).
+    * Section coverage: fraction of the seven memo-structure sections each
+      memo produces. The taxonomy mirrors the teacher-golden memo format
+      (executive summary, going-concern, accrual quality, earnings
+      direction, top risks, related-party, evidence appendix) rather than
+      the source-document sections produced by the ingestor.
     * Judge coherence: 1-5 Likert via an external LLM judge.
 """
 
@@ -21,10 +24,13 @@ from typing import Any
 CITATION_RE = re.compile(r"\(ref:\s*['\"][^'\"]+['\"]", re.IGNORECASE)
 
 SECTION_MARKERS: dict[str, tuple[str, ...]] = {
-    "company_overview": ("企業の概況", "company overview"),
-    "business_status": ("事業の状況", "business status"),
-    "financial_section": ("経理の状況", "financial section"),
-    "related_party": ("関連当事者", "related party", "related-party"),
+    "executive_summary": ("executive summary",),
+    "going_concern": ("going-concern", "going concern"),
+    "accrual_quality": ("accrual quality", "accruals", "accrual"),
+    "earnings_direction": ("earnings direction",),
+    "top_risks": ("top 3 risks", "top three risks", "事業等のリスク"),
+    "related_party": ("related-party", "related party", "関連当事者"),
+    "evidence_appendix": ("evidence appendix",),
 }
 
 
@@ -42,7 +48,12 @@ def count_citations(memo: str) -> int:
 
 
 def section_hits(memo: str) -> dict[str, bool]:
-    """Return per-target-section booleans marking which sections are cited."""
+    """Return per-memo-section booleans marking which sections are present.
+
+    Keys track the seven-section teacher-golden memo taxonomy defined in
+    :data:`SECTION_MARKERS`. A section counts as "present" when any of its
+    marker phrases is found as a substring of the memo (case-insensitive).
+    """
     lowered = memo.lower()
     hits: dict[str, bool] = {}
     for key, markers in SECTION_MARKERS.items():
