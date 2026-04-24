@@ -38,25 +38,30 @@ def main() -> int:
     parser.add_argument("--test-rows", type=Path, required=True)
     parser.add_argument("--max-rows", type=int, default=0)
     parser.add_argument("--max-new-tokens", type=int, default=4096)
-    parser.add_argument("--temperature", type=float, default=0.2)
+    parser.add_argument("--temperature", type=float, default=0.1)
     parser.add_argument("--top-p", type=float, default=0.9)
     parser.add_argument(
         "--repetition-penalty",
         type=float,
-        default=1.1,
+        default=1.15,
         help=(
             "HuggingFace generate() repetition_penalty; >1.0 discourages "
-            "repeats. Defaults to 1.1 after KG-2 v2 showed tail-section "
-            "n-gram collapse in the weak-tail memos. Set to 1.0 to disable."
+            "repeats. Defaults to 1.15 after KG-2 v5 showed this value plus "
+            "temperature=0.1 produces the highest coherence mean (3.56) of "
+            "the decoding sweep. Set to 1.0 to disable."
         ),
     )
     parser.add_argument(
         "--no-repeat-ngram-size",
         type=int,
-        default=4,
+        default=0,
         help=(
             "HuggingFace generate() no_repeat_ngram_size; blocks exact "
-            "n-gram repeats. Defaults to 4. Set to 0 to disable."
+            "n-gram repeats. Defaults to 0 (disabled) after KG-2 v3 showed "
+            "a value of 4 catastrophically fragments middle sections by "
+            "blocking legitimate financial-terminology reuse. "
+            "repetition_penalty alone handles tail collapse without the "
+            "structural damage."
         ),
     )
     parser.add_argument("--out", type=Path, default=None)
