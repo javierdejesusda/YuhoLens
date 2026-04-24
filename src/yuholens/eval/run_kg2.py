@@ -40,6 +40,25 @@ def main() -> int:
     parser.add_argument("--max-new-tokens", type=int, default=4096)
     parser.add_argument("--temperature", type=float, default=0.2)
     parser.add_argument("--top-p", type=float, default=0.9)
+    parser.add_argument(
+        "--repetition-penalty",
+        type=float,
+        default=1.1,
+        help=(
+            "HuggingFace generate() repetition_penalty; >1.0 discourages "
+            "repeats. Defaults to 1.1 after KG-2 v2 showed tail-section "
+            "n-gram collapse in the weak-tail memos. Set to 1.0 to disable."
+        ),
+    )
+    parser.add_argument(
+        "--no-repeat-ngram-size",
+        type=int,
+        default=4,
+        help=(
+            "HuggingFace generate() no_repeat_ngram_size; blocks exact "
+            "n-gram repeats. Defaults to 4. Set to 0 to disable."
+        ),
+    )
     parser.add_argument("--out", type=Path, default=None)
     parser.add_argument("--judge-model", default="gpt-5-mini")
     parser.add_argument("--judge-parse-min", type=float, default=0.9)
@@ -64,7 +83,12 @@ def main() -> int:
     from yuholens.compat.qwen1_cache_compat import install as _install_cache_compat
 
     _install_cache_compat(model)
-    print(f"[kg2] model ready in {time.time()-t0:.1f}s (cache-compat installed)", flush=True)
+    print(
+        f"[kg2] model ready in {time.time()-t0:.1f}s "
+        f"(cache-compat installed, repetition_penalty={args.repetition_penalty}, "
+        f"no_repeat_ngram_size={args.no_repeat_ngram_size})",
+        flush=True,
+    )
 
     with args.test_rows.open("r", encoding="utf-8") as fh:
         rows = [json.loads(l) for l in fh]
@@ -93,6 +117,8 @@ def main() -> int:
                 do_sample=True,
                 temperature=args.temperature,
                 top_p=args.top_p,
+                repetition_penalty=args.repetition_penalty,
+                no_repeat_ngram_size=args.no_repeat_ngram_size,
                 pad_token_id=tokenizer.eos_token_id,
                 eos_token_id=eos_ids,
             )
