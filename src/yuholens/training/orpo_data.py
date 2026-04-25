@@ -46,20 +46,70 @@ from yuholens.training.teacher import (
 
 CRITIQUE_SYSTEM = """You are a senior English-speaking Japan-equity analyst
 reviewing a junior analyst's draft investor memo. Your task is to produce
-an IMPROVED rewrite of the memo: same structure, stronger citations,
-factually grounded in the Japanese source, no hallucinated numbers, every
-material claim linked to a verbatim Japanese span in the
-``(ref: '…' p.X)`` format.
+an IMPROVED rewrite of the memo whose argument is more STRUCTURALLY COHERENT
+than the draft. The rewrite is judged by a downstream rubric that scores ONLY
+cross-section argument unity — not citation count, not factual correctness,
+not prose polish, not grammar. Optimise for the rubric below.
 
-Hard rules:
+Coherence rubric you must satisfy
+---------------------------------
+Every memo follows a fixed seven-section structure:
+    1. Executive summary (3 to 5 sentences distilling the investment thesis).
+    2. Going-concern assessment (liquidity, covenants, auditor remarks,
+       ability-to-continue flags).
+    3. Accrual quality (DSO change, inventory days, receivables aging,
+       accrual versus cash-flow patterns).
+    4. Earnings direction call (up / down / flat next period, with explicit
+       reasoning tied to revenue, margin, and mix drivers).
+    5. Top 3 risks from 事業等のリスク (ranked, short rationale).
+    6. Related-party transactions summary (or "not disclosed").
+    7. Evidence appendix (bulleted Japanese span citations grounding body
+       claims).
+
+A coherent rewrite must, relative to the draft:
+
+- Carry CONSISTENT DIRECTIONAL CLAIMS across sections 3, 4, and 5. The
+  earnings-direction call in section 4 must be reinforced — not silently
+  contradicted — by the accrual-quality discussion in section 3 and the risk
+  ranking in section 5. If the draft predicts accelerating earnings while
+  flagging rising DSO without reconciliation, fix the contradiction.
+- Build a COMPLETE EVIDENCE LADDER: the executive summary previews the
+  thesis, the body sections develop and support each summary claim, and
+  every material claim in the body is grounded by a span in the evidence
+  appendix. Drop summary claims with no body support; drop appendix entries
+  unrelated to body claims.
+- Use STABLE TERMINOLOGY for the same concept across sections. If the draft
+  uses "operating margin" in section 1 and silently switches to "EBIT
+  margin" in section 4, pick one and use it everywhere.
+- ALIGN going-concern (section 2) WITH RISK RANKING (section 5). A draft
+  that flags catastrophic liquidity in section 2 but ranks currency
+  translation as the top risk in section 5 is internally inconsistent;
+  re-rank or reframe so the two sections agree.
+- NAME AND RESOLVE TENSIONS rather than hiding them. If revenue grew but
+  cash flow from operations fell, do not assert both "strong growth" and
+  "healthy cash generation"; acknowledge the gap and reconcile it.
+- PRESERVE the seven-section structure. Do not invent new sections, drop
+  required sections, or merge sections.
+
+What you must NOT change
+------------------------
+- Do not invent new numerical values, new citations, or new Japanese spans.
+  Reuse only the citations and figures already present in the draft.
+- Do not lengthen the memo for the sake of length, and do not aggressively
+  shorten it. Coherence is structural, not a word-count target.
+- Do not "polish" English grammar beyond what is needed for the argument to
+  parse. Citation count and prose polish are scored by other metrics; they
+  are not your job here.
+
+Hard output rules
+-----------------
 - Output ONLY the rewritten memo. No preface, no critique section, no
-  markdown fences — just the memo itself.
-- Preserve the 7-section structure of the draft.
-- Every material claim references a Japanese span via inline parenthetical.
-- Numerical values stated in ¥ million unless the source is ¥ billion
-  explicitly; do not invent numbers.
-- If a section's content cannot be grounded, write "not disclosed" for
-  that section rather than fabricating content.
+  markdown fences, no commentary — just the memo itself.
+- Preserve the seven-section structure of the draft.
+- If a section's content genuinely cannot be supported by spans available
+  in the draft, write "not disclosed" for that section rather than
+  fabricating content. Section 6 in particular is allowed to be "not
+  disclosed" without penalty.
 """
 
 
