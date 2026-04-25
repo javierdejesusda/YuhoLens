@@ -67,10 +67,40 @@ def main() -> int:
     parser.add_argument("--out", type=Path, default=None)
     parser.add_argument("--judge-model", default="gpt-5-mini")
     parser.add_argument("--judge-parse-min", type=float, default=0.9)
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=None,
+        help=(
+            "Optional integer seed forwarded to torch + transformers so "
+            "repeat invocations with the same seed reproduce; required when "
+            "running best-of-N sampling so each candidate set is "
+            "independently reproducible."
+        ),
+    )
+    parser.add_argument(
+        "--skip-judge",
+        action="store_true",
+        help=(
+            "Skip the judge / verdict stage; useful when generating "
+            "candidate memos for downstream best-of-N picking where the "
+            "judge runs separately on the merged set."
+        ),
+    )
     args = parser.parse_args()
 
     import torch
     from transformers import AutoModelForCausalLM, AutoTokenizer
+
+    if args.seed is not None:
+        torch.manual_seed(args.seed)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed_all(args.seed)
+        try:
+            from transformers import set_seed as _set_seed
+            _set_seed(args.seed)
+        except ImportError:
+            pass
 
     t0 = time.time()
     print(f"[kg2] loading model from {args.model_path}", flush=True)
@@ -149,6 +179,13 @@ def main() -> int:
     if not memos:
         print("no memos generated", file=sys.stderr)
         return 2
+
+    if args.skip_judge:
+        print(
+            f"[kg2] skipped judge stage; wrote {len(memos)} memos",
+            flush=True,
+        )
+        return 0
 
     citation = citation_presence_rate(memos)
     section = section_coverage(memos)
