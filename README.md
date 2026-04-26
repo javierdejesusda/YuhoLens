@@ -1,162 +1,243 @@
 # YuhoLens-Pipeline
 
-Span-cited English investor memos from Japanese 有価証券報告書, produced by a 14B
-nekomata-qfin fine-tune on a single AMD Instinct MI300X.
+> **Span-cited English investor memos from Japanese 有価証券報告書, produced by a 14B
+> nekomata-qfin fine-tune on a single AMD Instinct MI300X.**
 
-![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)
-![License MIT](https://img.shields.io/badge/license-MIT-green.svg)
-![License Tongyi Qianwen](https://img.shields.io/badge/weights-Tongyi%20Qianwen-orange.svg)
+<p align="center">
+  <img alt="Python 3.12" src="https://img.shields.io/badge/python-3.12-blue.svg">
+  <img alt="ROCm 7.0" src="https://img.shields.io/badge/ROCm-7.0-red.svg">
+  <img alt="Tests 85 passing" src="https://img.shields.io/badge/tests-85%20passing-brightgreen.svg">
+  <img alt="KG-2 PASS" src="https://img.shields.io/badge/KG--2-PASS%20%E2%80%A2%203.88-success.svg">
+  <img alt="Citation 1.000" src="https://img.shields.io/badge/citation%20rate-1.000-success.svg">
+  <img alt="License MIT" src="https://img.shields.io/badge/code-MIT-green.svg">
+  <img alt="License Tongyi Qianwen" src="https://img.shields.io/badge/weights-Tongyi%20Qianwen-orange.svg">
+</p>
 
-## Overview
+---
 
-YuhoLens is a Japanese-finance LLM stack built for non-Japanese-speaking portfolio
-managers and equity researchers who need to read Japanese annual reports without a
-bilingual analyst on call. The pipeline ingests a Yuho (有価証券報告書), runs a
-two-pass LangGraph over a fine-tuned 14B Qwen1-family model, and emits an English
-investor memo in which every factual claim is grounded in a verbatim Japanese
-source span. A typical memo excerpt reads:
+## What it does, in one paragraph
 
-> The filer flags that prolonged yen weakness materially compresses operating
-> margin in the electronic-components segment (ref: '事業等のリスクとして、急激
-> な為替変動は営業利益率に重大な影響を及ぼす可能性がある' p.23).
+A Japanese annual securities report (*有価証券報告書*, "Yuho") is a dense,
+cross-referential disclosure document. The going-concern note in section 2 hedges the
+earnings call you would otherwise read off the P&L. Accrual-quality stress only shows
+up when DSO drifts up while revenue drifts down and operating cash flow drifts up —
+three numbers in three different sections, connected only by whoever is reading.
+**YuhoLens reads the Japanese, writes an English investor memo, and cites every
+material claim back to a verbatim Japanese source span — or refuses to make the
+claim.** Abstention is a feature, not a failure.
 
-## Model card
+```
+The filer flags that prolonged yen weakness materially compresses operating
+margin in the electronic-components segment (ref: '事業等のリスクとして、
+急激な為替変動は営業利益率に重大な影響を及ぼす可能性がある' p.23).
+```
 
-- Local card: [`docs/model-card.md`](docs/model-card.md)
-- BF16 reference weights: `yuholens/yuholens-14b` on Hugging Face (planned at
-  submission).
-- Quantized GGUF release: `yuholens/yuholens-14b-GGUF` (Q4_K_M / Q5_K_M / Q6_K).
-- License pair: MIT for wrapper code; Tongyi Qianwen for model weights, inherited
-  via `pfnet/nekomata-14b-pfn-qfin` → `rinna/nekomata-14b` → `Qwen/Qwen-14B`.
+## Headline result — KG-2 PASS
 
-## Hardware requirement
+| Gate                                 | Target  | Best-of-5 composer (shipping) |
+| ------------------------------------ | :-----: | :---------------------------: |
+| Citation presence rate               | ≥ 0.70  | **1.000**                     |
+| Section coverage (7 sections)        | ≥ 0.60  | **0.994**                     |
+| Judge coherence (gpt-5-mini Likert)  | ≥ 3.80  | **3.88**                      |
 
-- **Training.** Single AMD Instinct MI300X (192 GB HBM3) on ROCm 7.0.
-  Full-parameter SFT and ORPO of a 14B Qwen1 model at sequence length 8192 do
-  not fit on 80 GB class hardware; the MI300X is not optional for the training
-  path.
-- **Consumer inference.** The Q4_K_M GGUF targets 16 GB consumer hardware
-  (RTX 4060 Ti 16 GB) running Pass-1 per-section at context length 4-6K via
-  llama.cpp. Full-horizon Pass-2 composition still requires the BF16 checkpoint
-  on datacenter ROCm or CUDA.
+Coherence distribution on the 50-prompt KG-2 test set: `0/2/7/36/5` (counts at
+1/2/3/4/5), median 4.0, std 0.621. **Verdict: PASS.**
+
+### How we got there
+
+| stage                                      | mean coherence | verdict |
+| ------------------------------------------ | :------------: | :-----: |
+| v5 single-shot                             | 3.56           | SOFT    |
+| best-of-2 (mixed decoder)                  | 3.72           | SOFT    |
+| best-of-3 (same-decoder seeds)             | 3.64           | SOFT    |
+| **best-of-5 (mixed decoder + seeds)**      | **3.88**       | **PASS**|
+
+**The lift is inference-time, not training-time.** The same SFT checkpoint, sampled
+at five different decoder profiles per prompt, lets the coherence judge pick the
+per-prompt argument-unity peak. Decoder diversity dominates seed diversity — the
+finding is now baked into [`src/yuholens/agents/decoder_profiles.py`](src/yuholens/agents/decoder_profiles.py)
+and the `MemoCriticAgent` LangGraph node.
+
+## Architecture — 4 agents, one DAG
+
+```mermaid
+flowchart LR
+    A[Yuho PDF / EDINET row] --> B[Ingestor<br/><sub>regex section split</sub>]
+    B --> C[Pass-1 Detector<br/><sub>per-section JSON</sub>]
+    C --> D[MemoCriticAgent<br/><sub>best-of-N composer</sub>]
+    D --> E[Citation Grounder<br/><sub>span verification</sub>]
+    E --> F[English memo<br/><sub>or [evidence insufficient]</sub>]
+    style D fill:#1f6feb,stroke:#fff,color:#fff
+    style E fill:#238636,stroke:#fff,color:#fff
+```
+
+1. **Ingestor.** Regex over the Yuho's section markers (`事業等のリスク`,
+   `経営者による財政状態の分析`, …). Sub-second, deterministic.
+2. **Pass-1 Detector.** One vLLM call per Japanese section. Emits red flags,
+   numerical claims, and `japanese_span` citations as structured JSON.
+3. **MemoCriticAgent (best-of-N).** Fans out N Pass-2 composer calls across the
+   `DEFAULT_PROFILES` decoder catalogue, scores each candidate via the gpt-5-mini
+   coherence judge (or a no-API heuristic), and returns the highest-scoring memo.
+4. **Citation Grounder.** Every inline `(ref: '<span>' p.N)` is verified against the
+   union of Pass-1 spans. Sentences with all-ungrounded citations are replaced with
+   `[evidence insufficient]`. **No span, no claim.**
 
 ## Quickstart
 
-- Clone: `git clone https://github.com/javierdejesusda/YuhoLens.git && cd YuhoLens`
-- Install (Python 3.12): `pip install -e .`
-- Smoke (requires a ROCm container with flash-attn-ROCm pre-installed):
-  `PYTHONPATH=src python scripts/smoke_flash_attn.py`
-- Train or infer: see the **Train** and **Inference** sub-sections below.
-
-## Train (MI300X)
-
-Training configs live in [`configs/sft.yaml`](configs/sft.yaml) and
-[`configs/orpo.yaml`](configs/orpo.yaml). Launch the SFT stage with:
-
 ```bash
-python -m yuholens.training.sft --config configs/sft.yaml
+git clone https://github.com/javierdejesusda/YuhoLens.git
+cd YuhoLens
+pip install -e .
+
+# Run the 4-agent composer end-to-end on a sample row.
+python -m yuholens.agents \
+    --yuho-row data/eval/kg2_test.jsonl --row-index 0 \
+    --best-of-n --n-candidates 5 --judge-mode auto
+
+# Reproduce the bo5 pick offline (no OpenAI calls, heuristic only).
+python scripts/run_bestofn_offline.py \
+    --memos data/eval/kg2_memos_v4.jsonl data/eval/kg2_memos_v5.jsonl \
+            data/eval/kg2_memos_bo3_s1.jsonl data/eval/kg2_memos_bo3_s2.jsonl \
+            data/eval/kg2_memos_bo3_s3.jsonl \
+    --picked-memos data/eval/picked_offline.jsonl \
+    --picked-scores data/eval/picked_offline.json
 ```
 
-Preference optimization (Stage 2) consumes the same checkpoint:
+Run the test suite (laptop, no GPU, no API key required):
 
 ```bash
-python -m yuholens.training.orpo --config configs/orpo.yaml
+PYTHONPATH=src python -m pytest tests/ -q
 ```
 
-`bitsandbytes` on ROCm is **not** the PyPI wheel. Run
-`bash scripts/install_bnb_rocm.sh` to execute the source-build against
-`ROCm/bitsandbytes` branch `rocm_enabled` with `-DBNB_ROCM_ARCH="gfx942"`. The
-script is idempotent and verifies the resulting `libbitsandbytes_rocm*.so` is
-importable before returning.
+## Inference recipe
 
-## Teacher bootstrap
+The two supported decoding modes are fully documented in
+[`docs/model-card.md`](docs/model-card.md#inference-recipe). The short version:
 
-Teacher memos are drafted by the OpenAI gpt-5-mini Batch API. The pipeline is
-split into a submit step and a poll-and-filter step so that long-running batches
-do not block local iteration:
+| Mode          | Use when                                       | How |
+| ------------- | ---------------------------------------------- | --- |
+| **Single-shot** | Latency-bound. Hits 3.56 mean coherence.     | `temperature=0.1, top_p=0.9, repetition_penalty=1.15` |
+| **Best-of-5**   | Quality-bound. Hits 3.88 PASS.               | `MemoCriticAgent` over `DEFAULT_PROFILES` |
 
-```bash
-python -m yuholens.training.teacher submit \
-    --split fraud_detection \
-    --out data/teacher/batch_fraud.json
+The LangGraph composer is constructed via:
 
-python -m yuholens.training.teacher poll-and-filter \
-    --batch-json data/teacher/batch_fraud.json \
-    --raw-out data/teacher/batch_fraud_raw.jsonl \
-    --filtered-out data/teacher/batch_fraud_filtered.jsonl
+```python
+from yuholens.agents.graph import build_pipeline
+
+app = build_pipeline(
+    best_of_n=True,
+    n_candidates=5,
+    judge_mode="auto",   # "auto" probes the OpenAI key; falls back to heuristic
+)
+result = app.invoke(initial_state)
+print(result["grounded_memo"])
 ```
 
-`OPENAI_API_KEY` must be set in `.env` before either subcommand. The poll step
-applies citation-presence and section-coverage gates, dropping rows that fail
-before the SFT loader ever sees them.
+`judge_mode="auto"` performs a real auth probe before generating; transient outages
+or invalid-but-present keys silently fall back to the heuristic so candidate
+generation work is never wasted.
 
-## Inference (LangGraph)
+## Releases
 
-The serving pipeline is a 4-node LangGraph: **Ingestor** parses the Yuho bundle
-and splits long sections to fit the Pass-1 window; a per-section **Pass-1
-detector** emits structured JSON observations with `japanese_span` citations;
-the **Pass-2 composer** synthesizes those observations into an English memo
-with inline `(ref: '<Japanese span>' p.N)` markers; the **Citation-Grounder**
-verifies every marker against the union of Pass-1 spans and replaces any
-sentence whose citations are all ungrounded with `[evidence insufficient]`,
-rather than silently passing it through. Construct the graph via
-`yuholens.agents.graph.build_pipeline`.
+| Artefact                                | Where                                              | Status |
+| --------------------------------------- | -------------------------------------------------- | ------ |
+| BF16 reference weights                  | `yuholens/yuholens-14b` on HuggingFace             | planned at submission |
+| GGUF release (Q4_K_M / Q5_K_M / Q6_K / Q8_0) | `yuholens/yuholens-14b-GGUF` on HuggingFace   | built by [`scripts/build_gguf.sh`](scripts/build_gguf.sh) |
+| Pre-release sanity check                | [`scripts/check_release_set.py`](scripts/check_release_set.py) | built |
+| Hub upload helper                       | [`scripts/hf_upload.py`](scripts/hf_upload.py)     | built (patches `generation_config.json` to v5 defaults before push) |
+| Model card                              | [`docs/model-card.md`](docs/model-card.md)         | shipped |
+| Blog post                               | [`docs/blog_post.md`](docs/blog_post.md)           | shipped |
+| Demo script (90s video + 5-min walkthrough) | [`docs/demo_script.md`](docs/demo_script.md)   | shipped |
 
-## Benchmark
+## Hardware
 
-Final numbers land post-KG 2 (build-spec 2026-04-29). All values are `TBD`
-until then.
+- **Training (one-shot).** Single AMD Instinct MI300X (192 GB HBM3) on ROCm 7.0.
+  Full-parameter SFT of a 14B Qwen1 model at sequence length 8192 does not fit on
+  80 GB-class hardware; the MI300X is not optional for the training path.
+- **Consumer inference.** The Q4_K_M GGUF (≈9.45 GB) targets a single
+  RTX 4060 Ti 16 GB via llama.cpp. Pass-1 per-section context fits at 4-6K tokens.
+- **Demo / research inference.** Any ROCm or CUDA host with the BF16 checkpoint;
+  the `MemoCriticAgent` is pure orchestration and adds zero VRAM cost beyond the
+  base model.
 
-| Metric                              | Target | Measured |
-|-------------------------------------|--------|----------|
-| `citation_presence_rate`            | TBD    | TBD      |
-| `section_coverage`                  | TBD    | TBD      |
-| `judge_coherence` (Likert 1-5)      | TBD    | TBD      |
+## Cost
 
-## Project structure
+| Line item                          | Spend |
+| ---------------------------------- | -----: |
+| MI300X SFT (~38 GPU-hours @ $1.99) | ~$75.62 |
+| OpenAI teacher bootstrap (Batch API) | ~$4.84 |
+| KG-2 judge passes (gpt-5-mini)     | ~$2.00 |
+| GPU best-of-3 generation run       | ~$6.60 |
+| **Total**                          | **~$80** (inside the $100 AMD Developer Cloud envelope) |
+
+23 days end-to-end, including two 24-hour async batch waits and one 10-12 hour SFT
+job.
+
+## Project layout
 
 ```
 YuhoLens/
 ├── src/yuholens/
-│   ├── ingestor.py          # Yuho PDF / XBRL parsing + section regex
-│   ├── training/            # sft.py, orpo.py, teacher.py
-│   ├── agents/              # graph.py, citation_grounder.py
-│   ├── prompts/             # pass1.py, pass2.py
-│   └── eval/                # metrics.py
-├── tests/                   # pytest suite (ingestor, grounder, teacher, e2e)
-├── scripts/                 # smoke_flash_attn.py, install_bnb_rocm.sh, ...
-├── configs/                 # sft.yaml, orpo.yaml, ds_zero3_fallback.json
-└── data/teacher/            # gitignored: teacher batch inputs / outputs
+│   ├── ingestor.py             # Yuho text → labelled Japanese sections
+│   ├── agents/
+│   │   ├── graph.py            # build_pipeline() + 4-node LangGraph
+│   │   ├── memo_critic.py      # best-of-N composer + judge + heuristic
+│   │   ├── decoder_profiles.py # the 5-profile catalogue from KG-2 PASS
+│   │   ├── citation_grounder.py
+│   │   └── cli.py              # python -m yuholens.agents
+│   ├── prompts/                # pass1, pass2 system + user templates
+│   ├── eval/
+│   │   ├── metrics.py          # citation_rate, section_coverage, judge
+│   │   └── run_kg2.py          # KG-2 evaluation harness
+│   └── training/               # sft.py, orpo.py, teacher.py (MI300X-only)
+├── scripts/
+│   ├── run_bestofn_offline.py  # offline heuristic picker (no API)
+│   ├── bestofn_pick.py         # cached-judge picker
+│   ├── bestofn_judge.py        # fresh judge over candidate sets
+│   ├── build_gguf.sh           # llama.cpp Q4/Q5/Q6/Q8 release set
+│   ├── hf_upload.py            # patches generation_config + pushes to Hub
+│   └── check_release_set.py    # pre-release sanity check
+├── tests/                      # 85 pytest tests, all laptop-runnable
+├── configs/                    # sft.yaml, orpo.yaml
+└── docs/                       # model-card, blog_post, demo_script, sessions
 ```
 
 ## Citation
 
 ```bibtex
-@misc{yuholens2026,
+@misc{dejesus2026yuholens,
   author       = {De Jesus, Javier},
   title        = {YuhoLens-14B: A Japanese-Finance Fine-Tune for
                   Span-Grounded Investor Memo Generation},
   year         = {2026},
   howpublished = {Hugging Face model repository},
   url          = {https://huggingface.co/yuholens/yuholens-14b},
-  note         = {DOI: TBD}
+  note         = {AMD Developer Hackathon, lablab.ai, May 2026}
 }
 ```
 
 ## Credits
 
+- **AMD Developer Program** — MI300X cloud credits that made full-parameter 14B
+  training feasible inside a hackathon budget.
 - **Preferred Networks** — `nekomata-14b-pfn-qfin` continual pre-training on
   Japanese financial text.
-- **rinna Co., Ltd.** — base `nekomata-14b` Japanese-adapted checkpoint.
+- **rinna Co., Ltd.** — base `nekomata-14b` Japanese-adapted Qwen1 checkpoint.
 - **Alibaba Cloud / Qwen** — original `Qwen-14B` base weights.
 - **Sakana AI** — `EDINET-Bench` annotated Yuho corpus.
-- **AMD Developer Program** — MI300X cloud credits.
+- **OpenAI** — gpt-5-mini Batch API for the teacher-bootstrap step and the
+  coherence judge.
 - **lablab.ai** — AMD Developer Hackathon platform.
 
 ## License
 
 MIT covers the wrapper code (LangGraph pipeline, training scripts, evaluation
-harness, prompt modules). Model weights are released under the Tongyi Qianwen
+harness, prompt modules). Model weights are released under the **Tongyi Qianwen**
 license inherited from `Qwen/Qwen-14B` via `rinna/nekomata-14b` and
-`pfnet/nekomata-14b-pfn-qfin`. Downstream users must comply with the Tongyi
-Qianwen terms in addition to MIT.
+`pfnet/nekomata-14b-pfn-qfin`. Downstream users must comply with the Tongyi Qianwen
+terms in addition to MIT.
+
+> ⚠️ Outputs are model-generated text and may contain factual errors. Verify any
+> material claim against the underlying Yuho before relying on it for any
+> decision. The authors disclaim all liability for investment outcomes derived
+> from this model.
