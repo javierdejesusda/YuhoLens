@@ -35,13 +35,26 @@ _DEFAULT_API_KEY: str = "EMPTY"
 class InferenceClient(Protocol):
     """Minimal structural interface every inference backend must satisfy."""
 
-    def complete(self, *, system: str, user: str, max_tokens: int = 2048) -> str:
+    def complete(
+        self,
+        *,
+        system: str,
+        user: str,
+        max_tokens: int = 2048,
+        generation: dict[str, Any] | None = None,
+    ) -> str:
         """Run a single chat completion and return the raw string response.
 
         Args:
             system: The system-role prompt.
             user: The user-role prompt.
             max_tokens: Upper bound on generated tokens. Default 2048.
+            generation: Optional per-call sampling overrides forwarded to the
+                backend (e.g. ``temperature``, ``top_p``,
+                ``repetition_penalty``, ``seed``). Implementations are
+                expected to accept the keys produced by
+                :class:`yuholens.agents.decoder_profiles.DecoderProfile`. Pass
+                ``None`` to use backend defaults.
 
         Returns:
             The assistant message content as a plain string.
@@ -73,13 +86,25 @@ class VLLMClient:
         self.model = model
         self.api_key = api_key
 
-    def complete(self, *, system: str, user: str, max_tokens: int = 2048) -> str:
+    def complete(
+        self,
+        *,
+        system: str,
+        user: str,
+        max_tokens: int = 2048,
+        generation: dict[str, Any] | None = None,
+    ) -> str:
         """Dispatch a single chat completion through the OpenAI SDK.
 
         Args:
             system: The system-role prompt.
             user: The user-role prompt.
             max_tokens: Upper bound on generated tokens.
+            generation: Optional sampling overrides. ``temperature`` and
+                ``top_p`` are forwarded to standard OpenAI parameters; any
+                vLLM-specific keys (``repetition_penalty``,
+                ``no_repeat_ngram_size``, ``seed``) are forwarded via
+                ``extra_body`` so they reach the vLLM server unchanged.
 
         Returns:
             The assistant message content; an empty string when the server
@@ -88,14 +113,24 @@ class VLLMClient:
         from openai import OpenAI
 
         client = OpenAI(base_url=self.base_url, api_key=self.api_key)
-        response = client.chat.completions.create(
-            model=self.model,
-            messages=[
+        kwargs: dict[str, Any] = {
+            "model": self.model,
+            "messages": [
                 {"role": "system", "content": system},
                 {"role": "user", "content": user},
             ],
-            max_completion_tokens=max_tokens,
-        )
+            "max_completion_tokens": max_tokens,
+        }
+        if generation:
+            extra_body: dict[str, Any] = {}
+            for key, value in generation.items():
+                if key in ("temperature", "top_p"):
+                    kwargs[key] = value
+                else:
+                    extra_body[key] = value
+            if extra_body:
+                kwargs["extra_body"] = extra_body
+        response = client.chat.completions.create(**kwargs)
         content = response.choices[0].message.content
         return content or ""
 
@@ -384,6 +419,11 @@ def build_pipeline(
     pass1_strict: bool = True,
     pass1_max_retries: int = 2,
     require_tables: bool | None = None,
+    best_of_n: bool = False,
+    n_candidates: int | None = None,
+    decoder_profiles: Any = None,
+    judge_mode: str = "auto",
+    judge_client: Any | None = None,
 ) -> Any:
     """Compile and return the four-agent LangGraph application.
 
@@ -411,6 +451,20 @@ def build_pipeline(
             ``True`` otherwise (a custom loader is assumed capable of
             populating tables). Pass an explicit boolean to override the
             auto-derivation.
+        best_of_n: When True the single-shot Pass-2 node is replaced by the
+            :func:`yuholens.agents.memo_critic.memo_critic` best-of-N node.
+            Defaults to False to preserve the historical single-shot graph
+            and existing test fixtures.
+        n_candidates: When ``best_of_n`` is True and ``decoder_profiles`` is
+            ``None``, truncate :data:`DEFAULT_PROFILES` to this many entries.
+            Ignored otherwise.
+        decoder_profiles: Optional iterable of
+            :class:`yuholens.agents.decoder_profiles.DecoderProfile` to fan
+            out across when ``best_of_n`` is True.
+        judge_mode: Forwarded to ``memo_critic`` as ``judge``: ``"auto"``,
+            ``"judge"``, or ``"heuristic"``.
+        judge_client: Optional pre-built OpenAI client injected into the
+            judge for tests.
 
     Returns:
         A compiled LangGraph application with entry point ``ingestor``.
@@ -442,22 +496,47 @@ def build_pipeline(
         strict=pass1_strict,
         max_retries=pass1_max_retries,
     )
-    pass2_node = partial(
-        _pass2_compose,
-        client=client,
-        require_tables=require_tables,
-    )
+
+    if best_of_n:
+        from yuholens.agents.decoder_profiles import DEFAULT_PROFILES
+        from yuholens.agents.memo_critic import memo_critic
+
+        if decoder_profiles is not None:
+            profiles = tuple(decoder_profiles)
+        elif n_candidates is not None:
+            if n_candidates <= 0:
+                raise ValueError("n_candidates must be positive")
+            profiles = DEFAULT_PROFILES[:n_candidates]
+        else:
+            profiles = DEFAULT_PROFILES
+        critic_node = partial(
+            memo_critic,
+            client=client if client is not None else DEFAULT_CLIENT_FACTORY(),
+            profiles=profiles,
+            judge=judge_mode,
+            judge_client=judge_client,
+            require_tables=require_tables,
+        )
+        compose_node_name = "memo_critic"
+        compose_node = critic_node
+    else:
+        compose_node_name = "pass2_compose"
+        compose_node = partial(
+            _pass2_compose,
+            client=client,
+            require_tables=require_tables,
+        )
 
     graph: StateGraph = StateGraph(PipelineState)
     graph.add_node("ingestor", ingestor_node)
     graph.add_node("pass1_detect", pass1_node)
-    graph.add_node("pass2_compose", pass2_node)
+    graph.add_node(compose_node_name, compose_node)
     graph.add_node("ground", _ground)
 
     graph.set_entry_point("ingestor")
     graph.add_edge("ingestor", "pass1_detect")
-    graph.add_edge("pass1_detect", "pass2_compose")
-    graph.add_edge("pass2_compose", "ground")
+    graph.add_edge("pass1_detect", compose_node_name)
+    graph.add_edge(compose_node_name, "ground")
     graph.add_edge("ground", END)
     return graph.compile()
 

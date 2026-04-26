@@ -68,9 +68,12 @@ def _flash_attn() -> str:
 
 
 def _bnb() -> str:
+    import torch
     import bitsandbytes as bnb
 
-    opt = bnb.optim.AdamW8bit([])
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    p = torch.nn.Parameter(torch.zeros(1, device=device))
+    opt = bnb.optim.AdamW8bit([p])
     _ = opt.param_groups
     return f"v{bnb.__version__} AdamW8bit OK"
 
@@ -97,11 +100,21 @@ def _langgraph() -> str:
 
 
 def _openai() -> str:
-    import openai  # noqa: F401
+    import openai
 
-    if not os.environ.get("OPENAI_API_KEY"):
+    api_key = os.environ.get("OPENAI_API_KEY")
+    if not api_key:
         raise RuntimeError("OPENAI_API_KEY not set in environment")
-    return "import + key set"
+    if os.environ.get("YUHOLENS_PREFLIGHT_SKIP_OPENAI_AUTH"):
+        return "import + key set (auth probe skipped via env)"
+    try:
+        openai.OpenAI(api_key=api_key).models.list()
+    except Exception as exc:
+        raise RuntimeError(
+            f"OPENAI_API_KEY present but failed live auth probe: {exc}. "
+            "Set YUHOLENS_PREFLIGHT_SKIP_OPENAI_AUTH=1 to bypass."
+        ) from exc
+    return "import + key authenticated"
 
 
 def _sft_config_and_data() -> str:

@@ -190,17 +190,27 @@ only to the Pass-2 composer.
 ## Quantization
 
 Released GGUF artifacts are published to the companion repository
-`yuholens/yuholens-14b-GGUF`:
+`yuholens/yuholens-14b-GGUF`. The release set is built from the BF16
+checkpoint by `scripts/build_gguf.sh`, which calls llama.cpp's
+`convert_hf_to_gguf.py` once for f16 and `llama-quantize` once per
+target quant. See the script's prereq header for the required
+llama.cpp checkout and disk-budget notes.
 
-| Quant     | Approx. size | Intended hardware            | Target throughput (tok/s) |
-|-----------|--------------|------------------------------|---------------------------|
+| Quant     | Approx. size | Intended hardware                | Target throughput (tok/s) |
+|-----------|--------------|----------------------------------|---------------------------|
 | Q4_K_M    | ~9.45 GB     | 16 GB consumer GPU (RTX 4060 Ti) | ≥ 18                      |
-| Q5_K_M    | TBD          | 16-24 GB consumer GPU        | TBD                       |
-| Q6_K      | TBD          | 24 GB+ consumer or prosumer  | TBD                       |
+| Q5_K_M    | ~10.5 GB     | 16-24 GB consumer GPU            | TBD                       |
+| Q6_K      | ~12.1 GB     | 24 GB+ consumer or prosumer      | TBD                       |
+| Q8_0      | ~15.7 GB     | 24 GB+ prosumer / dual-GPU CPU offload | TBD                 |
 
 Pass-1 per-section context of 4-6K tokens is the supported consumer
 operating point; longer contexts require the BF16 checkpoint served via
-vLLM-ROCm on datacenter hardware.
+vLLM-ROCm on datacenter hardware. To rebuild the GGUF set from a fresh
+checkpoint:
+
+```bash
+scripts/build_gguf.sh output/yuholens-14b-sft/checkpoint-212
+```
 
 ## Limitations and biases
 
