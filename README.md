@@ -53,6 +53,10 @@ Coherence distribution on the 50-prompt KG-2 test set: `0/2/7/36/5` (counts at
 | best-of-3 (same-decoder seeds)             | 3.64           | SOFT    |
 | **best-of-5 (mixed decoder + seeds)**      | **3.88**       | **PASS**|
 
+<p align="center">
+  <img alt="KG-2 coherence arc, 3.56 -> 3.72 -> 3.64 -> 3.88 PASS" src="docs/figures/metric_arc.png" width="700">
+</p>
+
 **The lift is inference-time, not training-time.** The same SFT checkpoint, sampled
 at five different decoder profiles per prompt, lets the coherence judge pick the
 per-prompt argument-unity peak. Decoder diversity dominates seed diversity — the
@@ -60,6 +64,13 @@ finding is now baked into [`src/yuholens/agents/decoder_profiles.py`](src/yuhole
 and the `MemoCriticAgent` LangGraph node.
 
 ## Architecture — 4 agents, one DAG
+
+<p align="center">
+  <img alt="YuhoLens 4-agent LangGraph: Ingestor -> Pass-1 -> MemoCriticAgent -> Citation Grounder" src="docs/figures/architecture.png" width="780">
+</p>
+
+<details>
+<summary>Mermaid source (renders on GitHub)</summary>
 
 ```mermaid
 flowchart LR
@@ -71,6 +82,8 @@ flowchart LR
     style D fill:#1f6feb,stroke:#fff,color:#fff
     style E fill:#238636,stroke:#fff,color:#fff
 ```
+
+</details>
 
 1. **Ingestor.** Regex over the Yuho's section markers (`事業等のリスク`,
    `経営者による財政状態の分析`, …). Sub-second, deterministic.
@@ -197,12 +210,15 @@ YuhoLens/
 │   ├── build_gguf.sh           # llama.cpp Q4/Q5/Q6/Q8 release set
 │   ├── hf_upload.py            # patches generation_config + pushes to Hub
 │   └── check_release_set.py    # pre-release sanity check
-├── tests/                      # 87 pytest tests, all laptop-runnable
+├── tests/                      # 88 pytest tests, all laptop-runnable
 ├── configs/                    # sft.yaml, orpo.yaml
 └── docs/                       # model-card, blog_post, demo_script, sessions
 ```
 
 ## Citation
+
+GitHub renders a "Cite this repository" button from
+[`CITATION.cff`](CITATION.cff). For BibTeX:
 
 ```bibtex
 @misc{dejesus2026yuholens,
@@ -215,6 +231,14 @@ YuhoLens/
   note         = {AMD Developer Hackathon, lablab.ai, May 2026}
 }
 ```
+
+## Contributing & support
+
+- Bug reports and pull requests welcome — see [`CONTRIBUTING.md`](CONTRIBUTING.md).
+- Security policy: [`SECURITY.md`](SECURITY.md).
+- Common installation and runtime gotchas:
+  [`docs/troubleshooting.md`](docs/troubleshooting.md).
+- Changelog: [`docs/CHANGELOG.md`](docs/CHANGELOG.md).
 
 ## Credits
 

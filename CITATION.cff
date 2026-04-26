@@ -1,0 +1,43 @@
+cff-version: 1.2.0
+title: "YuhoLens-14B: A Japanese-Finance Fine-Tune for Span-Grounded Investor Memo Generation"
+message: "If you use this software or the released model, please cite as below."
+type: software
+authors:
+  - given-names: Javier
+    family-names: De Jesus
+    email: javier.dejesusj9@gmail.com
+    affiliation: Independent
+repository-code: "https://github.com/javierdejesusda/YuhoLens"
+url: "https://huggingface.co/yuholens/yuholens-14b"
+abstract: >-
+  YuhoLens-14B is a 14-billion-parameter Japanese-to-English investor-memo
+  generation model, produced by full-parameter supervised fine-tuning of
+  pfnet/nekomata-14b-pfn-qfin on Japanese 有価証券報告書 (Yuho) filings drawn
+  from the SakanaAI/EDINET-Bench corpus. The shipping artefact is a
+  4-node LangGraph pipeline whose MemoCriticAgent picks the best
+  candidate from N decoder profiles per prompt, achieving KG-2 PASS at
+  coherence 3.88 (gate 3.80), citation rate 1.000, and section coverage
+  0.994. Built for the AMD Developer Hackathon (lablab.ai, May 2026).
+keywords:
+  - large-language-model
+  - japanese-finance
+  - yuho
+  - edinet
+  - rocm
+  - mi300x
+  - qwen
+  - langgraph
+  - span-citation
+license: MIT
+license-url: "https://github.com/javierdejesusda/YuhoLens/blob/main/LICENSE"
+date-released: 2026-05-09
+version: 0.1.0
+preferred-citation:
+  type: software
+  title: "YuhoLens-14B: A Japanese-Finance Fine-Tune for Span-Grounded Investor Memo Generation"
+  authors:
+    - given-names: Javier
+      family-names: De Jesus
+  year: 2026
+  url: "https://huggingface.co/yuholens/yuholens-14b"
+  notes: "AMD Developer Hackathon, lablab.ai, May 2026."

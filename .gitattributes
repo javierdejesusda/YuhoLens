@@ -1,0 +1,29 @@
+# Default to LF normalization for tracked text files; Windows checkouts get CRLF
+# automatically when core.autocrlf is true, so collaborators on Linux/macOS and
+# Windows do not fight over line endings on every commit.
+* text=auto eol=lf
+
+# Shell scripts must always be LF, even on Windows checkouts, so they remain
+# executable when re-uploaded to a Linux host (the MI300X droplet, GitHub
+# Actions runners).
+*.sh        text eol=lf
+*.bash      text eol=lf
+
+# Batch files must always be CRLF.
+*.bat       text eol=crlf
+*.cmd       text eol=crlf
+
+# Treat these as binary so git does not try to diff or normalise them.
+*.png       binary
+*.jpg       binary
+*.jpeg      binary
+*.gif       binary
+*.webp      binary
+*.pdf       binary
+*.gguf      binary
+*.safetensors binary
+*.bin       binary
+
+# Linguist tweaks for the GitHub language bar.
+docs/*       linguist-documentation
+scripts/*.sh linguist-detectable=false

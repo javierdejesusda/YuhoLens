@@ -66,12 +66,26 @@ release = [
     "safetensors>=0.4.5",
     "matplotlib>=3.9",
 ]
+serve = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+]
 rocm = [
     "deepspeed>=0.16",
 ]
 
 [project.urls]
 Repository = "https://github.com/javierdejesusda/YuhoLens"
+Documentation = "https://github.com/javierdejesusda/YuhoLens#readme"
+Issues = "https://github.com/javierdejesusda/YuhoLens/issues"
+ModelCard = "https://huggingface.co/yuholens/yuholens-14b"
+Changelog = "https://github.com/javierdejesusda/YuhoLens/blob/main/docs/CHANGELOG.md"
+
+[project.scripts]
+yuholens-agents = "yuholens.agents.cli:main"
+yuholens-check-release = "yuholens.tools.check_release:main"
+yuholens-bestofn-offline = "yuholens.tools.bestofn_offline:main"
+yuholens-hf-upload = "yuholens.tools.hf_upload:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/yuholens"]
