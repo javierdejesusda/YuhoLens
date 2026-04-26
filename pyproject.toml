@@ -47,6 +47,8 @@ dependencies = [
     "tqdm>=4.67",
     "python-dotenv>=1.0.1",
     "rich>=13.9",
+    "huggingface_hub>=0.25",
+    "safetensors>=0.4.5",
 ]
 
 [project.optional-dependencies]
@@ -57,6 +59,12 @@ dev = [
     "mypy>=1.13",
     "types-PyYAML",
     "langdetect>=1.0.9",
+    "pre-commit>=3.8",
+]
+release = [
+    "huggingface_hub>=0.25",
+    "safetensors>=0.4.5",
+    "matplotlib>=3.9",
 ]
 rocm = [
     "deepspeed>=0.16",
@@ -71,6 +79,22 @@ packages = ["src/yuholens"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-ra --strict-markers"
+
+[tool.coverage.run]
+source = ["src/yuholens"]
+omit = [
+    "src/yuholens/training/*",
+    "src/yuholens/compat/*",
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+exclude_lines = [
+    "pragma: no cover",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+]
 
 [tool.ruff]
 line-length = 100

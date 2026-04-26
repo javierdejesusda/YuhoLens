@@ -4,11 +4,12 @@
 > nekomata-qfin fine-tune on a single AMD Instinct MI300X.**
 
 <p align="center">
+  <a href="https://github.com/javierdejesusda/YuhoLens/actions/workflows/test.yml"><img alt="CI" src="https://github.com/javierdejesusda/YuhoLens/actions/workflows/test.yml/badge.svg"></a>
   <img alt="Python 3.12" src="https://img.shields.io/badge/python-3.12-blue.svg">
   <img alt="ROCm 7.0" src="https://img.shields.io/badge/ROCm-7.0-red.svg">
-  <img alt="Tests 85 passing" src="https://img.shields.io/badge/tests-85%20passing-brightgreen.svg">
   <img alt="KG-2 PASS" src="https://img.shields.io/badge/KG--2-PASS%20%E2%80%A2%203.88-success.svg">
   <img alt="Citation 1.000" src="https://img.shields.io/badge/citation%20rate-1.000-success.svg">
+  <a href="https://huggingface.co/yuholens/yuholens-14b"><img alt="HuggingFace" src="https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-yuholens%2Fyuholens--14b-yellow.svg"></a>
   <img alt="License MIT" src="https://img.shields.io/badge/code-MIT-green.svg">
   <img alt="License Tongyi Qianwen" src="https://img.shields.io/badge/weights-Tongyi%20Qianwen-orange.svg">
 </p>
@@ -89,18 +90,17 @@ git clone https://github.com/javierdejesusda/YuhoLens.git
 cd YuhoLens
 pip install -e .
 
-# Run the 4-agent composer end-to-end on a sample row.
+# Run the 4-agent composer end-to-end on a shipped sample row.
 python -m yuholens.agents \
-    --yuho-row data/eval/kg2_test.jsonl --row-index 0 \
-    --best-of-n --n-candidates 5 --judge-mode auto
+    --yuho-row data/sample/sample_yuho.jsonl --row-index 0 \
+    --best-of-n --n-candidates 5 --judge-mode heuristic
 
-# Reproduce the bo5 pick offline (no OpenAI calls, heuristic only).
+# Reproduce a best-of-N pick offline (no OpenAI calls, heuristic only).
+# Replace the inputs with your own candidate memo JSONL files.
 python scripts/run_bestofn_offline.py \
-    --memos data/eval/kg2_memos_v4.jsonl data/eval/kg2_memos_v5.jsonl \
-            data/eval/kg2_memos_bo3_s1.jsonl data/eval/kg2_memos_bo3_s2.jsonl \
-            data/eval/kg2_memos_bo3_s3.jsonl \
-    --picked-memos data/eval/picked_offline.jsonl \
-    --picked-scores data/eval/picked_offline.json
+    --memos path/to/candidates_a.jsonl path/to/candidates_b.jsonl \
+    --picked-memos /tmp/picked.jsonl \
+    --picked-scores /tmp/picked.json
 ```
 
 Run the test suite (laptop, no GPU, no API key required):
@@ -197,7 +197,7 @@ YuhoLens/
 │   ├── build_gguf.sh           # llama.cpp Q4/Q5/Q6/Q8 release set
 │   ├── hf_upload.py            # patches generation_config + pushes to Hub
 │   └── check_release_set.py    # pre-release sanity check
-├── tests/                      # 85 pytest tests, all laptop-runnable
+├── tests/                      # 87 pytest tests, all laptop-runnable
 ├── configs/                    # sft.yaml, orpo.yaml
 └── docs/                       # model-card, blog_post, demo_script, sessions
 ```

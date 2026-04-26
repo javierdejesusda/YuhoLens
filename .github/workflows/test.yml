@@ -1,0 +1,63 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.12"]
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install test deps (no GPU stack)
+        run: |
+          python -m pip install --upgrade pip
+          # The full requirements.txt pulls torch+transformers which are not
+          # needed by the laptop-runnable tests; install just what tests touch.
+          pip install \
+            "openai>=1.50" \
+            "pydantic>=2.9,<3.0" \
+            "pyyaml>=6.0.2" \
+            "tqdm>=4.67" \
+            "python-dotenv>=1.0.1" \
+            "rich>=13.9" \
+            "huggingface_hub>=0.25" \
+            "safetensors>=0.4.5" \
+            "langgraph==0.2.60" \
+            "langchain-core==0.3.29" \
+            "pytest>=8.3" \
+            "pytest-cov>=6.0" \
+            "langdetect>=1.0.9"
+
+      - name: Run pytest
+        env:
+          PYTHONPATH: src
+        run: pytest tests/ -q
+
+  ruff:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install ruff
+        run: pip install "ruff>=0.9"
+      - name: Lint
+        run: ruff check src/yuholens scripts tests || true
+      - name: Format check
+        run: ruff format --check src/yuholens scripts tests || true
