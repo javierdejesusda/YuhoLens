@@ -7,7 +7,7 @@
 
 Hello,
 
-Thank you for the $100 in AMD Developer Cloud credits. I used them across 23 days to fine-tune a 14B Japanese-finance LLM on a single AMD Instinct MI300X at $1.99/hr. The workload covered full-parameter SFT of a Qwen1 base at seq 8192 (~10 GPU-hr), reference-free ORPO (~4 GPU-hr), and roughly 20 GPU-hr of smoke tests, dev iteration, and evaluation. I wanted to share what worked and a few ways the ramp could be smoother for the next developer who picks up MI300X for LLM fine-tuning.
+Thank you for the $100 in AMD Developer Cloud credits. I used them across 23 days to fine-tune a 14B Japanese-finance LLM on a single AMD Instinct MI300X at $1.99/hr. The workload covered full-parameter SFT of a Qwen1 base at seq 8192 (~10 GPU-hr), two trial-and-error iterations of the ORPO data-generation route on top of the SFT checkpoint (~4 GPU-hr; both iterations failed at a pre-training data-quality gate, so no ORPO checkpoint shipped), and roughly 20 GPU-hr of smoke tests, dev iteration, and evaluation. I wanted to share what worked and a few ways the ramp could be smoother for the next developer who picks up MI300X for LLM fine-tuning.
 
 The ROCm 7.0 PyTorch container (`rocm/pytorch:rocm7.0_ubuntu24.04_py3.12_pytorch_release_2.5.1`) was the single biggest productivity win. A ~10-minute pull, flash-attn pre-installed, and a clean PyTorch 2.5.1-ROCm build made the first training step reachable on day one. This was genuinely the reason the 23-day timeline was possible.
 

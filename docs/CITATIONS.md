@@ -99,8 +99,9 @@ the teacher-bootstrap input and the student training corpus for YuhoLens.
 ## 5. TRL — Transformer Reinforcement Learning (Hugging Face, 2023-2024)
 
 TRL provides the SFT and ORPO trainer implementations used in YuhoLens
-training. YuhoLens uses `SFTTrainer` for Stage 1 and `ORPOTrainer` for
-Stage 2.
+training. YuhoLens uses `SFTTrainer` for Stage 1; `ORPOTrainer` was
+wired for Stage 2 but did not produce a shipped checkpoint after two
+synthetic-preference iterations failed at the data-quality gate.
 
 - GitHub: https://github.com/huggingface/trl
 
@@ -119,9 +120,11 @@ Stage 2.
 
 ## 6. ORPO (Hong et al., 2024)
 
-ORPO defines the reference-free preference optimization objective used in
-YuhoLens Stage 2, which avoids maintaining a frozen reference model and
-therefore fits the single-MI300X compute envelope.
+ORPO defines the reference-free preference optimization objective wired
+for YuhoLens Stage 2, which avoids maintaining a frozen reference model
+and therefore fits the single-MI300X compute envelope. The Stage 2
+trainer was exercised but did not produce a shipped checkpoint; see the
+session-1.8 summary for the data-gate analysis.
 
 - Paper (arXiv): https://arxiv.org/abs/2403.07691
 

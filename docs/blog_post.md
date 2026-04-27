@@ -1,6 +1,6 @@
 ---
 title: "Fine-Tuning a Japanese Financial LLM on AMD MI300X in 23 Days"
-subtitle: "Teacher-bootstrapped SFT + reference-free ORPO on nekomata-14b-pfn-qfin, distilled to consumer-GGUF, with span-cited English memos"
+subtitle: "Teacher-bootstrapped SFT on nekomata-14b-pfn-qfin, lifted by inference-time best-of-N, distilled to consumer-GGUF, with span-cited English memos"
 date: 2026-05-09
 author: "Javier De Jesus"
 tags: [llm, japanese-finance, rocm, mi300x, qwen, edinet, fine-tuning, orpo, langgraph]
@@ -91,4 +91,4 @@ Two honest lessons. The bitsandbytes source-build on ROCm 7.0 `gfx942` consumed 
 
 ## Close
 
-Code and weights are on GitHub at https://github.com/javierdejesusda/YuhoLens, with the merged SFT+ORPO weights and the Q4_K_M GGUF released on HuggingFace. Submitted to the AMD Developer Hackathon on lablab.ai, May 9, 2026. Thanks to the AMD Developer Program for the MI300X credit, to Preferred Networks and rinna for the base model, to Sakana AI for EDINET-Bench, to OpenAI for the batch API, and to the lablab.ai team for hosting.
+Code and weights are on GitHub at https://github.com/javierdejesusda/YuhoLens, with the SFT BF16 weights and the Q4_K_M GGUF released on HuggingFace. Submitted to the AMD Developer Hackathon on lablab.ai, May 9, 2026. Thanks to the AMD Developer Program for the MI300X credit, to Preferred Networks and rinna for the base model, to Sakana AI for EDINET-Bench, to OpenAI for the batch API, and to the lablab.ai team for hosting.

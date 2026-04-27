@@ -161,8 +161,9 @@ flag it for the user to capture once the training run finishes.
    when the viewer watches on a phone.
 
 5. **Training-loss TensorBoard screenshot.** `TBD`. The final SFT loss curve
-   plus the ORPO reward margin curve side-by-side. Exact numbers are `TBD`
-   until the training run completes. Do not invent Y-axis values.
+   alone (the ORPO route never produced a shipped checkpoint; do not show
+   an ORPO reward margin curve). Exact numbers are `TBD` until the SFT
+   run is re-screenshotted. Do not invent Y-axis values.
 
 6. **llama.cpp inference clip.** Pre-recorded `./llama-cli -m
    yuholens-14b-Q4_K_M.gguf -p "<sample prompt>"` streaming English memo
@@ -452,8 +453,9 @@ voiceover read rate, not the word count, if a scene feels rushed.
 | Total | 00:00–01:30   | 90 s     | 222             | 2.47      |
 
 All numbers that depend on the actual training or inference rigs
-(final SFT loss, final ORPO reward margin, measured tok/s on the 4060
-Ti, measured eval metrics such as citation faithfulness and coherence)
-are written as `TBD` above. Do not fill them in until you have the
-measurement captured in a screen recording that will ship in the
-video.
+(final SFT loss, measured tok/s on the 4060 Ti, measured eval metrics
+such as citation faithfulness and coherence) are written as `TBD`
+above. Do not fill them in until you have the measurement captured in
+a screen recording that will ship in the video. ORPO did not produce a
+shipped checkpoint, so do not reference an ORPO reward margin in the
+narration or on screen.
