@@ -48,6 +48,24 @@ def test_critique_system_is_coherence_flavoured() -> None:
     assert "tensions" in lowered
 
 
+def test_critique_system_requires_citation_preservation() -> None:
+    """The critique prompt must explicitly require preserving (refs:) markers.
+
+    The first ORPO V2 batch failed the citation gate (chosen 0.305 vs
+    rejected 0.995) because the prompt forbade *inventing* citations but
+    never required *preserving* existing ones; gpt-5-mini interpreted
+    that as license to drop them. Lock in the preservation rule so a
+    future edit cannot silently re-introduce the failure mode.
+    """
+    import re
+
+    flat = re.sub(r"\s+", " ", CRITIQUE_SYSTEM.lower())
+    assert "preserve every" in flat
+    assert "(refs:" in CRITIQUE_SYSTEM
+    assert "do not delete" in flat
+    assert "not disclosed" in flat
+
+
 def test_index_drafts_roundtrip(tmp_path: Path) -> None:
     drafts = tmp_path / "drafts.jsonl"
     drafts.write_text(

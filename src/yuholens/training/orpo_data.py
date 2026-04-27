@@ -93,6 +93,15 @@ A coherent rewrite must, relative to the draft:
 
 What you must NOT change
 ------------------------
+- PRESERVE EVERY (refs: ...) citation marker that appears in the draft. Do
+  not delete, rename, merge, reword, or reorder existing citation tags.
+  Each distinct (refs: ...) span present in the draft must appear in the
+  rewrite at least as many times as it appears in the draft. If a body
+  claim genuinely cannot be supported, replace the claim with "not
+  disclosed" but keep the associated (refs: ...) marker attached to the
+  same section. Stripping or dropping citations is the single most damaging
+  failure mode here and will be detected by a downstream gate; a rewrite
+  that loses citations will be rejected.
 - Do not invent new numerical values, new citations, or new Japanese spans.
   Reuse only the citations and figures already present in the draft.
 - Do not lengthen the memo for the sake of length, and do not aggressively
