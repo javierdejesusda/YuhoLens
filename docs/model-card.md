@@ -22,8 +22,8 @@ datasets:
 ## Model summary
 
 YuhoLens-14B is a 14-billion-parameter Japanese-to-English investor-memo
-generation model, produced by full-parameter supervised fine-tuning and
-reference-free preference optimization of `pfnet/nekomata-14b-pfn-qfin` on
+generation model, produced by full-parameter supervised fine-tuning of
+`pfnet/nekomata-14b-pfn-qfin` on
 annotated Japanese 有価証券報告書 (Yuho) filings drawn from the
 `SakanaAI/EDINET-Bench` corpus. The model is designed to operate inside a
 two-pass LangGraph pipeline: a per-section Pass-1 extractor that emits
@@ -96,11 +96,18 @@ best-of-N composer:
    argument unity; see `scripts/bestofn_pick.py` and the session
    2026-04-25 summary.
 
-ORPO (reference-free preference optimization) infrastructure is staged
-in `configs/orpo.yaml` + `src/yuholens/training/orpo*.py` but was not
-exercised, since best-of-N over the SFT distribution already cleared
-the KG-2 PASS gate. ORPO remains available for future runs that want
-to lift the single-shot distribution further.
+ORPO (reference-free preference optimization) infrastructure is wired
+in `configs/orpo.yaml` + `src/yuholens/training/orpo*.py`. Two
+synthetic-preference iterations were attempted; both failed at a
+pre-training data-quality gate before any GPU training step ran. V1
+used a citation-grounding critique misaligned with the coherence judge.
+V2 used a coherence critique whose missing citation-preservation
+constraint led `gpt-5-mini` to strip existing `(refs:)` markers from
+the SFT drafts (chosen citation rate 0.305 vs rejected 0.995). The
+shipped artifact is therefore SFT only; the ORPO route is documented
+as a negative result for the synthetic-preference data path on this
+corpus, and best-of-N over the SFT distribution cleared the KG-2 PASS
+gate without it.
 
 All training was performed on a single AMD Instinct MI300X (192 GB HBM3,
 ROCm 7.0) under the `rocm/pytorch:rocm7.0_ubuntu24.04_py3.12_pytorch_release_2.5.1`
@@ -112,7 +119,7 @@ Hyperparameters:
 | Stage | LR     | Batch | Grad accum | Seq len | Epochs | Optimizer         | Notes             |
 |-------|--------|-------|------------|---------|--------|-------------------|-------------------|
 | SFT   | 1e-5   | 1     | 32         | 8192    | 2      | adamw_bnb_8bit    | BF16, grad-ckpt; checkpoint-212 |
-| ORPO  | 5e-6   | 1     | 16         | 8192    | 1      | adamw_bnb_8bit    | beta = 0.1; staged but not exercised |
+| ORPO  | 5e-6   | 1     | 16         | 8192    | 1      | adamw_bnb_8bit    | beta = 0.1; wired but no shipped checkpoint (data gate failed both attempts) |
 
 **Compute budget.** Total ~38 GPU-hours on a single MI300X at $1.99/hr,
 within the $100 AMD Developer Cloud credit envelope; final spend target is
@@ -140,9 +147,11 @@ composer: `0/2/7/36/5` (counts at score 1/2/3/4/5), median 4.0, std
 
 For comparison the SFT checkpoint single-shot at v5 decoding scores
 3.56 mean coherence (SOFT). The +0.32 lift comes from the inference-
-time best-of-N selection across mixed-decoder candidates; ORPO was not
-required to clear the gate. Full session details are in
-`docs/session_2026-04-25_summary.md`.
+time best-of-N selection across mixed-decoder candidates; the ORPO
+trained-time route was tried twice and failed at the data-quality
+gate before any training step (see Training). Full session details
+are in `docs/session_2026-04-25_summary.md` and
+`docs/session_2026-04-26_summary.md`.
 
 ## Inference recipe
 
@@ -219,10 +228,11 @@ scripts/build_gguf.sh output/yuholens-14b-sft/checkpoint-212
   degrade quality because the training target distribution is English-only.
 - **Fine-tune-on-fine-tune stability.** The base
   `pfnet/nekomata-14b-pfn-qfin` is itself a continual pre-training of rinna's
-  `nekomata-14b`. Stacking SFT + ORPO on top of a CPT-ed base can introduce
+  `nekomata-14b`. Stacking SFT on top of a CPT-ed base can introduce
   instability; see build-spec §21 for mitigations (BF16 anchor, early kill
   gates, conservative LR). Users should treat repeated-finetune artifacts
-  with caution.
+  with caution. (A future ORPO retrain on top of this SFT would inherit
+  the same caveat; see the negative-result note in Training.)
 - **Sequence-length caveat.** Training was at 8192; generations beyond this
   horizon are unsupported and may degrade. See build-spec §19.
 - **No live-laptop demo.** The demonstration flow is batch-oriented
