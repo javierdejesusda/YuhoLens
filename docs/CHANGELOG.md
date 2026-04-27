@@ -52,6 +52,46 @@ README rewrite, sample fixture, social-media refresh, CI, pre-commit.
   `safetensors` to runtime deps; new `release` extra collects
   matplotlib for figure rendering.
 
+## [2026-04-27] — Session 1.9 — ORPO V2.1 measurement bug, V2.2 trained-but-flat
+
+### Changed
+
+- `CRITIQUE_SYSTEM` in `src/yuholens/training/orpo_data.py` now references
+  the canonical singular `(ref: "...")` citation marker form explicitly,
+  with two `CITATION_RE`-matching examples and a counter-example that
+  forbids rewriting markers as `(refs:`, `[ref:`, or `(citation:`. The
+  V2.1 patch had referenced the plural `(refs:` form, which does not
+  match the canonical evaluator regex; under the canonical regex the
+  V2.1 hedge "PASS" was actually chosen 0.6926 / rejected 0.9950 — a
+  measurement bug, not a real gate clearance.
+- `tests/test_orpo_data.py::test_critique_system_requires_citation_preservation`
+  strengthened to (a) require the singular `(ref:` form to dominate the
+  plural in count, (b) require at least 5 occurrences of the singular
+  form, and (c) assert that `CITATION_RE.search(CRITIQUE_SYSTEM)` matches
+  a real example. Future drifts between prompt language and evaluator
+  regex now fail this test loudly.
+
+### Result
+
+V2.2 critique batch (gpt-5-mini, 800 prompts, ~$3) cleared the
+canonical-regex data gate cleanly: chosen citation rate **1.0000**,
+rejected **0.9962**, median length ratio 1.221, 70% of rows fully
+preserve all citations, 790 prefs after empty-rewrite filtering. ORPO
+trained 50 steps in ~71 min on a fresh MI300X (atl1, snapshot 225943366,
+~$3.75 compute) at the configs/orpo.yaml defaults. Across all five
+logged step blocks, `rewards/accuracies` stayed **0.0** and reward
+margins stayed negative — the preference signal did not transfer at
+this data scale and step count. Smoke at the v5 decoder (n=7) produced
+mean coherence **3.571**, citation 1.000, section coverage 1.000 —
+indistinguishable from the SFT v5 single-shot baseline of 3.56 within
+judge noise. Best-of-7 generation was skipped on the basis of the smoke
+result + training-time signal (expected bo7 mean would tie SFT bo5 at
+3.88, not exceed it). Shipping artifact unchanged from session 1.7
+(SFT bo5 @ KG-2 PASS 3.88). Negative ORPO arc now spans three failed
+data-gate iterations plus one trained-and-evaluated tie, documenting
+the bound for the build narrative. Session note in
+`docs/session_2026-04-27_summary.md`.
+
 ## [2026-04-26] — Session 1.8 — ORPO V2 negative result
 
 ### Changed

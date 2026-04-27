@@ -42,14 +42,27 @@ fi
 
 cd "${clone_dir}"
 
-pip install -r requirements-dev.txt
+# The rocm_enabled branch has dropped requirements-dev.txt in favor of pyproject
+# build-system deps; only install if the file still exists.
+if [[ -f requirements-dev.txt ]]; then
+  pip install -r requirements-dev.txt
+else
+  echo "[install_bnb_rocm] requirements-dev.txt absent; relying on build-system deps"
+fi
 
 cmake -DCOMPUTE_BACKEND=hip -DBNB_ROCM_ARCH="${rocm_arch}" -S .
 make -j "$(nproc)"
 pip install .
 
 # Smoke verification: import bnb and instantiate the 8-bit AdamW optimizer.
-if ! python -c "import bitsandbytes as bnb; print(f'bnb version: {bnb.__version__}'); opt = bnb.optim.AdamW8bit([]); print('AdamW8bit OK')"; then
+# PyTorch 2.5+ rejects empty parameter lists, so we pass a 1-element dummy tensor.
+if ! python -c "
+import torch, bitsandbytes as bnb
+print(f'bnb version: {bnb.__version__}')
+p = torch.nn.Parameter(torch.zeros(1, device='cuda' if torch.cuda.is_available() else 'cpu'))
+opt = bnb.optim.AdamW8bit([p])
+print('AdamW8bit OK')
+"; then
   echo "[install_bnb_rocm] ERROR: bitsandbytes smoke verification failed" >&2
   exit 1
 fi

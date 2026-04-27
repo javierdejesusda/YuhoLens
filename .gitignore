@@ -40,6 +40,11 @@ data/cache/
 anthropic_key.txt
 huggingface_token.txt
 
+# AMD Developer Cloud orchestration (ephemeral state + logs)
+.adc_state.json
+scripts/adc/*.log
+docs/adc-runs/
+
 # IDE / OS
 .vscode/
 .idea/

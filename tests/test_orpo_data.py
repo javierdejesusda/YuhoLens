@@ -49,21 +49,47 @@ def test_critique_system_is_coherence_flavoured() -> None:
 
 
 def test_critique_system_requires_citation_preservation() -> None:
-    """The critique prompt must explicitly require preserving (refs:) markers.
+    """The critique prompt must explicitly require preserving (ref: ...) markers.
 
-    The first ORPO V2 batch failed the citation gate (chosen 0.305 vs
-    rejected 0.995) because the prompt forbade *inventing* citations but
-    never required *preserving* existing ones; gpt-5-mini interpreted
-    that as license to drop them. Lock in the preservation rule so a
-    future edit cannot silently re-introduce the failure mode.
+    History: V2 dropped citations entirely (chosen 0.305 vs rejected 0.995)
+    because the prompt forbade *inventing* citations but never required
+    *preserving* existing ones. V2.1 added a preserve clause but referenced
+    the literal substring ``(refs:`` (plural), which does not match the
+    actual citation marker form ``(ref: '...')`` used in the SFT drafts;
+    measured against the canonical ``yuholens.eval.metrics.CITATION_RE``
+    regex, V2.1 still failed at chosen 0.69. The fix is to reference the
+    exact marker form the canonical regex matches.
+
+    The assertion below pins the prompt to the ``(ref:`` (singular) marker
+    form AND verifies that the canonical regex would actually match the
+    example the prompt embeds, so a future drift between prompt language
+    and evaluator regex fails this test loudly instead of silently.
     """
     import re
 
+    from yuholens.eval.metrics import CITATION_RE
+
     flat = re.sub(r"\s+", " ", CRITIQUE_SYSTEM.lower())
     assert "preserve every" in flat
-    assert "(refs:" in CRITIQUE_SYSTEM
     assert "do not delete" in flat
     assert "not disclosed" in flat
+
+    singular_count = CRITIQUE_SYSTEM.count("(ref:")
+    plural_count = CRITIQUE_SYSTEM.count("(refs:")
+    assert singular_count >= 5, (
+        f"prompt mentions '(ref:' only {singular_count} time(s); the "
+        "preserve clause should reference the canonical singular form "
+        "repeatedly so gpt-5-mini cannot miss it."
+    )
+    assert singular_count > plural_count, (
+        f"prompt has {plural_count} '(refs:' (plural) vs {singular_count} "
+        "'(ref:' (singular); the dominant form must be the singular "
+        "canonical marker — this is the exact V2.1 substring-mismatch bug."
+    )
+    assert CITATION_RE.search(CRITIQUE_SYSTEM), (
+        "prompt does not embed a CITATION_RE-matching example; a future "
+        "edit could change the marker form without anyone noticing."
+    )
 
 
 def test_index_drafts_roundtrip(tmp_path: Path) -> None:

@@ -93,15 +93,23 @@ A coherent rewrite must, relative to the draft:
 
 What you must NOT change
 ------------------------
-- PRESERVE EVERY (refs: ...) citation marker that appears in the draft. Do
-  not delete, rename, merge, reword, or reorder existing citation tags.
-  Each distinct (refs: ...) span present in the draft must appear in the
-  rewrite at least as many times as it appears in the draft. If a body
-  claim genuinely cannot be supported, replace the claim with "not
-  disclosed" but keep the associated (refs: ...) marker attached to the
-  same section. Stripping or dropping citations is the single most damaging
-  failure mode here and will be detected by a downstream gate; a rewrite
-  that loses citations will be rejected.
+- PRESERVE EVERY (ref: "...") citation marker that appears in the draft. The
+  canonical citation form in this corpus is parenthesised, lower-case,
+  singular: a literal '(ref: ' followed by a single- or double-quoted
+  Japanese span, optionally followed by a page locator, closed by ')'.
+  Examples that must be preserved verbatim:
+      (ref: "売上高は前年同期比10.2%増" p.12)
+      (ref: '当期純利益は1,234百万円' p.―)
+  Do not delete, rename, merge, reword, reorder, or reformat existing
+  citation tags. Do NOT rewrite '(ref:' as '(refs:', '[ref:', '(citation:',
+  or any other variant; the downstream evaluator matches the literal
+  '(ref:' form only. Each distinct (ref: '...') span present in the draft
+  must appear in the rewrite at least as many times as it appears in the
+  draft. If a body claim genuinely cannot be supported, replace the claim
+  with "not disclosed" but keep the associated (ref: "...") marker
+  attached to the same section. Stripping or dropping citations is the
+  single most damaging failure mode here and will be detected by a
+  downstream gate; a rewrite that loses citations will be rejected.
 - Do not invent new numerical values, new citations, or new Japanese spans.
   Reuse only the citations and figures already present in the draft.
 - Do not lengthen the memo for the sake of length, and do not aggressively

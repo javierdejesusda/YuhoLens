@@ -10,4 +10,4 @@ num_train_epochs: 1
 learning_rate: 5.0e-6
 max_length: 8192
 beta: 0.1
-save_steps: 100
+save_steps: 25
