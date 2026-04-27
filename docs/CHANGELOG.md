@@ -52,6 +52,35 @@ README rewrite, sample fixture, social-media refresh, CI, pre-commit.
   `safetensors` to runtime deps; new `release` extra collects
   matplotlib for figure rendering.
 
+## [2026-04-26] — Session 1.8 — ORPO V2 negative result
+
+### Changed
+
+- `CRITIQUE_SYSTEM` in `src/yuholens/training/orpo_data.py` requires the
+  rewriter to PRESERVE EVERY `(refs: ...)` citation marker from the SFT
+  draft verbatim and never delete, rename, merge, reword, or reorder
+  existing tags (`55db47b`). Locked in by
+  `tests/test_orpo_data.py::test_critique_system_requires_citation_preservation`.
+- `docs/blog_post.md` corrected: the previous draft claimed ORPO ran on
+  ~1,000 preference pairs and that infrastructure was staged but not
+  exercised. ORPO was wired end-to-end and tried twice; both attempts
+  failed at a pre-training data-quality gate before any GPU training
+  step (`cd0f0cf`).
+- `docs/model-card.md` abstract no longer claims "supervised fine-tuning
+  and reference-free preference optimization"; the shipped artifact is
+  SFT only. Training, hyperparameter table, evaluation, and limitations
+  sections all updated to reflect the two ORPO data-gate failures
+  (`e01823d`).
+
+### Result
+
+ORPO V2 critique batch (gpt-5-mini, 800 prompts) landed at chosen
+citation rate **0.305** versus rejected **0.995** — a hard fail on the
+0.80 gate. No GPU training step was run. Shipping artifact unchanged
+from session 1.7 (best-of-5 SFT @ 3.88 KG-2 PASS). Negative result and
+$3-OpenAI prompt-patch hedge plan documented in
+`docs/session_2026-04-26_summary.md`.
+
 ## [2026-04-25] — Session 1.7 — KG-2 PASS
 
 ### Added
