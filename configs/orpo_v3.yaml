@@ -1,0 +1,23 @@
+# ORPO V3 hyperparameters — train longer and softer-anchored.
+# Reference-free (trl.experimental.orpo.ORPOTrainer).
+#
+# Differences from configs/orpo.yaml (V2.2 baseline):
+#   num_train_epochs: 1 -> 4   (50 grad-accum-16 steps -> ~200 steps)
+#   learning_rate: 5e-6 -> 3e-6 (stable over 4x more steps)
+#   beta: 0.1 -> 0.05          (softer SFT-anchor; lets chosen-reward gradient dominate)
+#   save_steps: 25 -> 50       (saves disk; checkpoints at 50/100/150/200)
+#
+# V2.2 result (50 steps): rewards/accuracies stayed 0.0; smoke 3.571 vs SFT
+# baseline 3.56 (tie). V3 hypothesis: more steps + softer anchor lets the
+# preference signal transfer.
+
+model_id: output/yuholens-14b-sft/checkpoint-212
+preference_data: data/teacher/orpo.jsonl
+output_dir: output/yuholens-14b-orpo
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 16
+num_train_epochs: 4
+learning_rate: 3.0e-6
+max_length: 8192
+beta: 0.05
+save_steps: 50
