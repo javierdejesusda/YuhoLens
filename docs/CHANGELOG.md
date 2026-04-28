@@ -52,6 +52,43 @@ README rewrite, sample fixture, social-media refresh, CI, pre-commit.
   `safetensors` to runtime deps; new `release` extra collects
   matplotlib for figure rendering.
 
+## [2026-04-28] — Session 1.10 — ORPO V3 plateau at step 100, kill-switch fired
+
+### Added
+
+- `configs/orpo_v3.yaml` — V3 trainer hyperparameters (4 epochs, lr
+  3.0e-6, beta 0.05, save_steps 50). Differs from V2.2 baseline
+  (`configs/orpo.yaml`) along three axes: 4× the epochs, slower lr to
+  keep gradients stable over 4× more steps, softer beta to relax
+  SFT-anchor regularisation. Hypothesis: the V2.2 trained-but-flat
+  result (50 steps, rewards/accuracies stuck at 0.0) was budget-bounded
+  rather than data-bounded; widening the budget should let the
+  preference signal transfer (`902b87e`).
+
+### Result
+
+V3 trained 100 of 200 planned steps (epoch 2.0 of 4) on the
+canonical-gate-clean 790-row preference set from session 1.9, then was
+killed by the G1.7 mid-train kill switch. Across all 10 logged step
+blocks, `rewards/accuracies` stayed exactly **0.0**; `rewards/margins`
+improved monotonically from **-0.0209 at step 10 to -0.0158 at step 70**
+(a 24% reduction) then **plateaued through epoch 2.0 (steps 70–100)** at
+margins ≈ -0.0158 and `log_odds_chosen` ≈ -0.78 to -0.80. Neither PASS
+condition (rewards/accuracies > 0.0 OR rewards/margins > 0.0) was met
+at step 100; the trainer was terminated cleanly and the droplet
+destroyed without snapshot retention. Pre-flight 5-step smoke
+(introduced this session as G1.5 to validate plumbing before
+committing the full $10 run) passed cleanly in ~9.5 min — no plumbing
+bugs found, but the gate is now standard for any future
+preference-optimisation attempt. Cross-iteration pattern: V2.2 (1 epoch,
+beta 0.1, lr 5e-6) and V3 (≥2 epochs, beta 0.05, lr 3e-6) both showed
+~24% reduction in reward margins before plateauing; doubling the budget
+did not double the headroom. The signal-to-noise floor at this corpus
+size appears asymptotic at margins ≈ -0.015, not zero. Shipping
+artifact unchanged from session 1.7 (SFT bo5 @ KG-2 PASS 3.88). Session
+spend ~$6.79 (3.41 h MI300X, no OAI calls); cumulative ~$33.64 of $65
+cap. Session note in `docs/session_2026-04-28_summary.md`.
+
 ## [2026-04-27] — Session 1.9 — ORPO V2.1 measurement bug, V2.2 trained-but-flat
 
 ### Changed
