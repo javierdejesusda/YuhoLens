@@ -1,14 +1,14 @@
 """Operator CLI for the YuhoLens 4-agent LangGraph composer.
 
 This is the demo-day entry point. It loads a Yuho row, runs the full
-LangGraph (Ingestor → Pass-1 → Pass-2 / MemoCriticAgent → Citation
+LangGraph (Ingestor -> Pass-1 -> Pass-2 / MemoCriticAgent -> Citation
 Grounder), and prints the final memo plus per-candidate diagnostics
 when ``--best-of-n`` is set.
 
 Usage:
-    python -m yuholens.agents \
-        --yuho-path data/eval/sample_yuho.txt \
-        --best-of-n \
+    python -m yuholens.agents \\
+        --yuho-path data/eval/sample_yuho.txt \\
+        --best-of-n \\
         --judge-mode auto
 
 The CLI is deliberately a thin wrapper around
@@ -20,12 +20,31 @@ flags.
 from __future__ import annotations
 
 import argparse
+import io
 import json
 import sys
 from pathlib import Path
 from typing import Any
 
 from yuholens.agents.graph import build_pipeline
+
+
+def _ensure_utf8_stdout() -> None:
+    """Reconfigure stdout/stderr to UTF-8 on platforms that default to a
+    narrow legacy encoding (e.g. Windows cp1252). The grounded memo
+    contains Japanese citation spans, so a narrow stdout would crash
+    with ``UnicodeEncodeError`` on the first non-ASCII codepoint.
+    """
+    for stream_name in ("stdout", "stderr"):
+        stream = getattr(sys, stream_name, None)
+        if isinstance(stream, io.TextIOWrapper) and (stream.encoding or "").lower() not in {
+            "utf-8",
+            "utf8",
+        }:
+            try:
+                stream.reconfigure(encoding="utf-8", errors="replace")
+            except (AttributeError, OSError):
+                pass
 
 
 def _read_yuho_row(yuho_row_path: Path, row_index: int) -> dict[str, Any]:
@@ -99,6 +118,7 @@ def _print_diagnostics(result: dict[str, Any]) -> None:
 
 
 def main(argv: list[str] | None = None) -> int:
+    _ensure_utf8_stdout()
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--yuho-path",

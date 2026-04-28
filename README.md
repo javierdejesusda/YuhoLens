@@ -104,9 +104,19 @@ git clone https://github.com/javierdejesusda/YuhoLens.git
 cd YuhoLens
 pip install -e .
 
-# Run the 4-agent composer end-to-end on a shipped sample row.
+# Run the 4-agent composer end-to-end on a shipped sample.
+#
+# Pre-req: an OpenAI-compatible inference endpoint reachable at
+# http://localhost:8000/v1 (vLLM-ROCm, llama.cpp server, or any drop-in
+# replacement) serving the YuhoLens checkpoint or its GGUF quant. The
+# heuristic judge avoids OpenAI calls for the candidate scorer, but
+# Pass-1 / Pass-2 still need a real inference backend.
+#
+# --yuho-path supplies the Japanese source text; --yuho-row supplies the
+# company metadata and pre-extracted BS/PL/CF tables.
 python -m yuholens.agents \
-    --yuho-row data/sample/sample_yuho.jsonl --row-index 0 \
+    --yuho-path data/sample/sample_yuho.txt \
+    --yuho-row  data/sample/sample_yuho.jsonl --row-index 0 \
     --best-of-n --n-candidates 5 --judge-mode heuristic
 
 # Reproduce a best-of-N pick offline (no OpenAI calls, heuristic only).
