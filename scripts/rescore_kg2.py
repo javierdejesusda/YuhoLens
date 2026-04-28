@@ -78,6 +78,7 @@ def _judge_per_memo(
     rubric: str,
     model: str,
     min_parse_rate: float,
+    engine: str = "openai",
 ) -> list[dict[str, Any]]:
     """Judge coherence memo-by-memo and return per-memo rows.
 
@@ -90,9 +91,11 @@ def _judge_per_memo(
         memos: Memo strings, aligned with ``custom_ids``.
         custom_ids: Row identifiers, aligned with ``memos``.
         rubric: Judge system prompt. Usually ``metrics.DEFAULT_RUBRIC``.
-        model: Chat-completions model name.
+        model: Judge model name (interpreted by the chosen ``engine``).
         min_parse_rate: Minimum fraction of memos whose judge response must
             parse. Raises ``ValueError`` when the observed rate is lower.
+        engine: ``"openai"`` (Chat Completions) or ``"anthropic"``
+            (Messages API).
 
     Returns:
         List of ``{"custom_id": str, "coherence": int | None}`` dicts, one
@@ -101,9 +104,64 @@ def _judge_per_memo(
     Raises:
         ValueError: When parse rate falls below ``min_parse_rate``.
     """
-    import openai
+    if engine == "openai":
+        import openai
 
-    client = openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+        provider_client = openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+
+        def call_one(prompt: str) -> int | None:
+            def _call() -> Any:
+                return provider_client.chat.completions.create(
+                    model=model,
+                    messages=[
+                        {"role": "system", "content": rubric},
+                        {"role": "user", "content": prompt},
+                    ],
+                )
+
+            response = _retry(_call)
+            choices = getattr(response, "choices", None) or []
+            if not choices:
+                return None
+            message = getattr(choices[0], "message", None)
+            content = (
+                getattr(message, "content", None) if message is not None else None
+            )
+            if not content:
+                return None
+            match = re.search(r"\b([1-5])\b", content)
+            return int(match.group(1)) if match is not None else None
+    elif engine == "anthropic":
+        import anthropic
+
+        provider_client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+
+        def call_one(prompt: str) -> int | None:
+            def _call() -> Any:
+                return provider_client.messages.create(
+                    model=model,
+                    max_tokens=16,
+                    system=rubric,
+                    messages=[{"role": "user", "content": prompt}],
+                )
+
+            response = _retry(_call)
+            content = getattr(response, "content", None) or []
+            text: str | None = None
+            for block in content:
+                if getattr(block, "type", None) == "text":
+                    text = getattr(block, "text", None)
+                    if text:
+                        break
+            if not text:
+                return None
+            match = re.search(r"\b([1-5])\b", text)
+            return int(match.group(1)) if match is not None else None
+    else:
+        raise ValueError(
+            f"unknown judge engine {engine!r}; expected 'openai' or 'anthropic'"
+        )
+
     rows: list[dict[str, Any]] = []
     parsed = 0
     for idx, (memo, cid) in enumerate(zip(memos, custom_ids), start=1):
@@ -112,29 +170,9 @@ def _judge_per_memo(
             "ONLY a single integer 1..5. No commentary.\n\nMEMO:\n<<<\n"
             f"{memo}\n>>>"
         )
-
-        def _call(prompt: str = user_prompt) -> Any:
-            return client.chat.completions.create(
-                model=model,
-                messages=[
-                    {"role": "system", "content": rubric},
-                    {"role": "user", "content": prompt},
-                ],
-            )
-
-        response = _retry(_call)
-        choices = getattr(response, "choices", None) or []
-        score: int | None = None
-        if choices:
-            message = getattr(choices[0], "message", None)
-            content = (
-                getattr(message, "content", None) if message is not None else None
-            )
-            if content:
-                match = re.search(r"\b([1-5])\b", content)
-                if match is not None:
-                    score = int(match.group(1))
-                    parsed += 1
+        score = call_one(user_prompt)
+        if score is not None:
+            parsed += 1
         rows.append({"custom_id": cid, "coherence": score})
         if idx % 10 == 0 or idx == len(memos):
             print(
@@ -189,10 +227,33 @@ def main() -> int:
     parser.add_argument("--memos", type=Path, required=True)
     parser.add_argument("--out", type=Path, default=None)
     parser.add_argument("--per-memo-out", type=Path, default=None)
-    parser.add_argument("--judge-model", default="gpt-5-mini")
+    parser.add_argument(
+        "--judge-engine",
+        choices=("openai", "anthropic"),
+        default="openai",
+        help="Judge backend: openai (Chat Completions) or anthropic (Messages).",
+    )
+    parser.add_argument(
+        "--judge-model",
+        default=None,
+        help="Judge model name. Defaults to gpt-5-mini for openai and "
+        "claude-opus-4-7 for anthropic.",
+    )
+    parser.add_argument(
+        "--anthropic-model",
+        default="claude-opus-4-7",
+        help="Anthropic model when --judge-engine=anthropic and "
+        "--judge-model is unset.",
+    )
     parser.add_argument("--judge-parse-min", type=float, default=0.9)
     parser.add_argument("--env", type=Path, default=Path(".env"))
     args = parser.parse_args()
+    if args.judge_model is None:
+        args.judge_model = (
+            args.anthropic_model
+            if args.judge_engine == "anthropic"
+            else "gpt-5-mini"
+        )
 
     _load_dotenv(args.env)
     repo_src = Path(__file__).resolve().parents[1] / "src"
@@ -222,11 +283,14 @@ def main() -> int:
     section = section_coverage(memos)
     section_mean = sum(section.values()) / max(len(section), 1)
 
-    if not os.environ.get("OPENAI_API_KEY"):
-        print("OPENAI_API_KEY missing", file=sys.stderr)
+    required_env = (
+        "ANTHROPIC_API_KEY" if args.judge_engine == "anthropic" else "OPENAI_API_KEY"
+    )
+    if not os.environ.get(required_env):
+        print(f"{required_env} missing", file=sys.stderr)
         return 2
     print(
-        f"[rescore] judging coherence with {args.judge_model}…",
+        f"[rescore] judging coherence with {args.judge_engine}:{args.judge_model}…",
         flush=True,
     )
     per_memo_rows: list[dict[str, Any]] | None = None
@@ -237,6 +301,7 @@ def main() -> int:
             rubric=DEFAULT_RUBRIC,
             model=args.judge_model,
             min_parse_rate=args.judge_parse_min,
+            engine=args.judge_engine,
         )
         parsed_scores = [
             row["coherence"] for row in per_memo_rows if row["coherence"] is not None
@@ -252,6 +317,7 @@ def main() -> int:
     else:
         coherence = judge_coherence(
             memos,
+            engine=args.judge_engine,
             model=args.judge_model,
             min_parse_rate=args.judge_parse_min,
         )
@@ -291,6 +357,7 @@ def main() -> int:
                     "gates": gates,
                     "verdict": verdict,
                     "n_memos": len(memos),
+                    "judge_engine": args.judge_engine,
                     "judge_model": args.judge_model,
                     "memos_file": str(args.memos),
                 },

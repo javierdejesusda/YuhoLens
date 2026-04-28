@@ -19,7 +19,7 @@ import re
 import time
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Literal
 
 CITATION_RE = re.compile(r"\(ref:\s*['\"][^'\"]+['\"]", re.IGNORECASE)
 
@@ -241,6 +241,14 @@ no bullets, no commentary, no trailing punctuation. Just the digit.
 """
 
 
+JudgeEngine = Literal["openai", "anthropic"]
+
+_ENGINE_DEFAULT_MODELS: dict[str, str] = {
+    "openai": "gpt-5-mini",
+    "anthropic": "claude-opus-4-7",
+}
+
+
 def _retry_call(call: Callable[[], Any], attempts: int = 5) -> Any:
     """Invoke a zero-arg callable with bounded exponential backoff.
 
@@ -282,59 +290,117 @@ def _retry_call(call: Callable[[], Any], attempts: int = 5) -> Any:
     raise last_exc
 
 
+def _extract_anthropic_text(response: Any) -> str | None:
+    """Pull the first text block off an Anthropic Messages response.
+
+    The Anthropic SDK returns ``response.content`` as a list of typed
+    content blocks; only blocks with ``type == "text"`` carry the model's
+    reply. This helper returns the first such block's text, or ``None``
+    when the response shape is empty / non-text (e.g. a refusal).
+
+    Args:
+        response: An ``anthropic.types.Message`` instance, or any
+            object exposing the same ``content`` attribute shape.
+
+    Returns:
+        The first text block's content, or ``None`` if no text block is
+        present.
+    """
+    content = getattr(response, "content", None) or []
+    for block in content:
+        if getattr(block, "type", None) == "text":
+            text = getattr(block, "text", None)
+            if text:
+                return text
+    return None
+
+
 def judge_coherence(
     memos: Iterable[str],
+    engine: JudgeEngine = "openai",
     rubric: str = DEFAULT_RUBRIC,
-    model: str = "gpt-5-mini",
+    model: str | None = None,
     client: Any | None = None,
     min_parse_rate: float = 0.9,
 ) -> float:
     """Score memo coherence with an LLM judge and return the mean score.
 
-    For each memo, one real-time Chat Completions request is sent with the
-    rubric as the system prompt. The assistant's reply is parsed for a
-    single integer in ``[1, 5]``. The returned value is the arithmetic mean
-    of successfully parsed scores. To protect kill-gate decisions from
+    For each memo, one real-time judge request is sent with the rubric as
+    the system prompt. The assistant's reply is parsed for a single integer
+    in ``[1, 5]``. The returned value is the arithmetic mean of
+    successfully parsed scores. To protect kill-gate decisions from
     survivorship bias when the judge regresses, the function raises
     ``ValueError`` whenever the parse rate falls below ``min_parse_rate``.
 
-    The rubric is deliberately long (>= 1024 tokens) so OpenAI's automatic
-    prefix caching kicks in across the batch, reducing input-token cost on
-    cache hits. Each chat-completions call is wrapped in a five-attempt
-    exponential-backoff retry (1/2/4/8/16s) mirroring the teacher pipeline.
+    Two judge engines are supported. ``engine="openai"`` (the original
+    path, default) calls ``openai.OpenAI.chat.completions.create`` and
+    defaults the model to ``gpt-5-mini``. ``engine="anthropic"`` calls
+    ``anthropic.Anthropic.messages.create`` and defaults the model to
+    ``claude-opus-4-7``. Per the Opus 4.7 migration guide, the Anthropic
+    path passes neither ``thinking`` nor any sampling parameter and relies
+    on the rubric's strict "single integer" instruction to keep the reply
+    parseable.
+
+    The rubric is deliberately long (>= 1024 tokens) so the underlying
+    provider's automatic prefix caching kicks in across the batch,
+    reducing input-token cost on cache hits. Each call is wrapped in a
+    five-attempt exponential-backoff retry (1/2/4/8/16s) mirroring the
+    teacher pipeline.
 
     Args:
         memos: Iterable of memo strings to judge.
+        engine: Judge backend. ``"openai"`` uses Chat Completions;
+            ``"anthropic"`` uses the Messages API. Defaults to
+            ``"openai"`` so existing callers are unaffected.
         rubric: System-prompt rubric defining the 1..5 Likert scale.
             Defaults to :data:`DEFAULT_RUBRIC`.
-        model: OpenAI chat-completions model name. Defaults to
-            ``"gpt-5-mini"``.
-        client: Optional pre-built ``openai.OpenAI`` client, injected for
-            tests. When ``None``, a client is constructed lazily from the
-            ``OPENAI_API_KEY`` environment variable.
-        min_parse_rate: Minimum fraction of memos whose judge response must
-            parse to a valid Likert score. When the observed parse rate is
-            below this threshold, ``ValueError`` is raised so the caller
-            cannot silently accept a biased mean. Set to ``0.0`` to disable
-            the guard (e.g. for ad-hoc exploration).
+        model: Judge model name. When ``None``, defaults to
+            ``"gpt-5-mini"`` for ``engine="openai"`` and
+            ``"claude-opus-4-7"`` for ``engine="anthropic"``.
+        client: Optional pre-built provider client, injected for tests.
+            When ``None``, an OpenAI client is constructed lazily from
+            ``OPENAI_API_KEY``, or an Anthropic client is constructed
+            lazily from ``ANTHROPIC_API_KEY``.
+        min_parse_rate: Minimum fraction of memos whose judge response
+            must parse to a valid Likert score. When the observed parse
+            rate is below this threshold, ``ValueError`` is raised so
+            the caller cannot silently accept a biased mean. Set to
+            ``0.0`` to disable the guard (e.g. for ad-hoc exploration).
 
     Returns:
-        Mean Likert score as a ``float``. Returns ``0.0`` if ``memos`` is
-        empty.
+        Mean Likert score as a ``float``. Returns ``0.0`` if ``memos``
+        is empty.
 
     Raises:
-        ValueError: When the parse rate over ``memos`` falls below
-            ``min_parse_rate``. The error message reports the observed
-            parse rate so the caller can triage the judge or prompt.
+        ValueError: When ``engine`` is unknown, or when the parse rate
+            over ``memos`` falls below ``min_parse_rate``. The error
+            message reports the observed parse rate so the caller can
+            triage the judge or prompt.
     """
+    if engine not in _ENGINE_DEFAULT_MODELS:
+        raise ValueError(
+            f"unknown judge engine {engine!r}; expected one of "
+            f"{sorted(_ENGINE_DEFAULT_MODELS)}"
+        )
+
     memos = list(memos)
     if not memos:
         return 0.0
 
-    if client is None:
-        import openai
+    resolved_model = model or _ENGINE_DEFAULT_MODELS[engine]
 
-        client = openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+    if engine == "openai":
+        if client is None:
+            import openai
+
+            client = openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+        score_one = _judge_one_openai
+    else:
+        if client is None:
+            import anthropic
+
+            client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+        score_one = _judge_one_anthropic
 
     scores: list[int] = []
     for memo in memos:
@@ -343,28 +409,14 @@ def judge_coherence(
             "ONLY a single integer 1..5. No commentary.\n\nMEMO:\n<<<\n"
             f"{memo}\n>>>"
         )
-
-        def _call(prompt: str = user_prompt) -> Any:
-            return client.chat.completions.create(
-                model=model,
-                messages=[
-                    {"role": "system", "content": rubric},
-                    {"role": "user", "content": prompt},
-                ],
-            )
-
-        response = _retry_call(_call)
-        choices = getattr(response, "choices", None) or []
-        if not choices:
-            continue
-        message = getattr(choices[0], "message", None)
-        content = getattr(message, "content", None) if message is not None else None
-        if not content:
-            continue
-        match = re.search(r"\b([1-5])\b", content)
-        if match is None:
-            continue
-        scores.append(int(match.group(1)))
+        score = score_one(
+            client=client,
+            model=resolved_model,
+            rubric=rubric,
+            prompt=user_prompt,
+        )
+        if score is not None:
+            scores.append(score)
 
     parse_rate = len(scores) / len(memos)
     if parse_rate < min_parse_rate:
@@ -377,9 +429,72 @@ def judge_coherence(
     return sum(scores) / len(scores)
 
 
+def _judge_one_openai(
+    *,
+    client: Any,
+    model: str,
+    rubric: str,
+    prompt: str,
+) -> int | None:
+    """Judge one memo via OpenAI Chat Completions; return parsed score or None."""
+
+    def _call() -> Any:
+        return client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": rubric},
+                {"role": "user", "content": prompt},
+            ],
+        )
+
+    response = _retry_call(_call)
+    choices = getattr(response, "choices", None) or []
+    if not choices:
+        return None
+    message = getattr(choices[0], "message", None)
+    content = getattr(message, "content", None) if message is not None else None
+    if not content:
+        return None
+    match = re.search(r"\b([1-5])\b", content)
+    return int(match.group(1)) if match is not None else None
+
+
+def _judge_one_anthropic(
+    *,
+    client: Any,
+    model: str,
+    rubric: str,
+    prompt: str,
+    max_tokens: int = 16,
+) -> int | None:
+    """Judge one memo via Anthropic Messages; return parsed score or None.
+
+    The rubric is sent as the ``system`` argument and the memo prompt as
+    a single user message. ``max_tokens`` is intentionally tiny because
+    the rubric forces a one-character reply; if the judge produces
+    anything longer the parser will still pull out the first 1..5 digit.
+    """
+
+    def _call() -> Any:
+        return client.messages.create(
+            model=model,
+            max_tokens=max_tokens,
+            system=rubric,
+            messages=[{"role": "user", "content": prompt}],
+        )
+
+    response = _retry_call(_call)
+    text = _extract_anthropic_text(response)
+    if not text:
+        return None
+    match = re.search(r"\b([1-5])\b", text)
+    return int(match.group(1)) if match is not None else None
+
+
 __all__ = [
     "DEFAULT_RUBRIC",
     "EvalRow",
+    "JudgeEngine",
     "citation_presence_rate",
     "count_citations",
     "judge_coherence",

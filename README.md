@@ -33,18 +33,29 @@ margin in the electronic-components segment (ref: '事業等のリスクとし�
 急激な為替変動は営業利益率に重大な影響を及ぼす可能性がある' p.23).
 ```
 
-## Headline result — KG-2 PASS
+## Headline result — KG-2 under two judges
 
-| Gate                                 | Target  | Best-of-5 composer (shipping) |
-| ------------------------------------ | :-----: | :---------------------------: |
-| Citation presence rate               | ≥ 0.70  | **1.000**                     |
-| Section coverage (7 sections)        | ≥ 0.60  | **0.994**                     |
-| Judge coherence (gpt-5-mini Likert)  | ≥ 3.80  | **3.88**                      |
+> **bo9 coherence: 2.48 (Opus 4.7) / 4.04 (gpt-5-mini) — judges disagree; see
+> [`docs/session_2026-04-28_opus_judge_summary.md`](docs/session_2026-04-28_opus_judge_summary.md).**
 
-Coherence distribution on the 50-prompt KG-2 test set: `0/2/7/36/5` (counts at
-1/2/3/4/5), median 4.0, std 0.621. **Verdict: PASS.**
+| Gate                                       | Target  | bo5 picked (shipping) | bo9 picked            |
+| ------------------------------------------ | :-----: | :-------------------: | :-------------------: |
+| Citation presence rate                     | ≥ 0.70  | **1.000**             | **1.000**             |
+| Section coverage (7 sections)              | ≥ 0.60  | **0.994**             | **0.997**             |
+| Judge coherence — `gpt-5-mini`             | ≥ 3.80  | **3.88** PASS         | **4.04** PASS         |
+| Judge coherence — `claude-opus-4-7` (blinded primary) | ≥ 3.80  | **2.60** FAIL | **2.48** FAIL |
 
-### How we got there
+The two judges disagree at chance level (Cohen's κ = 0.017 unweighted,
+0.080 weighted, n=100 paired ratings) and disagree on the **direction**
+of the bo9-vs-bo5 lift (gpt-5-mini +0.16, Opus −0.12; Opus paired 95%
+bootstrap CI [−0.36, +0.10] includes zero). Shipping recommendation:
+**bo5 picked under the `gpt-5-mini` gate (3.88 PASS)**; the bo9 +0.16
+lift is not validated by the stricter judge and is retained as an
+unvalidated alternative. See
+[`docs/session_2026-04-28_opus_judge_summary.md`](docs/session_2026-04-28_opus_judge_summary.md)
+for full statistical detail and per-domain breakdown.
+
+### How we got there (gpt-5-mini judge)
 
 | stage                                      | mean coherence | verdict |
 | ------------------------------------------ | :------------: | :-----: |
@@ -52,6 +63,7 @@ Coherence distribution on the 50-prompt KG-2 test set: `0/2/7/36/5` (counts at
 | best-of-2 (mixed decoder)                  | 3.72           | SOFT    |
 | best-of-3 (same-decoder seeds)             | 3.64           | SOFT    |
 | **best-of-5 (mixed decoder + seeds)**      | **3.88**       | **PASS**|
+| best-of-9 (bo5 + 4 new decoder profiles)   | 4.04           | PASS (gpt) / FAIL (Opus); lift not stat-distinguishable from zero at n=50 |
 
 <p align="center">
   <img alt="KG-2 coherence arc, 3.56 -> 3.72 -> 3.64 -> 3.88 PASS" src="docs/figures/metric_arc.png" width="700">

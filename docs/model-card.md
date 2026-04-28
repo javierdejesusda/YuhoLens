@@ -135,23 +135,78 @@ Three kill-gate metrics are evaluated on a held-out 50-row test split
 (`data/eval/kg2_test.jsonl`). The released configuration must pass all
 three.
 
-| Metric                          | Definition                                                                                   | Target   | Measured (best-of-5 composer) |
-|---------------------------------|----------------------------------------------------------------------------------------------|----------|-------------------------------|
-| Citation presence rate          | Fraction of generated memos with at least one inline `(ref: '…' p.X)` Japanese-span citation. | ≥ 0.70   | **1.000**                     |
-| Section coverage                | Mean coverage of the seven memo sections (executive summary, going-concern, accrual quality, earnings direction, top risks, related-party, evidence appendix). | ≥ 0.60   | **0.994**                     |
-| Judge coherence (gpt-5-mini Likert) | 1-5 Likert mean from an independent gpt-5-mini judge scoring cross-section argument unity (rubric in `src/yuholens/eval/metrics.py:DEFAULT_RUBRIC`). | ≥ 3.80   | **3.88**                      |
+### Judge stack
 
-Score distribution on the 50-prompt test set under the best-of-5
-composer: `0/2/7/36/5` (counts at score 1/2/3/4/5), median 4.0, std
-0.621. Verdict: **PASS**.
+Coherence is measured by two independent judges on the same 50-prompt
+test set:
+
+- **Primary — `claude-opus-4-7`** (Anthropic), invoked same-pass blinded
+  over 100 candidate memos (50 bo5-picked + 50 bo9-picked, run together
+  with anonymised IDs so the judge cannot tell which set a memo came
+  from). Judge engine selectable via `--judge-engine anthropic` in
+  `scripts/rescore_kg2.py` and `scripts/bestofn_judge.py`.
+- **Secondary — `gpt-5-mini`** (OpenAI Batch API), the original judge
+  used for the bo5/bo9 generation passes.
+
+**Inter-judge agreement (n=100 paired ratings):**
+
+| Statistic                          | Value |
+|------------------------------------|------:|
+| Cohen's κ (unweighted)             | 0.017 |
+| Cohen's κ (quadratic-weighted)     | 0.080 |
+
+The two judges agree at essentially the level of chance.
+`gpt-5-mini` is systematically more lenient (mean 3.96 vs Opus 2.54
+across all 100 memos), and the two judges disagree on the *direction*
+of the bo9-vs-bo5 lift.
+
+### Headline coherence (n=50 per set, paired by `custom_id`)
+
+| Configuration | Opus 4.7 mean | gpt-5-mini mean | Gate (≥3.80) |
+|---------------|--------------:|----------------:|:------------:|
+| bo5 picked    | **2.60**      | **3.88**        | gpt PASS / Opus FAIL |
+| bo9 picked    | **2.48**      | **4.04**        | gpt PASS / Opus FAIL |
+
+**Paired Opus delta (bo9 − bo5) = −0.12** (bo9 nominally *worse* under
+Opus). 95% bootstrap CI [−0.36, +0.10] (10,000 resamples, rng=20260428)
+**includes zero**; sign-test two-sided exact-binomial p = 0.648. The
+bo9 lift is *not* statistically distinguishable from judge stochasticity
+at n=50 under Opus, and the direction of the lift flips between judges
+(Opus −0.12, gpt-5-mini +0.16).
+
+| Metric                          | Definition                                                                                   | Target   | bo5 picked | bo9 picked |
+|---------------------------------|----------------------------------------------------------------------------------------------|----------|------------|------------|
+| Citation presence rate          | Fraction of generated memos with at least one inline `(ref: '…' p.X)` Japanese-span citation. | ≥ 0.70   | **1.000**  | **1.000**  |
+| Section coverage                | Mean coverage of the seven memo sections (executive summary, going-concern, accrual quality, earnings direction, top risks, related-party, evidence appendix). | ≥ 0.60   | **0.994**  | **0.997**  |
+| Judge coherence — `gpt-5-mini`  | 1-5 Likert mean (gpt-5-mini Batch API).                                                      | ≥ 3.80   | **3.88**   | **4.04**   |
+| Judge coherence — `claude-opus-4-7` (primary, blinded) | 1-5 Likert mean, blinded same-pass over 100 memos.                | ≥ 3.80   | **2.60**   | **2.48**   |
+
+Score distribution on the 50-prompt bo5 picked set under `gpt-5-mini`:
+`0/2/7/36/5` (counts at score 1/2/3/4/5), median 4.0, std 0.621. Under
+Opus 4.7 the joint 100-memo distribution is `13/40/27/20/0` (mean 2.54)
+— no memo received a 5.
 
 For comparison the SFT checkpoint single-shot at v5 decoding scores
-3.56 mean coherence (SOFT). The +0.32 lift comes from the inference-
-time best-of-N selection across mixed-decoder candidates; the ORPO
-trained-time route was tried twice and failed at the data-quality
-gate before any training step (see Training). Full session details
-are in `docs/session_2026-04-25_summary.md` and
-`docs/session_2026-04-26_summary.md`.
+3.56 mean coherence under `gpt-5-mini`. The +0.32 lift to bo5 comes
+from the inference-time best-of-N selection across mixed-decoder
+candidates; the ORPO trained-time route was tried five times and
+failed (three data-gate failures, one trained-and-tied, one plateaued
+at margins ≈ −0.015 with rewards/accuracies = 0.0; see Training).
+Full session details: `docs/session_2026-04-25_summary.md`,
+`docs/session_2026-04-26_summary.md`,
+`docs/session_2026-04-28_bo9_summary.md`,
+`docs/session_2026-04-28_opus_judge_summary.md`.
+
+### Shipping recommendation
+
+Recommend **bo5 picked** as the shippable artefact under the
+`gpt-5-mini` judge gate (3.88 PASS; smaller candidate pool; cheaper
+inference). The bo9 lift was not validated by the stricter Opus 4.7
+judge — direction flips and the paired CI includes zero at n=50, so the
++0.16 gpt-5-mini lift is best read as judge noise within Opus's
+calibration. The bo9 picked-memo files are retained for future
+re-evaluation against larger n or alternative judges; the locked SFT
+checkpoint and bo5/bo9 picked-memo files are unchanged.
 
 ## Inference recipe
 
@@ -223,6 +278,26 @@ scripts/build_gguf.sh output/yuholens-14b-sft/checkpoint-212
 
 ## Limitations and biases
 
+- **Evaluation scale and judge disagreement.** Coherence is reported on
+  n=50 paired prompts per configuration with no held-out-by-domain split
+  beyond the 10/24/16 row-counts shown in
+  `docs/session_2026-04-28_opus_judge_summary.md`. There is **no human
+  evaluation** — both judges are LLM autoraters (`gpt-5-mini` Batch and
+  `claude-opus-4-7` blinded). Cohen's κ between the two judges is 0.017
+  unweighted / 0.080 quadratic-weighted on n=100 paired ratings: agreement
+  is at chance level. The judges disagree on the *direction* of the
+  bo9-vs-bo5 lift (gpt-5-mini +0.16, Opus −0.12). The bo9 lift is not
+  statistically distinguishable from zero under Opus (paired 95%
+  bootstrap CI [−0.36, +0.10], sign-test p=0.648). Treat the headline
+  3.88/4.04 numbers as one judge's read; the stricter Opus result of
+  2.60/2.48 is a calibration anchor, not a contradicting verdict.
+- **Citation accuracy is unaudited.** Citation *presence rate* is
+  measured (1.000 on bo5 and bo9 picked sets) but the verbatim
+  correctness of `(ref: '<span>' p.N)` markers against the underlying
+  Japanese Yuho text has not been audited. The citation-grounder
+  pipeline replaces sentences with `[evidence insufficient]` when no
+  Pass-1 span resolves a marker, but a marker that resolves to the
+  *wrong* span will not be caught by the current evaluator.
 - **Source language asymmetry.** The model only accepts Japanese Yuho input
   and only emits English memos. Attempts to elicit Japanese output will
   degrade quality because the training target distribution is English-only.
