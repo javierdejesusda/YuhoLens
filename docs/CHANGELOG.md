@@ -52,6 +52,39 @@ README rewrite, sample fixture, social-media refresh, CI, pre-commit.
   `safetensors` to runtime deps; new `release` extra collects
   matplotlib for figure rendering.
 
+## [2026-04-28] — Session 1.11 — bo9 KG-2 PASS at coherence 4.04 (+0.16 over bo5)
+
+### Result
+
+Best-of-9 mixed-decoder inference on the existing SFT checkpoint
+`output/yuholens-14b-sft/checkpoint-212` reached **KG-2 PASS coherence
+4.04**, citation **1.000**, section coverage **0.997** (n=50, fresh
+gpt-5-mini judge). The +0.16 lift over the previously-locked bo5
+baseline of 3.88 (session 1.7) came from extending the candidate pool
+with 4 *new* decoder profiles unsampled by bo5: `s8 tight (temp 0.05,
+rep 1.20)`, `s9 creative (temp 0.30, rep 1.05)`, `s10 mid (temp 0.15,
+rep 1.125)`, and `s11 ngram-block (temp 0.10, rep 1.15,
+no_repeat_ngram_size 3)`. Pick share over 50 prompts: v4v5 mixed 62.0%,
+bo3 seeds 22.0% combined, **s8/s9/s10 16.0% combined**, **s11 0% (a
+dud, mean 2.58 — ngram-blocking fragments financial-terminology reuse;
+the constraint is empirically refuted at this checkpoint and should
+not be tried again)**. Final picked-fresh distribution 0/1/5/35/9
+versus bo5's 0/2/7/36/5; 4 prompts moved 4→5 and 1 weak-tail prompt
+lifted out of score 2. The locked SFT checkpoint and bo5 fallback
+files were SHA256-verified unchanged at session start and end via
+`scripts/_pipeline/bo9_anticlobber.py`. No SFT or ORPO retraining; the
+shipping artifact is now either bo5 @ 3.88 (smaller candidate pool,
+less inference compute) or **bo9 @ 4.04** (+0.16 lift, defensible
+headline). The session was driven by a four-option enhancement
+recommendation plan (Option A bo9 chosen over Option B 1k-pref ORPO V4
+expansion, Option C DPO, and Option D 2nd SFT seed ensemble); A's
+EV-per-dollar was 6× higher than the runner-up. Operator pipeline
+(`scripts/_pipeline/bo9_*`) and the recommendation plan
+(`docs/superpowers/plans/yuholens_enhancement.md`) are local-only by
+convention. Session spend ~$16.00 ($15.66 droplet 7.87 h × $1.99/hr,
+$0.34 OpenAI 490 judge calls); cumulative project ~$49.64 of $65 cap.
+Session note in `docs/session_2026-04-28_bo9_summary.md`.
+
 ## [2026-04-28] — Session 1.10 — ORPO V3 plateau at step 100, kill-switch fired
 
 ### Added
