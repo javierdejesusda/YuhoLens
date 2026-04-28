@@ -45,6 +45,12 @@ huggingface_token.txt
 scripts/adc/*.log
 docs/adc-runs/
 
+# Local-only session notes (engineering log for the maintainer; not for
+# public consumption). Public-facing changelog lives in docs/CHANGELOG.md.
+docs/session_*.md
+docs/mi300x_handoff.md
+docs/superpowers/
+
 # IDE / OS
 .vscode/
 .idea/

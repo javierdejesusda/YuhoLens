@@ -87,8 +87,7 @@ The shipping verdict is unchanged: **bo5 picked under `gpt-5-mini` at
 `output/yuholens-14b-sft/checkpoint-212` and the bo5/bo9 picked memo
 files are unchanged. README and model-card lead with the gpt-5-mini
 PASS headline; the Opus calibration check is documented in a small
-end-of-doc note and in
-`docs/session_2026-04-28_opus_judge_summary.md`.
+end-of-doc note in each.
 
 ## [2026-04-28] — Session 1.11 — bo9 KG-2 PASS at coherence 4.04 (+0.16 over bo5)
 
@@ -121,7 +120,6 @@ EV-per-dollar was 6× higher than the runner-up. Operator pipeline
 (`docs/superpowers/plans/yuholens_enhancement.md`) are local-only by
 convention. Session spend ~$16.00 ($15.66 droplet 7.87 h × $1.99/hr,
 $0.34 OpenAI 490 judge calls); cumulative project ~$49.64 of $65 cap.
-Session note in `docs/session_2026-04-28_bo9_summary.md`.
 
 ## [2026-04-28] — Session 1.10 — ORPO V3 plateau at step 100, kill-switch fired
 
@@ -158,7 +156,7 @@ did not double the headroom. The signal-to-noise floor at this corpus
 size appears asymptotic at margins ≈ -0.015, not zero. Shipping
 artifact unchanged from session 1.7 (SFT bo5 @ KG-2 PASS 3.88). Session
 spend ~$6.79 (3.41 h MI300X, no OAI calls); cumulative ~$33.64 of $65
-cap. Session note in `docs/session_2026-04-28_summary.md`.
+cap.
 
 ## [2026-04-27] — Session 1.9 — ORPO V2.1 measurement bug, V2.2 trained-but-flat
 
@@ -197,8 +195,7 @@ result + training-time signal (expected bo7 mean would tie SFT bo5 at
 3.88, not exceed it). Shipping artifact unchanged from session 1.7
 (SFT bo5 @ KG-2 PASS 3.88). Negative ORPO arc now spans three failed
 data-gate iterations plus one trained-and-evaluated tie, documenting
-the bound for the build narrative. Session note in
-`docs/session_2026-04-27_summary.md`.
+the bound for the build narrative.
 
 ## [2026-04-26] — Session 1.8 — ORPO V2 negative result
 
@@ -225,9 +222,7 @@ the bound for the build narrative. Session note in
 ORPO V2 critique batch (gpt-5-mini, 800 prompts) landed at chosen
 citation rate **0.305** versus rejected **0.995** — a hard fail on the
 0.80 gate. No GPU training step was run. Shipping artifact unchanged
-from session 1.7 (best-of-5 SFT @ 3.88 KG-2 PASS). Negative result and
-$3-OpenAI prompt-patch hedge plan documented in
-`docs/session_2026-04-26_summary.md`.
+from session 1.7 (best-of-5 SFT @ 3.88 KG-2 PASS).
 
 ## [2026-04-25] — Session 1.7 — KG-2 PASS
 
@@ -255,9 +250,8 @@ $3-OpenAI prompt-patch hedge plan documented in
 ### Result
 
 KG-2 PASS at coherence **3.88**, citation rate **1.000**, section
-coverage **0.994** under the best-of-5 mixed-decoder composer. Verdict
-documented in `docs/session_2026-04-25_summary.md` (committed in
-`9b17222`).
+coverage **0.994** under the best-of-5 mixed-decoder composer
+(verdict committed in `9b17222`).
 
 ## [2026-04-22] — Session 1.6 — SFT polish module
 

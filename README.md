@@ -251,9 +251,8 @@ end-to-end. As a secondary calibration check, we also re-judged the
 applies a stricter rubric — it reserves score 5 for "senior-PM-grade,
 unedited" memos and produces no 5s on any LLM-generated text in this
 domain — and reports a lower absolute mean. We treat this as rubric
-calibration rather than a contradicting verdict; full numbers and
-methodology in
-[`docs/session_2026-04-28_opus_judge_summary.md`](docs/session_2026-04-28_opus_judge_summary.md).
+calibration rather than a contradicting verdict; the
+`gpt-5-mini` PASS remains the released configuration.
 
 ## Credits
 

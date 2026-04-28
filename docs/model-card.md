@@ -150,12 +150,9 @@ For comparison the SFT checkpoint single-shot at v5 decoding scores
 time best-of-N selection across mixed-decoder candidates; the ORPO
 trained-time route was tried five times and failed (three data-gate
 failures, one trained-and-tied, one plateaued at margins ≈ −0.015
-with rewards/accuracies = 0.0; see Training). Full session details
-are in `docs/session_2026-04-25_summary.md`,
-`docs/session_2026-04-26_summary.md`, and
-`docs/session_2026-04-28_bo9_summary.md`. A best-of-9 extension
-(`docs/session_2026-04-28_bo9_summary.md`) reaches 4.04 under the
-same judge.
+with rewards/accuracies = 0.0; see Training). A best-of-9 extension
+reaches 4.04 under the same judge. Engineering log is summarised in
+`docs/CHANGELOG.md`.
 
 ## Inference recipe
 
@@ -319,5 +316,4 @@ reserves score 5 for "senior-PM-grade, unedited" memos and produces no
 5s on any LLM-generated text in this domain — and reports a lower
 absolute mean. We treat this as rubric calibration rather than a
 contradicting verdict; `gpt-5-mini` remains the gate the project is
-shipped against. Full numbers and methodology in
-`docs/session_2026-04-28_opus_judge_summary.md`.
+shipped against.
