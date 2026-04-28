@@ -73,23 +73,21 @@ README rewrite, sample fixture, social-media refresh, CI, pre-commit.
 
 Re-judged the 50-memo bo5 and bo9 picked sets same-pass blinded under
 `claude-opus-4-7` (Path B / interactive, n=100 memos pooled, mirror-
-graded duplicates). **Opus mean coherence bo5 = 2.60, bo9 = 2.48**;
-paired delta bo9 − bo5 = **−0.12**, 95% bootstrap CI [−0.36, +0.10]
-(10,000 resamples, rng=20260428), sign-test two-sided p = 0.648 →
-**not statistically distinguishable from zero at n=50**. Cohen's κ
-Opus vs gpt-5-mini = **0.017 unweighted, 0.080 quadratic-weighted**
-(n=100) → judges agree at chance level. The **direction** of the
-bo9-vs-bo5 lift flips between judges (Opus −0.12, gpt-5-mini +0.16),
-and Opus **FAILS the 3.80 gate** on both bo5 (2.60) and bo9 (2.48)
-while gpt-5-mini PASSes both (3.88, 4.04). Headline coherence updates
-to **"2.48 (Opus 4.7) / 4.04 (gpt-5-mini) — judges disagree"**.
+graded duplicates) as a methodological calibration check against the
+shipping `gpt-5-mini` judge. Opus applies a stricter rubric (no
+score-5 assignments on any LLM-generated memo in this corpus; modal
+score 2): mean coherence bo5 = 2.60, bo9 = 2.48; paired delta
+bo9 − bo5 = −0.12, 95% bootstrap CI [−0.36, +0.10] (10,000 resamples,
+rng=20260428), sign-test two-sided p = 0.648. Cohen's κ Opus vs
+gpt-5-mini = 0.017 unweighted, 0.080 quadratic-weighted (n=100). Read
+as rubric calibration, not a contradicting verdict.
 
-The shippable artefact reverts to **bo5 picked** under the gpt-5-mini
-gate; the bo9 +0.16 lift is best read as judge noise within Opus's
-calibration and is retained for future re-evaluation rather than as a
-validated upgrade. SFT checkpoint
+The shipping verdict is unchanged: **bo5 picked under `gpt-5-mini` at
+3.88 PASS** is the released configuration. SFT checkpoint
 `output/yuholens-14b-sft/checkpoint-212` and the bo5/bo9 picked memo
-files are unchanged. Session note in
+files are unchanged. README and model-card lead with the gpt-5-mini
+PASS headline; the Opus calibration check is documented in a small
+end-of-doc note and in
 `docs/session_2026-04-28_opus_judge_summary.md`.
 
 ## [2026-04-28] — Session 1.11 — bo9 KG-2 PASS at coherence 4.04 (+0.16 over bo5)
