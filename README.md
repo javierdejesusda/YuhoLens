@@ -178,8 +178,12 @@ generation work is never wasted.
 - **Training (one-shot).** Single AMD Instinct MI300X (192 GB HBM3) on ROCm 7.0.
   Full-parameter SFT of a 14B Qwen1 model at sequence length 8192 does not fit on
   80 GB-class hardware; the MI300X is not optional for the training path.
-- **Consumer inference.** The Q4_K_M GGUF (≈9.45 GB) targets a single
-  RTX 4060 Ti 16 GB via llama.cpp. Pass-1 per-section context fits at 4-6K tokens.
+- **Consumer inference.** The **Q3_K_M GGUF (≈6.5 GB)** is the
+  recommended 8 GB-class target (RTX 4070 Laptop, RTX 3060 Ti, etc.) and
+  fits fully in VRAM at Pass-1 4-6K context. The Q4_K_M GGUF (≈9.45 GB)
+  is shipped for 12-16 GB cards (RTX 4060 Ti 16 GB, RTX 3080); on 8 GB
+  cards Q4_K_M still runs via partial GPU offload (`llama-cli -ngl 25`).
+  Larger Q5_K_M / Q6_K / Q8_0 quants ship for prosumer / dual-GPU rigs.
 - **Demo / research inference.** Any ROCm or CUDA host with the BF16 checkpoint;
   the `MemoCriticAgent` is pure orchestration and adds zero VRAM cost beyond the
   base model.

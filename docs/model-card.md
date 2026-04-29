@@ -206,12 +206,13 @@ checkpoint by `scripts/build_gguf.sh`, which calls llama.cpp's
 target quant. See the script's prereq header for the required
 llama.cpp checkout and disk-budget notes.
 
-| Quant     | Approx. size | Intended hardware                | Target throughput (tok/s) |
-|-----------|--------------|----------------------------------|---------------------------|
-| Q4_K_M    | ~9.45 GB     | 16 GB consumer GPU (RTX 4060 Ti) | ≥ 18                      |
-| Q5_K_M    | ~10.5 GB     | 16-24 GB consumer GPU            | TBD                       |
-| Q6_K      | ~12.1 GB     | 24 GB+ consumer or prosumer      | TBD                       |
-| Q8_0      | ~15.7 GB     | 24 GB+ prosumer / dual-GPU CPU offload | TBD                 |
+| Quant     | Approx. size | Intended hardware                                       | Target throughput (tok/s) |
+|-----------|--------------|---------------------------------------------------------|---------------------------|
+| Q3_K_M    | ~6.5 GB      | 8 GB consumer GPU (RTX 4070 Laptop, RTX 3060 Ti)        | TBD                       |
+| Q4_K_M    | ~9.45 GB     | 12-16 GB consumer GPU (RTX 4060 Ti 16 GB, RTX 3080)     | TBD                       |
+| Q5_K_M    | ~10.5 GB     | 16-24 GB consumer GPU                                   | TBD                       |
+| Q6_K      | ~12.1 GB     | 24 GB+ consumer or prosumer                             | TBD                       |
+| Q8_0      | ~15.7 GB     | 24 GB+ prosumer / dual-GPU CPU offload                  | TBD                       |
 
 Pass-1 per-section context of 4-6K tokens is the supported consumer
 operating point; longer contexts require the BF16 checkpoint served via
