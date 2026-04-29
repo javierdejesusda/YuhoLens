@@ -43,6 +43,16 @@ REQUIRED_TOKENIZER_FILES: tuple[str, ...] = (
     "tokenization_qwen.py",
 )
 
+TRAINING_STATE_IGNORE_PATTERNS: tuple[str, ...] = (
+    "optimizer.pt",
+    "scheduler.pt",
+    "rng_state.pth",
+    "training_args.bin",
+    "trainer_state.json",
+    "global_step*/**",
+    "checkpoint-*/**",
+)
+
 
 def patch_generation_config(model_path: Path) -> Path:
     """Write v5 sampling defaults into ``generation_config.json``.
@@ -114,6 +124,7 @@ def upload_to_hub(
         folder_path=str(model_path),
         repo_id=hf_repo,
         commit_message=commit_message,
+        ignore_patterns=list(TRAINING_STATE_IGNORE_PATTERNS),
     )
 
 
