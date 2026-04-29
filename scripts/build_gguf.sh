@@ -91,11 +91,19 @@ python "$CONVERT_SCRIPT" \
 
 # Q3_K_M is the 8 GB consumer headline quant; everything from Q4_K_M up
 # wants 10 GB+ VRAM or partial CPU offload at runtime.
+#
+# --override-kv injects qwen.attention.layer_norm_rms_epsilon at quantize
+# time. Qwen1 internally uses RMSNorm but its HF config exposes the field
+# as ``layer_norm_epsilon``; convert_hf_to_gguf.py mirrors that name, while
+# llama-quantize's Qwen1 loader (b8966+) requires ``layer_norm_rms_epsilon``.
+# Without this override the very first quant aborts with
+# "key not found in model: qwen.attention.layer_norm_rms_epsilon".
 QUANTS=("Q3_K_M" "Q4_K_M" "Q5_K_M" "Q6_K" "Q8_0")
+QWEN1_RMS_EPS_OVERRIDE="qwen.attention.layer_norm_rms_epsilon=float:0.000001"
 for quant in "${QUANTS[@]}"; do
   out="${OUT_DIR%/}/yuholens-14b-${quant}.gguf"
   echo "[gguf] quantising $quant -> $out"
-  "$QUANT_BIN" "$OUT_F16" "$out" "${quant}"
+  "$QUANT_BIN" --override-kv "$QWEN1_RMS_EPS_OVERRIDE" "$OUT_F16" "$out" "${quant}"
   du -h "$out"
 done
 
