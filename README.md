@@ -9,7 +9,8 @@
   <img alt="ROCm 7.0" src="https://img.shields.io/badge/ROCm-7.0-red.svg">
   <img alt="KG-2 PASS" src="https://img.shields.io/badge/KG--2-PASS%20%E2%80%A2%203.88-success.svg">
   <img alt="Citation 1.000" src="https://img.shields.io/badge/citation%20rate-1.000-success.svg">
-  <a href="https://huggingface.co/yuholens/yuholens-14b"><img alt="HuggingFace" src="https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-yuholens%2Fyuholens--14b-yellow.svg"></a>
+  <a href="https://huggingface.co/javierdejesusda/yuholens-14b"><img alt="HuggingFace BF16" src="https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-yuholens--14b%20BF16-yellow.svg"></a>
+  <a href="https://huggingface.co/javierdejesusda/yuholens-14b-GGUF"><img alt="HuggingFace GGUF" src="https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-yuholens--14b%20GGUF-yellow.svg"></a>
   <img alt="License MIT" src="https://img.shields.io/badge/code-MIT-green.svg">
   <img alt="License Tongyi Qianwen" src="https://img.shields.io/badge/weights-Tongyi%20Qianwen-orange.svg">
 </p>
@@ -165,8 +166,8 @@ generation work is never wasted.
 
 | Artefact                                | Where                                              | Status |
 | --------------------------------------- | -------------------------------------------------- | ------ |
-| BF16 reference weights                  | `yuholens/yuholens-14b` on HuggingFace             | planned at submission |
-| GGUF release (Q4_K_M / Q5_K_M / Q6_K / Q8_0) | `yuholens/yuholens-14b-GGUF` on HuggingFace   | built by [`scripts/build_gguf.sh`](scripts/build_gguf.sh) |
+| BF16 reference weights                  | [`javierdejesusda/yuholens-14b`](https://huggingface.co/javierdejesusda/yuholens-14b) on HuggingFace | **shipped** — 26.4 GiB across 6 safetensors shards |
+| GGUF release (Q3_K_M / Q4_K_M / Q5_K_M / Q6_K / Q8_0) | [`javierdejesusda/yuholens-14b-GGUF`](https://huggingface.co/javierdejesusda/yuholens-14b-GGUF) on HuggingFace | **shipped** — 51.4 GiB total, Q3_K_M smoke-verified on RTX 4070 Laptop @ 12.2 tok/s |
 | Pre-release sanity check                | [`scripts/check_release_set.py`](scripts/check_release_set.py) | built |
 | Hub upload helper                       | [`scripts/hf_upload.py`](scripts/hf_upload.py)     | built (patches `generation_config.json` to v5 defaults before push) |
 | Model card                              | [`docs/model-card.md`](docs/model-card.md)         | shipped |
@@ -242,7 +243,7 @@ GitHub renders a "Cite this repository" button from
                   Span-Grounded Investor Memo Generation},
   year         = {2026},
   howpublished = {Hugging Face model repository},
-  url          = {https://huggingface.co/yuholens/yuholens-14b},
+  url          = {https://huggingface.co/javierdejesusda/yuholens-14b},
   note         = {AMD Developer Hackathon, lablab.ai, May 2026}
 }
 ```
