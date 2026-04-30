@@ -5,7 +5,7 @@ license_link: https://huggingface.co/Qwen/Qwen-14B/blob/main/LICENSE
 language:
   - ja
   - en
-base_model: yuholens/yuholens-14b
+base_model: javierdejesusda/yuholens-14b
 tags:
   - gguf
   - llama-cpp
@@ -19,7 +19,7 @@ pipeline_tag: text-generation
 
 # YuhoLens-14B GGUF
 
-GGUF-quantized release of [`yuholens/yuholens-14b`](https://huggingface.co/yuholens/yuholens-14b) for offline inference via [`llama.cpp`](https://github.com/ggerganov/llama.cpp). The BF16 source is a full-parameter SFT of [`pfnet/nekomata-14b-pfn-qfin`](https://huggingface.co/pfnet/nekomata-14b-pfn-qfin) (Qwen1, 14B, Japanese-finance CPT) on teacher-bootstrapped English investor memos derived from [`SakanaAI/EDINET-Bench`](https://huggingface.co/datasets/SakanaAI/EDINET-Bench).
+GGUF-quantized release of [`javierdejesusda/yuholens-14b`](https://huggingface.co/javierdejesusda/yuholens-14b) for offline inference via [`llama.cpp`](https://github.com/ggerganov/llama.cpp). The BF16 source is a full-parameter SFT of [`pfnet/nekomata-14b-pfn-qfin`](https://huggingface.co/pfnet/nekomata-14b-pfn-qfin) (Qwen1, 14B, Japanese-finance CPT) on teacher-bootstrapped English investor memos derived from [`SakanaAI/EDINET-Bench`](https://huggingface.co/datasets/SakanaAI/EDINET-Bench).
 
 ## Files
 
@@ -43,7 +43,7 @@ The Q3_K_M quant has been smoke-tested on an NVIDIA RTX 4070 Laptop (8 GB VRAM, 
 - VRAM occupancy: ~7.0 GB model + ~1.6 GB context + ~0.3 GB compute, fits within the 8.0 GB card.
 - Output: coherent English investor memo with section headings (*Executive summary*, *Going-concern assessment*, *Accrual quality*, ...) following the SFT teacher template.
 
-Q4_K_M and larger quants exceed 8 GB VRAM and require either a 12 GB+ GPU or partial CPU offload (`--n-gpu-layers` < 99).
+Q4_K_M and larger quants exceed 8 GB VRAM and require either a 12 GB+ GPU or partial CPU offload (`--n-gpu-layers` < 99). Q4_K_M smoke on the same RTX 4070 Laptop with `--n-gpu-layers 30` (30 of 41 layers on GPU, rest on CPU) sustains 7.9 generation tok/s and 152 prompt tok/s — usable but I/O-bound by the CPU layers; a native 12-16 GB card runs the same quant fully on GPU.
 
 ## Quickstart
 
@@ -131,14 +131,14 @@ Released under the Tongyi Qianwen License inherited from the Qwen1 base via `pfn
                   Span-Grounded Investor Memo Generation},
   year         = {2026},
   howpublished = {Hugging Face model repository},
-  url          = {https://huggingface.co/yuholens/yuholens-14b},
+  url          = {https://huggingface.co/javierdejesusda/yuholens-14b},
   note         = {DOI: TBD}
 }
 ```
 
 ## Links
 
-- BF16 reference: https://huggingface.co/yuholens/yuholens-14b
+- BF16 reference: https://huggingface.co/javierdejesusda/yuholens-14b
 - GitHub: https://github.com/javierdejesusda/YuhoLens
 - Base model: https://huggingface.co/pfnet/nekomata-14b-pfn-qfin
 - Training data: https://huggingface.co/datasets/SakanaAI/EDINET-Bench

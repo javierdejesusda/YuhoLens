@@ -13,8 +13,8 @@ visible to the speaker. The five minutes are budgeted as 30s setup +
 
 ### Beat 0 — Setup (00:00–00:30)
 
-Open with the `yuholens/yuholens-14b` HuggingFace page (or the staging
-preview if not public yet) on the left half of the screen and a
+Open with the `javierdejesusda/yuholens-14b` HuggingFace page on the
+left half of the screen and a
 terminal pinned to `C:\Projects\AMD-hackaton` on the right. State the
 single thesis line: "We take a Japanese annual report and produce an
 English investor memo that cites every material claim back to the
@@ -147,10 +147,10 @@ flag it for the user to capture once the training run finishes.
    Zoom to fit. Record 10 seconds. If LangSmith is not connected, a static
    Mermaid render of the DAG is an acceptable fallback.
 
-3. **HuggingFace repo page.** The `yuholens/yuholens-14b` model card at the
-   top of the page, scrolled to show title, tags, and the first paragraph of
-   the README. 5 seconds. If the repo is still private on recording day, use
-   a staging screenshot and mark it "preview" in on-screen text.
+3. **HuggingFace repo page.** The `javierdejesusda/yuholens-14b` model card
+   at the top of the page, scrolled to show title, tags, and the first
+   paragraph of the README. 5 seconds. The repo is public; capture the live
+   page rather than a staging screenshot.
 
 4. **Side-by-side Yuho excerpt + English memo.** A 1920 x 1080 still (not a
    recording) with the original Japanese Yuho excerpt on the left (highlight
@@ -194,7 +194,7 @@ flag it for the user to capture once the training run finishes.
 
 11. **End card (URL trio).** Three URLs stacked:
     `github.com/javierdejesusda/YuhoLens`,
-    `huggingface.co/yuholens`,
+    `huggingface.co/javierdejesusda/yuholens-14b`,
     `lablab.ai/event/amd-developer-hackathon`.
     Also on-screen: `@AMDdeveloper` and `@lablabai` tag handles.
 
@@ -317,8 +317,9 @@ adjectives, not facts.
 - **Visual:** Cut to the end-card slide (asset #11). Hold for the full
   10 seconds. Fade music bed at 01:28 and end on silence at 01:30.
 - **On-screen text overlay:** `github.com/javierdejesusda/YuhoLens` ·
-  `huggingface.co/yuholens` · `lablab.ai` — stacked. Handles
-  `@AMDdeveloper` and `@lablabai` in smaller type under the URL trio.
+  `huggingface.co/javierdejesusda/yuholens-14b` · `lablab.ai` — stacked.
+  Handles `@AMDdeveloper` and `@lablabai` in smaller type under the URL
+  trio.
 - **Voiceover (23 words):**
 
   > YuhoLens. Trained on AMD MI300X. Open-sourced today. GitHub,

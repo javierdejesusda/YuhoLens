@@ -25,4 +25,4 @@ Best regards,
 Javier De Jesus
 javier.dejesusj9@gmail.com
 GitHub: https://github.com/javierdejesusda/YuhoLens
-HuggingFace: https://huggingface.co/yuholens/yuholens-14b
+HuggingFace: https://huggingface.co/javierdejesusda/yuholens-14b

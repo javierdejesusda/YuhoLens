@@ -10,6 +10,58 @@ artefact is the HuggingFace checkpoint, not a Python package release.
 
 ## [Unreleased]
 
+## [2026-04-29] — Session 1.13 — GGUF release set + HuggingFace push
+
+### Added
+
+- 5 GGUF quants built locally from the SFT BF16 checkpoint: Q3_K_M
+  (7.18 GiB), Q4_K_M (8.81 GiB), Q5_K_M (9.94 GiB), Q6_K (11.46 GiB),
+  Q8_0 (14.03 GiB). Total release set 51.4 GiB.
+- `scripts/hf_upload_gguf.py` — discovers / verifies / stages the GGUF
+  set into a temp dir and pushes to a dedicated HF repo. Filters the
+  f16 build intermediate.
+- `docs/gguf_readme.md` — model card published alongside the GGUF
+  repo, including the Qwen1 ChatML prompt template, build provenance,
+  and per-quant smoke results.
+- `docs/hf_upload_runbook.md` — end-to-end upload procedure with
+  pre-flight, README staging, and post-push verification.
+- Q3_K_M smoke on RTX 4070 Laptop (8 GB): 12.2 gen tok/s, 65.5 prompt
+  tok/s, full GPU offload, `-c 2048`.
+- Q4_K_M smoke on RTX 4070 Laptop with `--n-gpu-layers 30` partial
+  offload: 7.9 gen tok/s, 152 prompt tok/s.
+
+### Changed
+
+- `scripts/build_gguf.sh` permanently injects
+  `--override-kv qwen.attention.layer_norm_rms_epsilon=float:0.000001`.
+  Qwen1 uses RMSNorm internally but its HF config exposes the field as
+  `layer_norm_epsilon`; without the override, llama-quantize b8966+
+  aborts on the first quant with "key not found in model".
+- `scripts/hf_upload.py` now ignores training-state artefacts
+  (`optimizer.pt`, `scheduler.pt`, `rng_state.pth`,
+  `training_args.bin`, `trainer_state.json`, plus `global_step*/` and
+  `checkpoint-*/` subdirs). Saves 33 GB of optimizer state from
+  leaking into the public release.
+- `docs/model-card.md`: GGUF table now carries verified on-disk sizes
+  and measured tok/s for Q3_K_M and Q4_K_M (was "TBD" placeholders).
+- README badge / Releases table / BibTeX URL all point at the live
+  `javierdejesusda/yuholens-14b` and `-GGUF` repos.
+
+### Result
+
+Both HuggingFace artefacts are public:
+- BF16: <https://huggingface.co/javierdejesusda/yuholens-14b> — 19
+  files, 26.4 GiB, 6 safetensors shards.
+- GGUF: <https://huggingface.co/javierdejesusda/yuholens-14b-GGUF> —
+  7 files, 51.4 GiB, 5 quants Q3_K_M..Q8_0 plus README.
+
+`scripts/check_release_set.py` reports `RESULT: PASS` on the
+checkpoint; HF API spot-check confirms no `optimizer.pt` and no f16
+intermediate leaked. Build provenance and smoke numbers are in
+`data/eval/gguf_done.json`.
+
+## [Earlier] — Phase-9 ship-readiness
+
 Phase-9 ship-readiness: operator CLI, offline picker, release validator,
 README rewrite, sample fixture, social-media refresh, CI, pre-commit.
 

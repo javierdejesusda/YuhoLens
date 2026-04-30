@@ -71,9 +71,9 @@ Two stacked observations explain the lift. First, **cross-decoder variance produ
 
 ORPO never produced a shipped checkpoint (see the SFT section above for the data-gate story). The inference-time best-of-N picker cleared the KG-2 PASS gate on its own, cheaper and with less risk than another training pass would have bought.
 
-## Consumer GGUF: Q4_K_M on a 4060 Ti
+## Consumer GGUF: five quants from 8 GB to 24 GB
 
-The release target is consumer hackers, not cloud latency. We quantize to four targets via `llama.cpp` — Q4_K_M, Q5_K_M, Q6_K, and Q8_0 — built by `scripts/build_gguf.sh` against a fresh checkpoint. The headline release is the 9.45 GB Q4_K_M, sized for an RTX 4060 Ti 16 GB. The Pass-1 per-section calls fit comfortably at 4-6K context, which is the typical Yuho section length, and Pass-2 stays under 8K with the concatenated Pass-1 JSON as input rather than raw Japanese. Final consumer-class tok/s numbers: TBD on the recording rig.
+The release target is consumer hackers, not cloud latency. We quantize to five targets via `llama.cpp` — Q3_K_M (7.18 GB), Q4_K_M (8.81 GB), Q5_K_M (9.94 GB), Q6_K (11.46 GB), and Q8_0 (14.03 GB) — built by `scripts/build_gguf.sh` against the SFT checkpoint. The Q3_K_M smoke on an RTX 4070 Laptop (8 GB VRAM) sustains 12.2 generation tok/s and 65.5 prompt tok/s at `--ctx-size 2048` with all 99 layers offloaded to GPU; the model and KV cache fit fully in 8 GB. Q4_K_M is the headline release, sized for an RTX 4060 Ti 16 GB; Q6_K and above are for 16-24 GB cards or partial CPU offload. The Pass-1 per-section calls fit comfortably at 4-6K context, which is the typical Yuho section length, and Pass-2 stays under 8K with the concatenated Pass-1 JSON as input rather than raw Japanese. Build provenance: convert with the patched `convert_hf_to_gguf.py` (Qwen1 byte-to-unicode fallback for transformers ≥ 5.x), then `llama-quantize --override-kv qwen.attention.layer_norm_rms_epsilon=float:0.000001` (Qwen1's HF config exposes `layer_norm_epsilon` but its loader expects `layer_norm_rms_epsilon`).
 
 ## Numbers
 
@@ -91,4 +91,4 @@ Two honest lessons. The bitsandbytes source-build on ROCm 7.0 `gfx942` consumed 
 
 ## Close
 
-Code and weights are on GitHub at https://github.com/javierdejesusda/YuhoLens, with the SFT BF16 weights and the Q4_K_M GGUF released on HuggingFace. Submitted to the AMD Developer Hackathon on lablab.ai, May 9, 2026. Thanks to the AMD Developer Program for the MI300X credit, to Preferred Networks and rinna for the base model, to Sakana AI for EDINET-Bench, to OpenAI for the batch API, and to the lablab.ai team for hosting.
+Code is on GitHub at https://github.com/javierdejesusda/YuhoLens. The BF16 reference weights are at https://huggingface.co/javierdejesusda/yuholens-14b (26.4 GiB, 6 safetensors shards) and the five GGUF quants at https://huggingface.co/javierdejesusda/yuholens-14b-GGUF (51.4 GiB across Q3_K_M to Q8_0). Submitted to the AMD Developer Hackathon on lablab.ai, May 9, 2026. Thanks to the AMD Developer Program for the MI300X credit, to Preferred Networks and rinna for the base model, to Sakana AI for EDINET-Bench, to OpenAI for the batch API, and to the lablab.ai team for hosting.

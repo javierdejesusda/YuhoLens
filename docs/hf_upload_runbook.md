@@ -1,8 +1,8 @@
 # HuggingFace upload runbook
 
 End-to-end procedure for publishing the YuhoLens-14B release. Two
-artefacts: the BF16 reference checkpoint (`yuholens/yuholens-14b`) and
-the GGUF release set (`yuholens/yuholens-14b-GGUF`).
+artefacts: the BF16 reference checkpoint (`javierdejesusda/yuholens-14b`) and
+the GGUF release set (`javierdejesusda/yuholens-14b-GGUF`).
 
 ## 0. Prerequisites
 
@@ -25,7 +25,7 @@ the GGUF release set (`yuholens/yuholens-14b-GGUF`).
    huggingface-cli whoami
    ```
 
-## 1. BF16 checkpoint -> yuholens/yuholens-14b
+## 1. BF16 checkpoint -> javierdejesusda/yuholens-14b
 
 ### 1a. Pre-flight verify
 
@@ -66,7 +66,7 @@ Public release:
 ```bash
 python scripts/hf_upload.py \
   --model-path output/yuholens-14b-sft/checkpoint-212 \
-  --hf-repo yuholens/yuholens-14b
+  --hf-repo javierdejesusda/yuholens-14b
 ```
 
 Private dry-run first if you want a sanity check:
@@ -74,7 +74,7 @@ Private dry-run first if you want a sanity check:
 ```bash
 python scripts/hf_upload.py \
   --model-path output/yuholens-14b-sft/checkpoint-212 \
-  --hf-repo yuholens/yuholens-14b-staging \
+  --hf-repo javierdejesusda/yuholens-14b-staging \
   --private
 ```
 
@@ -82,7 +82,7 @@ The shipped upload payload is approximately 28 GB across 6 safetensors
 shards plus tokenizer / config / model-card files. Expect 30-90 minutes
 on residential broadband.
 
-## 2. GGUF release set -> yuholens/yuholens-14b-GGUF
+## 2. GGUF release set -> javierdejesusda/yuholens-14b-GGUF
 
 ### 2a. Verify the set
 
@@ -90,7 +90,7 @@ on residential broadband.
 python scripts/hf_upload_gguf.py \
   --gguf-dir data/eval/gguf \
   --readme docs/gguf_readme.md \
-  --hf-repo yuholens/yuholens-14b-GGUF \
+  --hf-repo javierdejesusda/yuholens-14b-GGUF \
   --dry-run
 ```
 
@@ -104,7 +104,7 @@ any expected quant is missing or under 1 GB.
 python scripts/hf_upload_gguf.py \
   --gguf-dir data/eval/gguf \
   --readme docs/gguf_readme.md \
-  --hf-repo yuholens/yuholens-14b-GGUF
+  --hf-repo javierdejesusda/yuholens-14b-GGUF
 ```
 
 Total payload is ~52 GB across 5 GGUF files plus the README. The
@@ -113,10 +113,10 @@ intermediate (if it still exists locally) is not pushed.
 
 ## 3. Post-push checklist
 
-- [ ] Browse <https://huggingface.co/yuholens/yuholens-14b> and confirm
+- [ ] Browse <https://huggingface.co/javierdejesusda/yuholens-14b> and confirm
       the model card renders, no `optimizer.pt` is visible, and the
       *Files and versions* tab lists all 6 safetensors shards.
-- [ ] Browse <https://huggingface.co/yuholens/yuholens-14b-GGUF> and
+- [ ] Browse <https://huggingface.co/javierdejesusda/yuholens-14b-GGUF> and
       confirm all five quants appear with the sizes listed in the
       README.
 - [ ] Update the GitHub README with the live HuggingFace URLs and

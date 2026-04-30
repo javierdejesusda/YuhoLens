@@ -200,7 +200,7 @@ only to the Pass-2 composer.
 ## Quantization
 
 Released GGUF artifacts are published to the companion repository
-`yuholens/yuholens-14b-GGUF`. The release set is built from the BF16
+`javierdejesusda/yuholens-14b-GGUF`. The release set is built from the BF16
 checkpoint by `scripts/build_gguf.sh`, which calls llama.cpp's
 `convert_hf_to_gguf.py` once for f16 and `llama-quantize` once per
 target quant. See the script's prereq header for the required
@@ -208,8 +208,8 @@ llama.cpp checkout and disk-budget notes.
 
 | Quant     | Verified size | Intended hardware                                       | Throughput (tok/s)        |
 |-----------|---------------|---------------------------------------------------------|---------------------------|
-| Q3_K_M    | 7.18 GB       | 8 GB consumer GPU (RTX 4070 Laptop, RTX 3060 Ti)        | 12.2 gen / 65.5 prompt on RTX 4070 Laptop, `-c 2048` |
-| Q4_K_M    | 8.81 GB       | 12-16 GB consumer GPU (RTX 4060 Ti 16 GB, RTX 3080)     | TBD                       |
+| Q3_K_M    | 7.18 GB       | 8 GB consumer GPU (RTX 4070 Laptop, RTX 3060 Ti)        | 12.2 gen / 65.5 prompt on RTX 4070 Laptop, `-c 2048`, `--n-gpu-layers 99` |
+| Q4_K_M    | 8.81 GB       | 12-16 GB consumer GPU (RTX 4060 Ti 16 GB, RTX 3080)     | 7.92 gen / 152 prompt on RTX 4070 Laptop with partial offload, `-c 2048`, `--n-gpu-layers 30` |
 | Q5_K_M    | 9.94 GB       | 16-24 GB consumer GPU                                   | TBD                       |
 | Q6_K      | 11.46 GB      | 24 GB+ consumer or prosumer                             | TBD                       |
 | Q8_0      | 14.03 GB      | 24 GB+ prosumer / dual-GPU CPU offload                  | TBD                       |
@@ -289,7 +289,7 @@ If you use YuhoLens-14B in academic work, please cite:
                   Span-Grounded Investor Memo Generation},
   year         = {2026},
   howpublished = {Hugging Face model repository},
-  url          = {https://huggingface.co/yuholens/yuholens-14b},
+  url          = {https://huggingface.co/javierdejesusda/yuholens-14b},
   note         = {DOI: TBD}
 }
 ```

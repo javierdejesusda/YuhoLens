@@ -60,7 +60,7 @@ YuhoLens is live.
 KG-2 PASS at 3.88 coherence, citation rate 1.000.
 23 days, one AMD MI300X, under $80.
 github.com/javierdejesusda/YuhoLens
-hf.co/yuholens/yuholens-14b
+hf.co/javierdejesusda/yuholens-14b
 @AMDdeveloper @lablabai
 ```
 
@@ -71,13 +71,13 @@ Shipped: YuhoLens, a 14B Japanese-finance LLM.
 Yuho in. English memo out. Cited at the span. KG-2 PASS at 3.88.
 23 days, one AMD MI300X, under $80.
 Code: github.com/javierdejesusda/YuhoLens
-Weights: hf.co/yuholens/yuholens-14b
+Weights: hf.co/javierdejesusda/yuholens-14b
 @AMDdeveloper @lablabai #AMD
 ```
 
 Notes for X2:
 - Demo video link is `TBD` — paste the unlisted YouTube URL as a reply or in-thread at post time rather than forcing it into the 280-char body.
-- Full HF URLs (`https://huggingface.co/yuholens/yuholens-14b`) are acceptable too; the short `hf.co/...` form above keeps char count comfortable.
+- Full HF URLs (`https://huggingface.co/javierdejesusda/yuholens-14b`) are acceptable too; the short `hf.co/...` form above keeps char count comfortable.
 
 ---
 
@@ -123,13 +123,13 @@ Numbers (KG-2, 50-prompt held-out test set):
 
 Links:
 - Code: https://github.com/javierdejesusda/YuhoLens
-- Weights (BF16): https://huggingface.co/yuholens/yuholens-14b
-- Weights (GGUF): https://huggingface.co/yuholens/yuholens-14b-GGUF
+- Weights (BF16): https://huggingface.co/javierdejesusda/yuholens-14b
+- Weights (GGUF): https://huggingface.co/javierdejesusda/yuholens-14b-GGUF
 - Demo video: TBD
 
 Technical highlight: the memo composer is a 4-node LangGraph — Ingestor → Pass-1 Section Detector → MemoCriticAgent (best-of-5 picker) → Citation-Grounder. Two of these nodes do the load-bearing work. The MemoCriticAgent fans out five composer calls across mixed decoder profiles and picks the highest-coherence candidate; that single design choice lifted KG-2 mean coherence from 3.56 (SOFT) to 3.88 (PASS) at zero extra training cost. The Citation-Grounder refuses every claim that lacks a Japanese-span backing — abstention is a first-class output, not a failure mode.
 
-Stats: 1,910 Yuho filings, 3 teacher batches through 5 quality gates, ~38 GPU-hours on a single AMD Instinct MI300X (192 GB HBM3), Q4_K_M GGUF ~9.45 GB that runs on an RTX 4060 Ti 16GB.
+Stats: 1,910 Yuho filings, 3 teacher batches through 5 quality gates, ~38 GPU-hours on a single AMD Instinct MI300X (192 GB HBM3), and 5 GGUF quants from Q3_K_M (7.18 GB, runs on an 8 GB RTX 4070 Laptop at 12.2 tok/s) up to Q8_0 (14.03 GB).
 
 Gratitude: AMD Developer Cloud for the MI300X credit, Preferred Networks for the nekomata-14b-pfn-qfin CPT base, Sakana AI for EDINET-Bench, and lab lab.ai for running the hackathon.
 
