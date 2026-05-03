@@ -7,13 +7,13 @@ import {
   reduce,
   INITIAL,
   STAGE_DURATIONS_MS,
+  isApproved,
 } from "@/components/demo/demo-state-machine";
 import { TickerChips } from "@/components/demo/ticker-chips";
 import { DecoderToggle } from "@/components/demo/decoder-toggle";
 import { LdPipe } from "@/components/demo/ld-pipe";
 import { LdOutput } from "@/components/demo/ld-output";
 import { LdSource } from "@/components/demo/ld-source";
-import { SealStamp } from "@/components/ui/seal-stamp";
 import { Reveal } from "@/components/ui/reveal";
 import { useCiteDrawer } from "@/components/ui/cite-drawer";
 
@@ -273,6 +273,7 @@ export function LiveDemo() {
                     customId={activeFiler.customId}
                     onDone={() => dispatch({ type: "STREAM_DONE" })}
                     onCiteClick={flashSourceMark}
+                    approved={isApproved(state.stage)}
                   />
                 )}
               {state.stage !== "composing" && state.stage !== "ready" && (
@@ -282,11 +283,6 @@ export function LiveDemo() {
                     : "Composing memo…"}
                 </p>
               )}
-              {state.stage === "ready" ? (
-                <span className="stamp-pass-slot" aria-hidden="false">
-                  <SealStamp state="verified" label="memo grounded" />
-                </span>
-              ) : null}
             </div>
           </div>
         </Reveal>
