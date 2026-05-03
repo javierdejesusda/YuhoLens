@@ -12,9 +12,10 @@ const SECTIONS: Array<{ name: string; id: string }> = [
   { name: "access", id: "access" },
 ];
 
-test.use({ reducedMotion: "reduce" });
-
 test.describe("visual baselines", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+  });
   for (const { name, id } of SECTIONS) {
     test(`${name} matches baseline`, async ({ page }) => {
       test.setTimeout(120_000);
