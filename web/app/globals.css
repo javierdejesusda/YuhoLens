@@ -787,6 +787,7 @@ nav.topbar .cta:active { transform: scale(0.96); }
   --paper-y: 0;
   --paper-progress: 0;
   --paper-vel: 0;
+  --ink-pressure: 0;
   /* Tunable parallax knobs.  Counter-motion goes the OPPOSITE direction
      to the paper, giving the illusion that the page is sliding to
      reveal the paper as it travels. */
