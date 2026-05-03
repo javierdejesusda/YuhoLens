@@ -2884,7 +2884,301 @@ footer.foot .meta .made {
 
 @media print {
   body { background: #fff !important; color: #000 !important; cursor: auto !important; }
-  #cursor, #cursor-dot, #preloader, #progress, nav.topbar, #paper-stage, .scroll-hint, .skip-to-main, [aria-label="Section progress"] { display: none !important; }
+  #cursor, #cursor-dot, #preloader, #progress, nav.topbar, #paper-stage, .scroll-hint, .skip-to-main, [aria-label="Section progress"], .ledger-binding-rail { display: none !important; }
   * { animation: none !important; transition: none !important; }
   a { color: #000 !important; text-decoration: underline; }
+}
+
+/* ── Ledger-binding rail (binding cord) ─────────────────────────
+   1px vermilion rule on the right edge of the viewport whose
+   opacity tracks scroll progress. Each section boundary draws a
+   4px hairline tick. The progress rail (right: 18px) lives just
+   left of this cord and remains the navigation surface. */
+.ledger-binding-rail {
+  position: fixed;
+  top: 0; right: 0; bottom: 0;
+  width: 1px;
+  background: var(--vermilion);
+  opacity: var(--rail-opacity, 0);
+  z-index: 49;
+  pointer-events: none;
+  transition: opacity 240ms var(--ease-out);
+}
+.ledger-binding-rail__tick {
+  position: absolute;
+  right: 0;
+  width: 4px; height: 1px;
+  background: var(--vermilion);
+  opacity: 0.6;
+  transform: translateY(-50%);
+}
+@media (max-width: 720px) {
+  .ledger-binding-rail { display: none; }
+}
+
+/* ── Manifest tenet ink-drip highlight ──────────────────────────
+   Each tenet's first sentence wears a vermilion-soft ink wash that
+   bleeds left → right when the row scrolls into view. The wash is
+   a layered background swept by clip-path; reduced-motion gets the
+   fully drawn fill instantly. */
+.ink-drip-highlight {
+  position: relative;
+  display: inline;
+  background-image: linear-gradient(
+    180deg,
+    transparent 0%,
+    transparent 62%,
+    var(--vermilion-soft) 62%,
+    var(--vermilion-soft) 92%,
+    transparent 92%
+  );
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  -webkit-background-clip: padding-box;
+          background-clip: padding-box;
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path 600ms cubic-bezier(0.65, 0, 0.35, 1);
+  padding: 0 0.06em;
+}
+.ink-drip-active .ink-drip-highlight,
+.ink-drip-static .ink-drip-highlight {
+  clip-path: inset(0 0 0 0);
+}
+.ink-drip-static .ink-drip-highlight {
+  transition: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ink-drip-highlight { transition: none; clip-path: inset(0 0 0 0); }
+}
+
+/* ── Reports-rail hover stamp ────────────────────────────────── */
+.report-card__stamp {
+  position: absolute;
+  right: 14px;
+  top: 14px;
+  width: 28px; height: 28px;
+  pointer-events: none;
+  z-index: 3;
+}
+.report-card__stamp-inner {
+  display: inline-flex;
+  transform-origin: 50% 50%;
+}
+
+/* ── FAQ accordion ─────────────────────────────────────────────
+   Re-skin existing `.faq-item` cards as click-to-expand panels
+   without disturbing the grid layout. Trigger is a button so it's
+   keyboard-reachable and the magnet-cursor can snap. */
+.faq-item__trigger {
+  appearance: none;
+  background: none;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    "qnum indicator"
+    "head indicator";
+  align-items: start;
+  column-gap: 18px;
+  row-gap: 8px;
+  text-align: left;
+  color: inherit;
+  cursor: none;
+}
+.faq-item__trigger:focus-visible {
+  outline: 2px solid var(--vermilion);
+  outline-offset: 4px;
+}
+.faq-item__trigger .qnum { grid-area: qnum; }
+.faq-item__trigger h4 { grid-area: head; }
+.faq-item__indicator {
+  grid-area: indicator;
+  align-self: start;
+  font-family: var(--f-mono);
+  font-size: 18px; line-height: 1;
+  color: var(--vermilion);
+  width: 22px; height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.faq-item__panel {
+  margin-top: 14px;
+  position: relative;
+  animation: faqPanelIn 320ms var(--ease-out) both;
+}
+.faq-item__panel[hidden] { display: none; }
+@keyframes faqPanelIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .faq-item__panel { animation: none; }
+}
+.faq-item__stamp {
+  position: absolute;
+  top: -2px;
+  right: -8px;
+  width: 28px; height: 28px;
+  pointer-events: none;
+  display: inline-flex;
+}
+.faq-item.is-open { background: rgba(232, 80, 58, 0.04); }
+.faq-item.is-open::before { transform: scaleX(1); }
+
+/* ── Access CTA pulse seal ─────────────────────────────────────
+   A vermilion seal pulses behind the primary button on hover.
+   The button surface stays semi-transparent so the seal reads
+   through. Reduced-motion: no pulse, no mount. */
+.cta-pulse-wrap {
+  position: relative;
+  display: inline-flex;
+  isolation: isolate;
+}
+.cta-pulse-button {
+  position: relative;
+  z-index: 1;
+}
+.cta-pulse-seal {
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 0;
+  pointer-events: none;
+  display: inline-flex;
+  filter: drop-shadow(0 0 18px var(--vermilion-soft));
+  animation: ctaPulseSeal 1.6s ease-in-out infinite;
+}
+@keyframes ctaPulseSeal {
+  0%, 100% { transform: translate(-50%, -50%) scale(0.92); opacity: 0.55; }
+  50%      { transform: translate(-50%, -50%) scale(1.05); opacity: 0.95; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cta-pulse-seal { animation: none; opacity: 0.6; }
+}
+
+/* ── Site footer (minimal redesign) ────────────────────────────
+   Strip back to license stamp, three primary links, and a low-
+   opacity 朱印 watermark. Replaces the previous three-column
+   layout while remaining keyboard-reachable. */
+footer.foot {
+  position: relative;
+  display: block;
+  padding: 56px 80px 40px;
+  isolation: isolate;
+  overflow: hidden;
+}
+footer.foot .foot-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+footer.foot .foot-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 18px;
+}
+footer.foot .foot-row--top { align-items: center; }
+footer.foot .foot-row--mid {
+  border-top: 1px dashed var(--rule);
+  border-bottom: 1px dashed var(--rule);
+  padding: 18px 0;
+  gap: 32px;
+  justify-content: flex-start;
+}
+footer.foot .foot-row--bot {
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  color: var(--type-faint);
+}
+footer.foot .foot-license {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+footer.foot .foot-license__seal {
+  display: inline-flex;
+  width: 28px; height: 28px;
+  align-items: center;
+  justify-content: center;
+}
+footer.foot .foot-license__seal-inner {
+  display: inline-flex;
+  transform: scale(0.5185) rotate(-6deg);
+  transform-origin: 50% 50%;
+}
+footer.foot .foot-license__copy {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+  line-height: 1.1;
+}
+footer.foot .foot-license__title {
+  font-family: var(--f-mono);
+  font-size: 12px;
+  letter-spacing: 0.32em;
+  color: var(--type-primary);
+}
+footer.foot .foot-license__sub {
+  font-family: var(--f-body);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: var(--type-muted);
+}
+footer.foot .foot-link {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--type-muted);
+  text-decoration: none;
+  position: relative;
+  padding: 4px 2px;
+  transition: color 220ms var(--ease-out);
+}
+footer.foot .foot-link::after {
+  content: "";
+  position: absolute;
+  left: 50%; right: 50%; bottom: 0;
+  height: 1px;
+  background: var(--vermilion);
+  transition: left 240ms var(--ease-out), right 240ms var(--ease-out);
+}
+footer.foot .foot-link:hover {
+  color: var(--type-primary);
+}
+footer.foot .foot-link:hover::after {
+  left: 0; right: 0;
+}
+footer.foot .foot-watermark {
+  position: absolute;
+  right: 36px;
+  bottom: 12px;
+  font-family: var(--f-jp);
+  font-weight: 700;
+  font-size: clamp(8rem, 14vw, 16rem);
+  color: var(--vermilion);
+  opacity: 0.06;
+  line-height: 0.85;
+  letter-spacing: -0.04em;
+  pointer-events: none;
+  z-index: 0;
+  user-select: none;
+}
+@media (max-width: 720px) {
+  footer.foot { padding: 40px 22px 32px; }
+  footer.foot .foot-row { gap: 14px; }
+  footer.foot .foot-row--mid { gap: 18px; flex-wrap: wrap; }
+  footer.foot .foot-watermark {
+    right: 18px; bottom: 8px;
+    font-size: clamp(6rem, 26vw, 9rem);
+  }
 }
