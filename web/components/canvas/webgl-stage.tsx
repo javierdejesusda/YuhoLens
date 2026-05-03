@@ -2,6 +2,7 @@
 
 import { Canvas } from "@react-three/fiber";
 import { useEffect, useState, type ReactNode } from "react";
+import { WashiShader } from "@/components/canvas/washi-shader";
 
 type Props = { children?: ReactNode };
 
@@ -28,8 +29,9 @@ export default function WebGLStage({ children }: Props) {
       <Canvas
         gl={{ antialias: false, powerPreference: "high-performance" }}
         dpr={[1, 1.5]}
-        frameloop="demand"
+        frameloop="always"
       >
+        <WashiShader />
         {children}
       </Canvas>
     </div>
