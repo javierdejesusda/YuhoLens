@@ -1,0 +1,9 @@
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+data/*.generated.json
+.env*.local
+playwright-report/
+test-results/
+lh.json
