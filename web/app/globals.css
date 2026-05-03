@@ -2117,6 +2117,37 @@ h1.hero-title .accent {
 .dag-wrap .edge { stroke: var(--rule-strong); stroke-width: 1; fill: none; }
 .dag-wrap .edge-arrow { fill: var(--vermilion); }
 .dag-wrap .packet { fill: var(--vermilion); filter: drop-shadow(0 0 6px rgba(232, 80, 58, 0.6)); }
+.dag-wrap .dag-trail { transition: opacity 120ms var(--ease-out); }
+.dag-wrap .dag-chroma { transition: opacity 120ms var(--ease-out); mix-blend-mode: screen; }
+.dag-wrap g[tabindex]:focus-visible > .agent-rect { outline: 2px solid var(--vermilion); outline-offset: 4px; }
+.dag-tooltip-card {
+  background: var(--ink-card);
+  border: 1px solid var(--vermilion);
+  padding: 10px 12px;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--type-primary);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 0 0 1px var(--vermilion-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  pointer-events: auto;
+}
+.dag-tooltip-path { color: var(--type-muted); word-break: break-all; }
+.dag-tooltip-link {
+  color: var(--vermilion);
+  text-decoration: none;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  align-self: flex-start;
+}
+.dag-tooltip-link:hover,
+.dag-tooltip-link:focus-visible { color: var(--vermilion-glow); text-decoration: underline; }
+@media (prefers-reduced-motion: reduce) {
+  .dag-wrap .dag-trail,
+  .dag-wrap .dag-chroma { transition: none; }
+}
 
 /* ── Read-along ───────────────────────────────────────────────── */
 .readalong-section {
