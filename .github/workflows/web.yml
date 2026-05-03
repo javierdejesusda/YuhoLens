@@ -38,4 +38,4 @@ jobs:
             fi
           done
           exit "$fail"
-      - run: pnpm test:e2e
+      - run: pnpm exec playwright test a11y.spec.ts
