@@ -13,7 +13,7 @@ import { Manifest } from "@/components/sections/manifest";
 import { Faq } from "@/components/sections/faq";
 import { AccessCta } from "@/components/sections/access-cta";
 import { SiteFooter } from "@/components/sections/site-footer";
-import { WebGLStageMount } from "@/components/canvas/webgl-stage-mount";
+import WebGLStageMount from "@/components/canvas/webgl-stage-mount";
 
 export default function Home() {
   return (
