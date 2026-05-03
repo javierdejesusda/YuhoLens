@@ -1,0 +1,40 @@
+name: web
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: web } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+        with: { version: 9 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: 'pnpm', cache-dependency-path: web/pnpm-lock.yaml }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test:unit
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm build
+        env:
+          ANALYZE: 'true'
+      - name: Gate main bundle at 250 KB gz (<= 750000 bytes raw)
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          chunks=(.next/static/chunks/main-*.js)
+          if [ ${#chunks[@]} -eq 0 ]; then
+            echo "No main-*.js chunks found under .next/static/chunks/"
+            exit 1
+          fi
+          fail=0
+          for f in "${chunks[@]}"; do
+            size=$(stat -c%s "$f")
+            printf '%-72s %10d bytes\n' "$f" "$size"
+            if [ "$size" -gt 750000 ]; then
+              echo "::error file=$f::main bundle $size bytes exceeds 750000-byte budget (~250 KB gz)"
+              fail=1
+            fi
+          done
+          exit "$fail"
+      - run: pnpm test:e2e
