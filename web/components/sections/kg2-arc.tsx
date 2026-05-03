@@ -191,7 +191,7 @@ export function Kg2Arc() {
 
       <Reveal delay={1}>
         <div className="kg2-chart" ref={chartRef}>
-          <svg viewBox={`0 0 ${VIEW_W} ${VIEW_H}`} role="img" aria-labelledby="arc-title">
+          <svg viewBox={`0 0 ${VIEW_W} ${VIEW_H}`} aria-labelledby="arc-title">
             <title id="arc-title">
               KG-2 coherence arc, v5 single-shot 3.56 to bo-5 SHIP 3.88, crossing the 3.80 PASS gate.
             </title>

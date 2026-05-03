@@ -31,7 +31,12 @@ export function ReportsRail() {
         </Reveal>
       </div>
 
-      <div className="rail-track" aria-label="Sample memos">
+      <div
+        className="rail-track"
+        role="region"
+        tabIndex={0}
+        aria-label="Sample memos — horizontal scroll, use arrow keys"
+      >
         {cards.map((m) => {
           const isHovered = hovered === m.customId;
           return (

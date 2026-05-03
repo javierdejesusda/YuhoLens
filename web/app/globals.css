@@ -54,6 +54,9 @@
   --vermilion: var(--color-vermilion);
   --vermilion-glow: var(--color-vermilion-glow);
   --vermilion-soft: var(--color-vermilion-soft);
+  /* Dark text used on vermilion fills; constant across themes so
+     CTAs keep WCAG AA contrast in both dark and light mode. */
+  --type-on-vermilion: #0E0E10;
   --type-primary: var(--color-type-primary);
   --type-muted: var(--color-type-muted);
   --type-faint: var(--color-type-faint);
@@ -90,7 +93,7 @@
 }
 :root[data-theme="light"] body { background: var(--ink-void); color: var(--type-primary); }
 :root[data-theme="light"] html { background: var(--ink-void); }
-:root[data-theme="light"] ::selection { background: var(--vermilion); color: var(--ink-void); }
+:root[data-theme="light"] ::selection { background: var(--vermilion); color: var(--type-on-vermilion); }
 .theme-toggle:hover { color: var(--vermilion); border-color: var(--vermilion); }
 
 * { box-sizing: border-box; }
@@ -165,7 +168,7 @@ body.use-system-cursor .ldd-btn,
 body.use-system-cursor .arc-pt { cursor: pointer !important; }
 
 img { max-width: 100%; display: block; }
-::selection { background: var(--vermilion); color: var(--paper-warm); }
+::selection { background: var(--vermilion); color: var(--type-on-vermilion); }
 a { color: inherit; }
 
 :focus-visible {
@@ -380,10 +383,11 @@ body.use-system-cursor #cursor-dot { display: none !important; }
   align-items: center;
   gap: 14px;
   background: var(--vermilion);
-  color: var(--paper-warm);
+  color: var(--type-on-vermilion);
   padding: 16px 26px;
   font-family: var(--f-mono);
   font-size: 11px;
+  font-weight: 600;
   letter-spacing: 0.28em;
   text-transform: uppercase;
   text-decoration: none;
@@ -705,7 +709,7 @@ nav.topbar a:hover { color: var(--type-primary); }
 nav.topbar a:hover::after { left: 0; right: 0; }
 nav.topbar .cta {
   font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.22em;
-  text-transform: uppercase; color: var(--paper-warm);
+  text-transform: uppercase; color: var(--type-on-vermilion); font-weight: 600;
   background: var(--vermilion);
   padding: 9px 16px;
   text-decoration: none;
@@ -858,7 +862,10 @@ html.has-paper[data-paper-side="centre"] .is-paper-anchor-center {
 }
 html.has-paper [class*="is-paper-anchor-"] {
   --orbit-active: 0;
-  opacity: calc(0.55 + 0.45 * var(--orbit-active, 1));
+  /* Off-side dim restricted so muted text and vermilion accents
+     keep WCAG AA contrast even when a section is the inactive one;
+     the paper-rail's own movement is the primary focus signal. */
+  opacity: calc(0.96 + 0.04 * var(--orbit-active, 1));
   transition:
     transform 480ms var(--ease-out),
     opacity 600ms var(--ease-out);
@@ -1402,7 +1409,7 @@ h1.hero-title .accent {
 }
 .step-card .step-num {
   font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.28em;
-  color: var(--vermilion); text-transform: uppercase;
+  color: var(--vermilion-glow); text-transform: uppercase;
   margin-bottom: 14px;
 }
 .step-card h3 {
@@ -1605,7 +1612,7 @@ h1.hero-title .accent {
 }
 .repro-ledger .row.total { background: rgba(232, 80, 58, 0.06); }
 .repro-ledger .row.total .v {
-  font-family: var(--f-display); font-style: normal; font-weight: 600; font-size: 20px; color: var(--vermilion);
+  font-family: var(--f-display); font-style: normal; font-weight: 700; font-size: 20px; color: var(--vermilion-glow);
 }
 
 /* ── Live demo ────────────────────────────────────────────────── */
@@ -1659,10 +1666,10 @@ h1.hero-title .accent {
 }
 .ld-input input::placeholder { color: var(--type-faint); }
 .ld-input button {
-  background: var(--vermilion); color: var(--paper-warm);
+  background: var(--vermilion); color: var(--type-on-vermilion);
   border: none; cursor: none;
   padding: 8px 14px;
-  font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.22em;
+  font-family: var(--f-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.22em;
   text-transform: uppercase;
   transition: background 220ms var(--ease-out), transform 200ms var(--ease-out), box-shadow 220ms var(--ease-out);
   box-shadow: 0 8px 18px -10px rgba(232, 80, 58, 0.6);
@@ -1700,7 +1707,7 @@ h1.hero-title .accent {
 .ldd-btn { transition: color 200ms var(--ease-out), background 200ms var(--ease-out), transform 180ms var(--ease-out); }
 .ldd-btn:active { transform: scale(0.96); }
 .ld-chip.ld-chip-refuse { border-color: var(--vermilion); color: var(--vermilion); letter-spacing: 0.18em; }
-.ld-chip.ld-chip-refuse.is-active { background: var(--vermilion); color: var(--paper-warm); }
+.ld-chip.ld-chip-refuse.is-active { background: var(--vermilion); color: var(--type-on-vermilion); font-weight: 600; }
 .ld-decoder {
   margin-top: 14px;
   display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
@@ -1724,7 +1731,7 @@ h1.hero-title .accent {
 }
 .ld-decoder .ldd-btn:last-child { border-right: none; }
 .ld-decoder .ldd-btn:hover { color: var(--type-primary); }
-.ld-decoder .ldd-btn.is-on { background: var(--vermilion); color: var(--paper-warm); }
+.ld-decoder .ldd-btn.is-on { background: var(--vermilion); color: var(--type-on-vermilion); font-weight: 600; }
 .ld-decoder .ldd-meta {
   font-family: var(--f-mono); font-size: 10px; color: var(--type-muted);
   font-variant-numeric: tabular-nums;
@@ -2010,6 +2017,7 @@ h1.hero-title .accent {
   padding-right: 10px;
   color: var(--paper-warm);
   font-variant-numeric: tabular-nums;
+  overflow: hidden;
   letter-spacing: 0.1em;
 }
 .hw-row.fail .hw-fill {
@@ -2559,7 +2567,8 @@ h1.hero-title .accent {
 }
 .report-card .head .badge {
   background: var(--vermilion);
-  color: var(--paper-warm);
+  color: var(--type-on-vermilion);
+  font-weight: 700;
   padding: 2px 7px;
   letter-spacing: 0.18em;
 }
