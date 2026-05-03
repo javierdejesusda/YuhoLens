@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Noto_Serif_JP, JetBrains_Mono } from "next/font/google";
+import { Geist, JetBrains_Mono } from "next/font/google";
 import Script from "next/script";
 import { CiteDrawerProvider } from "@/components/ui/cite-drawer";
 import { CustomCursor } from "@/components/ui/custom-cursor";
@@ -12,38 +12,23 @@ import { PaperRail } from "@/components/canvas/paper-rail";
 import { LenisProvider } from "@/components/providers/lenis-provider";
 import "./globals.css";
 
-// Geist — Vercel's open-source sans, contemporary editorial face designed
-// for product/marketing surfaces. Variable weights 100-900 (we use 300-700)
-// give us one family that does both display and body without italics, with
-// strong stylistic features ("ss01", "ss02", "calt") that read crisply at
-// hero scale and at running-text size. We pair Geist with JetBrains Mono
-// for code/UI lockups and Noto Serif JP for Japanese text.
+// Geist — Vercel's open-source sans paired with JetBrains Mono for UI
+// lockups and Noto Serif JP for Japanese text. `display: "optional"`
+// keeps the LCP element free of font-swap reflow: if the webfont misses
+// the 100ms render budget, we stick with the local fallback for this
+// pageload (no FOIT, no late swap → no CLS).
 const geist = Geist({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["400", "600"],
   variable: "--font-display-loaded",
-  display: "swap",
-});
-
-const geistBody = Geist({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-body-loaded",
-  display: "swap",
-});
-
-const notoJP = Noto_Serif_JP({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  variable: "--font-jp-loaded",
-  display: "swap",
+  display: "optional",
 });
 
 const jetbrains = JetBrains_Mono({
   subsets: ["latin"],
   weight: ["400"],
   variable: "--font-mono-loaded",
-  display: "swap",
+  display: "optional",
 });
 
 export const metadata: Metadata = {
@@ -108,7 +93,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     // otherwise trip React's hydration mismatch warning.
     <html
       lang="en"
-      className={`${geist.variable} ${geistBody.variable} ${notoJP.variable} ${jetbrains.variable}`}
+      // `has-paper` and the right-side dataset are part of the SSR markup
+      // so the mobile paper-anchor padding reset (which zeroes the
+      // hero-grid lateral padding because the paper would occupy that
+      // gutter) is already applied at first paint. Without this they
+      // were toggled on after hydration and triggered a 0.19 CLS shift.
+      className={`${geist.variable} ${jetbrains.variable} has-paper`}
+      data-paper-side="right"
       suppressHydrationWarning
     >
       <head>

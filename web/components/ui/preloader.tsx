@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 
 const LETTERS = ["Y", "U", "H", "O", "L", "E", "N", "S"];
-const HOLD_MS = 1900;
+const HOLD_MS = 600;
 const REDUCED_HOLD_MS = 200;
 
 export function Preloader() {

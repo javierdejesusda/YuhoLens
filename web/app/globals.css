@@ -1145,6 +1145,11 @@ section[data-paper-hide] {
   .hero-grid {
     grid-template-columns: 1fr;
     padding: 130px 28px 80px;
+    /* On narrow viewports the hero-copy is the only column. Vertical
+       centering inside a 100vh grid amplifies any tiny content-height
+       change into a large layout shift (CLS ≈ 0.19 on Pixel-sized
+       Lighthouse runs). Anchor copy to the top instead. */
+    align-items: start;
   }
   .hero-grid .hero-copy { max-width: none; }
 }
@@ -1171,7 +1176,17 @@ h1.hero-title {
   text-wrap: balance;
   font-feature-settings: "kern", "liga", "calt", "ss01", "ss02";
 }
-h1.hero-title .line { display: block; overflow: hidden; padding: 0.04em 0; }
+h1.hero-title .line {
+  display: block;
+  overflow: hidden;
+  padding: 0.04em 0;
+  /* Lock the line box height to the title's own line-height so a swap
+     between Latin and CJK glyphs in MorphTarget can't reflow the hero
+     copy. Without this, JP characters with taller ascenders/descenders
+     bumped the third line up by ~3px on first paint, causing the entire
+     hero-copy to shift (CLS ≈ 0.19 on mobile). */
+  height: calc(0.94em + 0.08em);
+}
 h1.hero-title .line .inner {
   display: block;
   transform: translateY(110%);
