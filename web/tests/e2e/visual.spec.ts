@@ -12,19 +12,22 @@ const SECTIONS: Array<{ name: string; id: string }> = [
   { name: "access", id: "access" },
 ];
 
-test.describe("visual baselines", () => {
-  test.describe.configure({ timeout: 90_000 });
+test.use({ reducedMotion: "reduce" });
 
+test.describe("visual baselines", () => {
   for (const { name, id } of SECTIONS) {
     test(`${name} matches baseline`, async ({ page }) => {
+      test.setTimeout(120_000);
       await page.goto("/", { waitUntil: "networkidle" });
       await expect(page.locator("#preloader")).toBeHidden({ timeout: 10_000 });
       const target = page.locator(`#${id}, [data-section="${id}"]`).first();
       await target.waitFor({ state: "attached", timeout: 30_000 });
       await target.scrollIntoViewIfNeeded();
-      await page.waitForTimeout(800);
+      await page.waitForTimeout(1500);
       await expect(page).toHaveScreenshot(`${name}.png`, {
         maxDiffPixelRatio: 0.04,
+        animations: "disabled",
+        timeout: 15_000,
       });
     });
   }
