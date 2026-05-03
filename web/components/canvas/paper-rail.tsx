@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import type * as THREE from "three";
 
 const PAPER_W = 2.0;
 const PAPER_H = 2.75;
@@ -71,8 +72,13 @@ const STAGES: Record<StageKey, StagePose> = {
   access: { ...CENTRE_FAR, side: "centre", texture: "footer", inkProgram: 5 },
 };
 
-let cachedTextures: Partial<Record<TextureKey, any>> = {};
-let cachedAux: { back?: any; normal?: any; shadow?: any; rim?: any } = {};
+const cachedTextures: Partial<Record<TextureKey, THREE.Texture>> = {};
+const cachedAux: {
+  back?: THREE.Texture;
+  normal?: THREE.Texture;
+  shadow?: THREE.Texture;
+  rim?: THREE.Texture;
+} = {};
 
 function makeSpring(initial = 0, stiffness = 80, damping = 28) {
   let value = initial;
@@ -1082,8 +1088,6 @@ export function PaperRail() {
       const pickActive = () => {
         let best: HTMLElement | null = null;
         let bestRatio = -1;
-        let totalHide = 0;
-        let totalShow = 0;
         let lastVisibleStageEl: HTMLElement | null = null;
         let lastVisibleStageRatio = -1;
         for (const [el, ratio] of visibility) {
@@ -1091,13 +1095,9 @@ export function PaperRail() {
             bestRatio = ratio;
             best = el;
           }
-          if (sectionHide.get(el)) totalHide += ratio;
-          else {
-            totalShow += ratio;
-            if (ratio > lastVisibleStageRatio) {
-              lastVisibleStageRatio = ratio;
-              lastVisibleStageEl = el;
-            }
+          if (!sectionHide.get(el) && ratio > lastVisibleStageRatio) {
+            lastVisibleStageRatio = ratio;
+            lastVisibleStageEl = el;
           }
         }
         const target = lastVisibleStageEl ?? best;
