@@ -971,11 +971,71 @@ section[data-paper-hide] {
   --paper-exit-x: 0;
   --paper-exit-rot: 0;
   --paper-exit-scale: 1;
+  --paper-edge-progress: 0;
 }
 #paper-stage {
   opacity: var(--paper-fade, 1);
   pointer-events: none;
   will-change: opacity;
+}
+
+/* Hero → Problem edge bleed.  PaperRail writes --paper-edge-progress
+   between 0 and 1 during the handoff window where the paper is still
+   sitting in the hero's right anchor but the problem section has begun
+   climbing into view.  The 2px vermilion gradient draws on the paper's
+   right margin and scales horizontally with that signal; once the
+   active stage has flipped to "problem" the variable decays through
+   zero over 400ms and the line dissolves into ink-faint.  Hidden by
+   default; only visible while the JS driver pushes a non-zero value. */
+.paper-edge-bleed {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 2px;
+  height: 100vh;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    var(--vermilion) 100%
+  );
+  transform-origin: right center;
+  transform: scaleX(var(--paper-edge-progress, 0));
+  opacity: calc(var(--paper-edge-progress, 0) * 0.85);
+  mix-blend-mode: screen;
+  will-change: transform, opacity;
+}
+.paper-edge-bleed::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 0 -10px;
+  width: 12px;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    var(--vermilion-soft) 60%,
+    transparent 100%
+  );
+  opacity: calc(var(--paper-edge-progress, 0) * 0.35);
+  filter: blur(2px);
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .paper-edge-bleed {
+    transform: none;
+    width: 1px;
+    opacity: 0;
+    background: var(--vermilion);
+    mix-blend-mode: normal;
+    will-change: auto;
+  }
+  .paper-edge-bleed[data-static="1"] {
+    opacity: 0.55;
+  }
+  .paper-edge-bleed::after {
+    display: none;
+  }
 }
 
 /* Sections that keep the paper visible reserve room for it on the
@@ -2562,59 +2622,105 @@ h1.hero-title .accent {
   position: relative; z-index: 3;
   background: var(--ink-void);
 }
-.fail-grid {
+/* ── Failure deck (horizontal scroll-snap) ────────────────────── */
+.failure-deck {
   margin-top: 48px;
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  padding-block: 4rem;
+  padding-inline: 8vw;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: clamp(280px, 28vw, 420px);
+  gap: 32px;
+  overflow-x: auto;
+  overflow-y: visible;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 8vw;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: var(--vermilion) transparent;
 }
-.fail-card {
-  border: 1px solid var(--rule);
-  background: var(--ink-deep);
-  padding: 28px 28px 30px;
-  display: flex; flex-direction: column; gap: 14px;
-  min-height: 380px;
+.failure-deck::-webkit-scrollbar {
+  height: 6px;
+}
+.failure-deck::-webkit-scrollbar-track {
+  background: transparent;
+}
+.failure-deck::-webkit-scrollbar-thumb {
+  background: var(--rule-strong);
+}
+.failure-deck:hover::-webkit-scrollbar-thumb,
+.failure-deck:focus-within::-webkit-scrollbar-thumb {
+  background: var(--vermilion);
+}
+.failure-deck:focus-visible {
+  outline: 1px solid var(--vermilion);
+  outline-offset: 4px;
+}
+.failure-card {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
   position: relative;
   isolation: isolate;
-  transition: border-color 280ms var(--ease-out), transform 280ms var(--ease-out), box-shadow 280ms var(--ease-out);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 380px;
+  padding: 28px 28px 30px;
+  border: 1px solid var(--rule);
+  background: var(--ink-deep);
+  color: var(--type-primary);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color 320ms var(--ease-out),
+    border-color 280ms var(--ease-out),
+    transform 280ms var(--ease-out),
+    box-shadow 280ms var(--ease-out);
 }
-.fail-card::before {
+.failure-card::before {
   content: "";
   position: absolute; left: 0; top: 0;
   width: 0; height: 2px;
   background: linear-gradient(to right, var(--vermilion), var(--vermilion-glow));
   transition: width 360ms var(--ease-out);
 }
-.fail-card:hover {
+.failure-card:hover,
+.failure-card:focus-visible {
+  background-color: rgba(232, 80, 58, 0.08);
   border-color: var(--vermilion);
   transform: translateY(-4px);
   box-shadow: 0 24px 48px -16px rgba(0, 0, 0, 0.6);
+  outline: none;
 }
-.fail-card:hover::before { width: 100%; }
-.fail-card .fc-num {
+.failure-card:hover::before,
+.failure-card:focus-visible::before { width: 100%; }
+.failure-card .fc-num {
   font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.28em;
   text-transform: uppercase; color: var(--vermilion);
 }
-.fail-card .fc-tag {
+.failure-card .fc-tag {
   font-family: var(--f-mono); font-size: 9px; letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--paper-warm); background: var(--ink-mid);
   padding: 3px 8px; align-self: flex-start;
 }
-.fail-card h3 {
+.failure-card h3 {
   font-family: var(--f-display); font-style: normal; font-weight: 500;
   font-size: 22px; line-height: 1.15;
   letter-spacing: -0.02em; margin: 0;
   color: var(--type-primary);
 }
-.fail-card h3 em { color: var(--vermilion); font-style: normal; font-weight: 600; }
-.fail-card .fc-claim {
+.failure-card h3 em { color: var(--vermilion); font-style: normal; font-weight: 600; }
+.failure-card .fc-claim {
   font-family: var(--f-body); font-style: normal;
   font-size: 14px; line-height: 1.5;
   color: var(--type-muted);
   border-left: 2px solid var(--vermilion);
   padding-left: 14px;
 }
-.fail-card .fc-strike { text-decoration: line-through; text-decoration-color: var(--vermilion); color: var(--type-faint); }
-.fail-card .fc-out {
+.failure-card .fc-out {
   margin-top: auto;
   font-family: var(--f-mono); font-size: 11px;
   line-height: 1.55;
@@ -2624,8 +2730,36 @@ h1.hero-title .accent {
   border: 1px solid var(--rule);
   white-space: pre-wrap;
 }
-.fail-card .fc-out .ok { color: var(--vermilion-glow); }
-.fail-card .fc-out .lab { color: var(--type-faint); }
+.failure-card .fc-out .ok { color: var(--vermilion-glow); }
+.failure-card .fc-out .lab { color: var(--type-faint); }
+.failure-card__source {
+  color: var(--type-faint);
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+.failure-card__refused-stamp {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  pointer-events: none;
+  transform-origin: top right;
+  z-index: 2;
+  line-height: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .failure-deck { scroll-behavior: auto; }
+  .failure-card { transition: none; }
+  .failure-card:hover,
+  .failure-card:focus-visible { transform: none; }
+}
+@media (max-width: 880px) {
+  .failure-deck {
+    grid-auto-columns: clamp(260px, 78vw, 360px);
+    padding-inline: 32px;
+    scroll-padding-inline: 32px;
+  }
+}
 
 /* ── Manifest ─────────────────────────────────────────────────── */
 .manifest {
@@ -2850,7 +2984,6 @@ footer.foot .meta .made {
   .repro-grid, .hw-grid { grid-template-columns: 1fr; gap: 48px; }
   .ra-grid { grid-template-columns: 1fr; }
   .ra-axis { display: none; }
-  .fail-grid { grid-template-columns: 1fr; }
   .faq-grid { grid-template-columns: 1fr; }
   .faq-item { border-right: none !important; }
   .live-demo { padding: 120px 32px; }
