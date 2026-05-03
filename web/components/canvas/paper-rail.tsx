@@ -762,24 +762,32 @@ function normalizePaperX(x: number) {
 
 function ReducedMotionFallback() {
   return (
-    <div
-      id="paper-stage"
-      aria-hidden="true"
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        width: "100vw",
-        height: "100vh",
-        pointerEvents: "none",
-        zIndex: 1,
-        opacity: 1,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "flex-end",
-        paddingRight: "8vw",
-      }}
-    >
+    <>
+      <div
+        className="paper-edge-bleed"
+        data-stage-from="hero"
+        data-stage-to="problem"
+        data-static="1"
+        aria-hidden="true"
+      />
+      <div
+        id="paper-stage"
+        aria-hidden="true"
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100vw",
+          height: "100vh",
+          pointerEvents: "none",
+          zIndex: 1,
+          opacity: 1,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "flex-end",
+          paddingRight: "8vw",
+        }}
+      >
       <article
         style={{
           width: "min(420px, 36vw)",
@@ -822,7 +830,8 @@ function ReducedMotionFallback() {
           を及ぼす可能性があり、特に急激な円安は電子部品セグメントにおいて原材料コストを押し上げる要因となる。
         </p>
       </article>
-    </div>
+      </div>
+    </>
   );
 }
 
@@ -1062,10 +1071,14 @@ export function PaperRail() {
       const visibility = new Map<HTMLElement, number>();
       const sectionStage = new Map<HTMLElement, StageKey>();
       const sectionHide = new Map<HTMLElement, boolean>();
+      let heroEl: HTMLElement | null = null;
+      let problemEl: HTMLElement | null = null;
       for (const el of sectionEls) {
         const k = el.dataset.paperStage as StageKey | undefined;
         if (k && k in STAGES) sectionStage.set(el, k);
         sectionHide.set(el, el.hasAttribute("data-paper-hide"));
+        if (k === "hero") heroEl = el;
+        if (k === "problem") problemEl = el;
       }
       let targetFade = 1;
       // Side-swap state machine. When the active stage flips between two
@@ -1219,6 +1232,17 @@ export function PaperRail() {
       root.style.setProperty("--paper-exit-x", "0");
       root.style.setProperty("--paper-exit-rot", "0");
       root.style.setProperty("--paper-exit-scale", "1");
+      root.style.setProperty("--paper-edge-progress", "0");
+
+      // Hero → Problem edge bleed. Tracks the handoff window where the
+      // paper is leaving the hero section (right-anchored) and entering
+      // problem (left-anchored). A scaleX 0→1 ramp draws a 2px vermilion
+      // edge gradient on the paper's right margin; once activeStage flips
+      // to "problem" the edge fades to ink-faint over 400ms.
+      let edgeProgress = 0;
+      let edgeFade = 0;
+      let edgeFadeStart = -1;
+      const EDGE_FADE_MS = 400;
 
       const loop = () => {
         if (disposed || !active || paused) return;
@@ -1343,6 +1367,44 @@ export function PaperRail() {
           "--paper-exit-scale",
           (1 - exitAmt * 0.45).toFixed(3),
         );
+
+        // Edge bleed driver: while the hero section is still active but
+        // its visibility has dropped below ~0.85 (i.e. the bottom 15% of
+        // hero is leaving), ramp edgeProgress 0 → 1 over the closing
+        // window. We also need problem to have begun peeking
+        // (problemVis > 0.05) so the bleed doesn't fire when the user
+        // has scrolled hero partway down without problem in view.
+        // Once the active stage flips to "problem", hold the last
+        // edgeProgress and start a 400ms fade-out via edgeFade.
+        const heroVis = heroEl ? visibility.get(heroEl) ?? 0 : 0;
+        const problemVis = problemEl ? visibility.get(problemEl) ?? 0 : 0;
+        if (activeStage === "hero" || activeStage === "problem") {
+          if (activeStage === "hero" && problemVis > 0.05 && heroVis < 0.95) {
+            const handoff = Math.max(
+              0,
+              Math.min(1, (0.85 - heroVis) / 0.85),
+            );
+            edgeProgress = handoff;
+            edgeFade = 0;
+            edgeFadeStart = -1;
+          } else if (activeStage === "problem") {
+            if (edgeFadeStart < 0) edgeFadeStart = now;
+            const k = Math.max(
+              0,
+              Math.min(1, (now - edgeFadeStart) / EDGE_FADE_MS),
+            );
+            edgeFade = k;
+          } else {
+            edgeProgress = 0;
+          }
+        } else {
+          edgeProgress = 0;
+          edgeFade = 0;
+          edgeFadeStart = -1;
+        }
+        const edgeOut = Math.max(0, edgeProgress * (1 - edgeFade));
+        root.style.setProperty("--paper-edge-progress", edgeOut.toFixed(3));
+
         if (t.side !== currentSide) {
           currentSide = t.side;
           root.dataset.paperSide = t.side;
@@ -1550,6 +1612,7 @@ export function PaperRail() {
         root.style.removeProperty("--paper-exit-x");
         root.style.removeProperty("--paper-exit-rot");
         root.style.removeProperty("--paper-exit-scale");
+        root.style.removeProperty("--paper-edge-progress");
         delete root.dataset.paperSide;
       };
     };
@@ -1590,19 +1653,27 @@ export function PaperRail() {
   if (reduced) return <ReducedMotionFallback />;
 
   return (
-    <div
-      id="paper-stage"
-      ref={stageRef}
-      aria-hidden="true"
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        width: "100vw",
-        height: "100vh",
-        pointerEvents: "none",
-        zIndex: 1,
-      }}
-    />
+    <>
+      <div
+        id="paper-stage"
+        ref={stageRef}
+        aria-hidden="true"
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100vw",
+          height: "100vh",
+          pointerEvents: "none",
+          zIndex: 1,
+        }}
+      />
+      <div
+        className="paper-edge-bleed"
+        data-stage-from="hero"
+        data-stage-to="problem"
+        aria-hidden="true"
+      />
+    </>
   );
 }
