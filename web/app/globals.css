@@ -686,6 +686,57 @@ body.use-system-cursor #cursor-dot { display: none !important; }
   .progress-rail { display: none; }
 }
 
+/* ── Marginalia ribbon ────────────────────────────────────────────
+   Editorial running header — sits in the top-right gutter just below
+   the topbar, tracks the section the reader is in. Reads as a printed
+   yūhō page-header: §-numbered chapter, mono caps, a vermilion margin
+   stripe, the kanji label in mincho. Hidden on coarse-pointer / mobile
+   so the narrow viewport keeps the typographic spine clean. */
+.marginalia-ribbon {
+  position: fixed;
+  top: 76px;
+  right: 56px;
+  z-index: 48;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 6px 12px 6px 10px;
+  background: rgba(14, 14, 16, 0.78);
+  -webkit-backdrop-filter: blur(10px) saturate(120%);
+          backdrop-filter: blur(10px) saturate(120%);
+  border-left: 1px solid var(--vermilion);
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--type-faint);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 380ms var(--ease-out);
+  font-variant-numeric: tabular-nums;
+}
+:root[data-theme="light"] .marginalia-ribbon {
+  background: rgba(250, 247, 238, 0.82);
+  color: var(--type-muted);
+}
+.marginalia-ribbon.is-visible { opacity: 1; }
+.marginalia-ribbon__num {
+  color: var(--vermilion);
+  font-weight: 500;
+}
+.marginalia-ribbon__sep { color: var(--type-faint); }
+.marginalia-ribbon__ja {
+  font-family: var(--f-jp);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: var(--paper-aged);
+}
+:root[data-theme="light"] .marginalia-ribbon__ja { color: var(--type-primary); }
+@media (max-width: 1100px) {
+  .marginalia-ribbon { display: none; }
+}
+
 /* ── Top scroll progress ───────────────────────────────────────── */
 #progress {
   position: fixed; top: 0; left: 0; right: 0; height: 2px;
@@ -1411,7 +1462,16 @@ h1.hero-title .accent::after {
   font-size: 14px;
   line-height: 1;
   vertical-align: -1px;
-  animation: caretBlink 1.05s steps(2, end) infinite;
+  /* Kg-2 caret breathes (slow opacity pulse) rather than blinking — the
+     ticker carries the brand's "live judge" promise, and a typing-cursor
+     blink reads as code, not as a heartbeat. The 2.4 s cycle and 0.55
+     floor keep the breath quiet enough to not pull the eye, but visible
+     enough that a reader who notices it once notices it again. */
+  animation: kg2Breath 2.4s var(--ease-in-out) infinite;
+}
+@keyframes kg2Breath {
+  0%, 100% { opacity: 0.55; }
+  50%      { opacity: 1; }
 }
 @media (prefers-reduced-motion: reduce) {
   .mt-caret { animation: none; opacity: 0.6; }
@@ -3041,6 +3101,39 @@ section[data-paper-stage].manifest > .right {
   margin-inline: 0 !important;
 }
 .manifest .left h2 { margin-bottom: 32px; }
+
+/* Manifest accent — quiet callback to the hero's inking underline.
+   Same 2px vermilion hairline + faint ink-bleed shadow as the hero's
+   end-state, fading in on .reveal.is-in. No wet-smear cinema: this is
+   recognition, not declaration. The pair of underlines (`In English.`
+   opening, `not a chatbot.` closing) bookends the document the same way
+   the 宣 / 結 seals do — opening promise, closing acknowledgement. */
+.manifest .section-title .accent {
+  position: relative;
+  display: inline-block;
+}
+.manifest .section-title .accent::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.05em;
+  height: 2px;
+  background: var(--vermilion);
+  box-shadow: 0 1px 0 rgba(232, 80, 58, 0.20);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 600ms var(--ease-out);
+}
+.manifest .reveal.is-in .section-title .accent::after {
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .manifest .section-title .accent::after {
+    transition: none;
+    opacity: 1;
+  }
+}
 .manifest .left .sig {
   margin-top: 48px;
   font-family: var(--f-jp);

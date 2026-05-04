@@ -189,6 +189,8 @@ export function ReadAlong() {
                   key={p.pair}
                   className={"ra-span" + (hovered === p.pair ? " is-on" : "")}
                   data-pair={p.pair}
+                  data-gloss-label={`SOURCE · ${filer.customId}`}
+                  data-gloss-aux={truncate(p.jp, 60)}
                   onMouseEnter={() => setHovered(p.pair)}
                   onMouseLeave={() => setHovered(null)}
                 >

@@ -4,6 +4,7 @@ import Script from "next/script";
 import { CiteDrawerProvider } from "@/components/ui/cite-drawer";
 import { CiteGlossLayer } from "@/components/ui/cite-gloss-tip";
 import { CustomCursor } from "@/components/ui/custom-cursor";
+import { MarginaliaRibbon } from "@/components/ui/marginalia-ribbon";
 import { ProgressRail } from "@/components/ui/progress-rail";
 import { Preloader } from "@/components/ui/preloader";
 import { TopBar } from "@/components/ui/topbar";
@@ -122,6 +123,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </LenisProvider>
         <CustomCursor />
         <CiteGlossLayer />
+        <MarginaliaRibbon />
         <ProgressRail />
         <Script
           id="ld-json"
