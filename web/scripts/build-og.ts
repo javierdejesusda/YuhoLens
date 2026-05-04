@@ -52,7 +52,7 @@ h1 { font-size: 80px; line-height: 1.05; margin: 0; letter-spacing: -0.02em; fon
     <div class="cell"><div class="v">~$80</div><div class="k">All-in cost</div></div>
   </div>
 </div>
-<div class="foot">YUHOLENS · <span class="accent" style="font-size:18px">朱</span> · MIT · TONGYI QIANWEN · YUHOLENS.SITE</div>
+<div class="foot">YUHOLENS · <span class="accent" style="font-size:18px">朱</span> · MIT · NEKOMATA-QFIN · YUHOLENS.SITE</div>
 </body></html>`;
 
 (async () => {

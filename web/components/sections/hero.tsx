@@ -1,5 +1,4 @@
 import { MetricTicker } from "@/components/ui/metric-ticker";
-import { KanjiField } from "@/components/canvas/kanji-field";
 import { MorphTarget } from "@/components/ui/morph-target";
 
 export function Hero() {
@@ -10,8 +9,6 @@ export function Hero() {
       aria-label="Hero"
       data-paper-stage="hero"
     >
-      <KanjiField />
-
       <div className="corner c-tl">
         <span className="dash">—</span> 朱 / SHU · A LENS ON JAPANESE FILINGS
       </div>
@@ -48,6 +45,15 @@ export function Hero() {
               How it was built
             </a>
           </div>
+
+          <p className="hero-microcopy">
+            <span className="hero-microcopy__dot" aria-hidden="true">·</span>
+            MIT-licensed weights
+            <span className="hero-microcopy__sep" aria-hidden="true">·</span>
+            KG-2 PASS
+            <span className="hero-microcopy__sep" aria-hidden="true">·</span>
+            MI300X-trained
+          </p>
 
           <div className="hero-meta">
             <span><b>1,910</b> EDINET-Bench rows</span>

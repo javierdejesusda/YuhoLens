@@ -140,7 +140,7 @@ function QuantBar({
             height: isOpen ? "auto" : 0,
             opacity: isOpen ? 1 : 0,
           }}
-          transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
           style={{ overflow: "hidden" }}
         >
           <div className="hw-detail-grid">

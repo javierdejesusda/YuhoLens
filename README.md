@@ -61,9 +61,11 @@ Coherence distribution on the 50-prompt KG-2 test set: `0/2/7/36/5` (counts at
 
 **The lift is inference-time, not training-time.** The same SFT checkpoint, sampled
 at five different decoder profiles per prompt, lets the coherence judge pick the
-per-prompt argument-unity peak. Decoder diversity dominates seed diversity — the
-finding is now baked into [`src/yuholens/agents/decoder_profiles.py`](src/yuholens/agents/decoder_profiles.py)
-and the `MemoCriticAgent` LangGraph node.
+per-prompt argument-unity peak. In this small-N setting, decoder diversity appears to
+contribute more lift than seed diversity (the bo2-vs-bo3 difference is 0.08 at n=50,
+within a one-SE noise band — we report this as a trend, not a significance claim);
+the observation is baked into [`src/yuholens/agents/decoder_profiles.py`](src/yuholens/agents/decoder_profiles.py)
+and the `memo_critic` LangGraph node.
 
 ## Architecture — 4 agents, one DAG
 
@@ -166,8 +168,8 @@ generation work is never wasted.
 
 | Artefact                                | Where                                              | Status |
 | --------------------------------------- | -------------------------------------------------- | ------ |
-| BF16 reference weights                  | [`javierdejesusda/yuholens-14b`](https://huggingface.co/javierdejesusda/yuholens-14b) on HuggingFace | **shipped** — 26.4 GiB across 6 safetensors shards |
-| GGUF release (Q3_K_M / Q4_K_M / Q5_K_M / Q6_K / Q8_0) | [`javierdejesusda/yuholens-14b-GGUF`](https://huggingface.co/javierdejesusda/yuholens-14b-GGUF) on HuggingFace | **shipped** — 51.4 GiB total, Q3_K_M smoke-verified on RTX 4070 Laptop @ 12.2 tok/s |
+| BF16 reference weights                  | [`javierdejesusda/yuholens-14b`](https://huggingface.co/javierdejesusda/yuholens-14b) on HuggingFace | **shipped** — 28.3 GB (26.4 GiB) across 6 safetensors shards |
+| GGUF release (Q3_K_M / Q4_K_M / Q5_K_M / Q6_K / Q8_0) | [`javierdejesusda/yuholens-14b-GGUF`](https://huggingface.co/javierdejesusda/yuholens-14b-GGUF) on HuggingFace | **shipped** — 51.4 GiB total, Q3_K_M smoke-verified on RTX 4070 Laptop @ 10.06 gen tok/s, 109.05 prompt tok/s |
 | Pre-release sanity check                | [`scripts/check_release_set.py`](scripts/check_release_set.py) | built |
 | Hub upload helper                       | [`scripts/hf_upload.py`](scripts/hf_upload.py)     | built (patches `generation_config.json` to v5 defaults before push) |
 | Model card                              | [`docs/model-card.md`](docs/model-card.md)         | shipped |
@@ -179,9 +181,9 @@ generation work is never wasted.
 - **Training (one-shot).** Single AMD Instinct MI300X (192 GB HBM3) on ROCm 7.0.
   Full-parameter SFT of a 14B Qwen1 model at sequence length 8192 does not fit on
   80 GB-class hardware; the MI300X is not optional for the training path.
-- **Consumer inference.** The **Q3_K_M GGUF (≈6.5 GB)** is the
+- **Consumer inference.** The **Q3_K_M GGUF (7.18 GiB on disk)** is the
   recommended 8 GB-class target (RTX 4070 Laptop, RTX 3060 Ti, etc.) and
-  fits fully in VRAM at Pass-1 4-6K context. The Q4_K_M GGUF (≈9.45 GB)
+  fits fully in VRAM at Pass-1 4-6K context. The Q4_K_M GGUF (8.81 GiB on disk)
   is shipped for 12-16 GB cards (RTX 4060 Ti 16 GB, RTX 3080); on 8 GB
   cards Q4_K_M still runs via partial GPU offload (`llama-cli -ngl 25`).
   Larger Q5_K_M / Q6_K / Q8_0 quants ship for prosumer / dual-GPU rigs.

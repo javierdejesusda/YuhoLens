@@ -25,13 +25,13 @@ GGUF-quantized release of [`javierdejesusda/yuholens-14b`](https://huggingface.c
 
 | File | Quant | Size | Bits/weight | Recommended hardware |
 |------|-------|-----:|:-----------:|----------------------|
-| `yuholens-14b-Q3_K_M.gguf` | Q3_K_M | 7.18 GB |  4.35 | 8 GB GPU (RTX 4070 Laptop, 3060 Ti) — fits with `--ctx-size 2048` |
-| `yuholens-14b-Q4_K_M.gguf` | Q4_K_M | 8.81 GB | ~5.0 | 12-16 GB GPU (RTX 4060 Ti 16 GB, RTX 3080) |
-| `yuholens-14b-Q5_K_M.gguf` | Q5_K_M | 9.94 GB | ~5.7 | 16 GB GPU |
-| `yuholens-14b-Q6_K.gguf`   | Q6_K   | 11.46 GB | ~6.6 | 16-24 GB GPU |
-| `yuholens-14b-Q8_0.gguf`   | Q8_0   | 14.03 GB | 8.5 | 24 GB GPU or CPU offload |
+| `yuholens-14b-Q3_K_M.gguf` | Q3_K_M | 7.18 GiB |  4.35 | 8 GB GPU (RTX 4070 Laptop, 3060 Ti) — fits with `--ctx-size 2048` |
+| `yuholens-14b-Q4_K_M.gguf` | Q4_K_M | 8.81 GiB | ~5.0 | 12-16 GB GPU (RTX 4060 Ti 16 GB, RTX 3080) |
+| `yuholens-14b-Q5_K_M.gguf` | Q5_K_M | 9.94 GiB | ~5.7 | 16 GB GPU |
+| `yuholens-14b-Q6_K.gguf`   | Q6_K   | 11.46 GiB | ~6.6 | 16-24 GB GPU |
+| `yuholens-14b-Q8_0.gguf`   | Q8_0   | 14.03 GiB | 8.5 | 24 GB GPU or CPU offload |
 
-Sizes are the actual on-disk byte counts; quoted GB values use 1024³.
+Sizes are the actual on-disk byte counts; quoted values are GiB (1024³ bytes).
 
 ## Smoke test
 
@@ -39,11 +39,11 @@ The Q3_K_M quant has been smoke-tested on an NVIDIA RTX 4070 Laptop (8 GB VRAM, 
 
 - Prompt: ChatML-wrapped Yuho fixture with the YuhoLens system prompt (see *Prompt format* below).
 - Settings: `--n-gpu-layers 99 -c 2048 --temp 0.1 --top-p 0.9 --repeat-penalty 1.15`.
-- Throughput: prompt eval **65.5 tok/s**, generation **12.2 tok/s**.
+- Throughput: prompt eval **109.05 tok/s**, generation **10.06 tok/s**.
 - VRAM occupancy: ~7.0 GB model + ~1.6 GB context + ~0.3 GB compute, fits within the 8.0 GB card.
 - Output: coherent English investor memo with section headings (*Executive summary*, *Going-concern assessment*, *Accrual quality*, ...) following the SFT teacher template.
 
-Q4_K_M and larger quants exceed 8 GB VRAM and require either a 12 GB+ GPU or partial CPU offload (`--n-gpu-layers` < 99). Q4_K_M smoke on the same RTX 4070 Laptop with `--n-gpu-layers 30` (30 of 41 layers on GPU, rest on CPU) sustains 7.9 generation tok/s and 152 prompt tok/s — usable but I/O-bound by the CPU layers; a native 12-16 GB card runs the same quant fully on GPU.
+Q4_K_M and larger quants exceed 8 GB VRAM and require either a 12 GB+ GPU or partial CPU offload (`--n-gpu-layers` < 99). Q4_K_M smoke on the same RTX 4070 Laptop with `--n-gpu-layers 30` (30 of 41 layers on GPU, rest on CPU) sustains 7.92 generation tok/s and 152.30 prompt tok/s — usable but I/O-bound by the CPU layers; a native 12-16 GB card runs the same quant fully on GPU.
 
 ## Quickstart
 

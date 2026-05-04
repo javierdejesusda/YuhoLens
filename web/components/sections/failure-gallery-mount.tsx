@@ -15,7 +15,6 @@ const FailureGallery = dynamic(
         className="fail-section is-paper-anchor-left"
         aria-label="Failure gallery"
         data-paper-stage="failures"
-        data-paper-hide
         style={{ minHeight: "700px" }}
       />
     ),

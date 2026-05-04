@@ -112,13 +112,13 @@ gate without it.
 All training was performed on a single AMD Instinct MI300X (192 GB HBM3,
 ROCm 7.0) under the `rocm/pytorch:rocm7.0_ubuntu24.04_py3.12_pytorch_release_2.5.1`
 container, using `flash-attention` built for ROCm and `bitsandbytes` 8-bit
-AdamW with gradient checkpointing.
+paged AdamW (no gradient checkpointing — the 192 GB HBM3 has the headroom).
 
 Hyperparameters:
 
 | Stage | LR     | Batch | Grad accum | Seq len | Epochs | Optimizer         | Notes             |
 |-------|--------|-------|------------|---------|--------|-------------------|-------------------|
-| SFT   | 1e-5   | 1     | 32         | 8192    | 2      | adamw_bnb_8bit    | BF16, grad-ckpt; checkpoint-212 |
+| SFT   | 1e-5   | 1     | 32         | 8192    | 2      | paged_adamw_8bit  | BF16, no grad-ckpt; checkpoint-212 |
 | ORPO  | 5e-6   | 1     | 16         | 8192    | 1      | adamw_bnb_8bit    | beta = 0.1; wired but no shipped checkpoint (data gate failed both attempts) |
 
 **Compute budget.** Total ~38 GPU-hours on a single MI300X at $1.99/hr,
@@ -208,14 +208,14 @@ llama.cpp checkout and disk-budget notes.
 
 | Quant     | Verified size | Intended hardware                                       | Throughput (tok/s)        |
 |-----------|---------------|---------------------------------------------------------|---------------------------|
-| Q3_K_M    | 7.18 GB       | 8 GB consumer GPU (RTX 4070 Laptop, RTX 3060 Ti)        | 12.2 gen / 65.5 prompt on RTX 4070 Laptop, `-c 2048`, `--n-gpu-layers 99` |
-| Q4_K_M    | 8.81 GB       | 12-16 GB consumer GPU (RTX 4060 Ti 16 GB, RTX 3080)     | 7.92 gen / 152 prompt on RTX 4070 Laptop with partial offload, `-c 2048`, `--n-gpu-layers 30` |
-| Q5_K_M    | 9.94 GB       | 16-24 GB consumer GPU                                   | TBD                       |
-| Q6_K      | 11.46 GB      | 24 GB+ consumer or prosumer                             | TBD                       |
-| Q8_0      | 14.03 GB      | 24 GB+ prosumer / dual-GPU CPU offload                  | TBD                       |
+| Q3_K_M    | 7.18 GiB      | 8 GB consumer GPU (RTX 4070 Laptop, RTX 3060 Ti)        | 10.06 gen / 109.05 prompt on RTX 4070 Laptop, `-c 2048`, `--n-gpu-layers 99` |
+| Q4_K_M    | 8.81 GiB      | 12-16 GB consumer GPU (RTX 4060 Ti 16 GB, RTX 3080)     | 7.92 gen / 152.30 prompt on RTX 4070 Laptop with partial offload, `-c 2048`, `--n-gpu-layers 30` |
+| Q5_K_M    | 9.94 GiB      | 16-24 GB consumer GPU                                   | TBD                       |
+| Q6_K      | 11.46 GiB     | 24 GB+ consumer or prosumer                             | TBD                       |
+| Q8_0      | 14.03 GiB     | 24 GB+ prosumer / dual-GPU CPU offload                  | TBD                       |
 
 Sizes above are the actual on-disk byte counts of the released GGUFs
-(1024³ GB). Q3_K_M was smoke-tested end-to-end on an RTX 4070 Laptop
+(GiB; 1024³ bytes). Q3_K_M was smoke-tested end-to-end on an RTX 4070 Laptop
 (8 GB) at `--ctx-size 2048` with `--n-gpu-layers 99`; the model and
 context fit fully in VRAM and produce a coherent English investor memo
 from the ChatML-wrapped fixture in `data/sample/smoke_prompt_chatml.txt`.

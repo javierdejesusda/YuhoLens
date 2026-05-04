@@ -19,11 +19,17 @@ export const CITATION_RE =
 /**
  * Matches a single ref segment inside a `(ref: ...)` block.
  *
- * Capture groups:
- *   [1] quoted span (single or double quotes).
- *   [2] optional pageRef (everything after `p.` up to `;`, `,`, or end).
+ * The model emits two pageRef shapes:
+ *   1. Short codes — `p.B/S`, `p.P/L`, `p.CF`, `p.23`
+ *   2. Full section titles in quotes — `p. "事業等のリスク"`
+ *
+ * We accept either, in that priority. Capture groups:
+ *   [1] quoted span — always required, this is what gets cited.
+ *   [2] quoted pageRef (when the model wrote `p. "事業等のリスク"`).
+ *   [3] unquoted pageRef (short codes / page numbers).
  */
-const SEGMENT_RE = /['"]([^'"]+)['"]\s*(?:p\.([^);,"]+?))?(?=\s*[;,]|\s*$)/g;
+const SEGMENT_RE =
+  /['"]([^'"]+)['"](?:\s*p\.\s*(?:['"]([^'"]+)['"]|([^);,"]+?(?=\s*(?:[;,)]|$)))))?/g;
 
 export function parseCitations(line: string): Citation[] {
   const out: Citation[] = [];
@@ -31,24 +37,12 @@ export function parseCitations(line: string): Citation[] {
     const body = (block[1] ?? "").trim();
     if (!body) continue;
     const segments = [...body.matchAll(SEGMENT_RE)];
-    if (segments.length > 0) {
-      for (const seg of segments) {
-        out.push({
-          span: (seg[1] ?? "").trim(),
-          section: "",
-          pageRef: (seg[2] ?? "").trim(),
-        });
-      }
-      continue;
-    }
-    // Fallback: a body that didn't terminate cleanly. Pull the first quoted
-    // span + optional `p.xxx` even if the lookahead failed.
-    const fallback = body.match(/['"]([^'"]+)['"]\s*(?:p\.([^);,"]+))?/);
-    if (fallback) {
+    for (const seg of segments) {
+      const pageRef = (seg[2] ?? seg[3] ?? "").trim();
       out.push({
-        span: (fallback[1] ?? "").trim(),
+        span: (seg[1] ?? "").trim(),
         section: "",
-        pageRef: (fallback[2] ?? "").trim(),
+        pageRef,
       });
     }
   }

@@ -15,7 +15,7 @@ function BeatDemo({ kind }: { kind: ProblemBeat["demoKind"] }) {
   if (kind === "split") {
     return (
       <div className="demo" aria-hidden="true">
-        <div className="ja">急激な為替変動は営業利益率に重大な影響を及ぼす可能性がある。</div>
+        <div className="ja">「急激な為替変動は営業利益率に重大な影響を及ぼす可能性がある。」</div>
         <div className="mt">
           &ldquo;Sudden <s>foreign-exchange shaking</s> may give a serious feeling of influence to operating profit ratio.&rdquo;
         </div>
@@ -48,7 +48,7 @@ function BeatDemo({ kind }: { kind: ProblemBeat["demoKind"] }) {
         </span>
       </div>
       <div className="ja-orig">
-        急激な為替変動は営業利益率に重大な影響を及ぼす可能性がある — p.??
+        「急激な為替変動は営業利益率に重大な影響を及ぼす可能性がある」 — p.23 §2.1
       </div>
     </div>
   );

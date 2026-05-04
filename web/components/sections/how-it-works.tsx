@@ -89,10 +89,15 @@ function CiteDemo() {
       words.forEach((w) => w.classList.remove("is-on"));
       sups.forEach((s) => s.classList.remove("show"));
       words.forEach((w, i) => schedule(() => w.classList.add("is-on"), i * 110));
-      schedule(() => {
-        sups.forEach((s, i) => schedule(() => s.classList.add("show"), i * 280));
-      }, words.length * 110 + 200);
-      schedule(run, 5800);
+      const supBase = words.length * 110 + 200;
+      // Show one tooltip at a time so the popovers never stack on top of
+      // each other or visually leak into the surrounding card content.
+      sups.forEach((s, i) => {
+        const start = supBase + i * 1500;
+        schedule(() => s.classList.add("show"), start);
+        schedule(() => s.classList.remove("show"), start + 1200);
+      });
+      schedule(run, supBase + sups.length * 1500 + 800);
     };
     schedule(run, 800);
 

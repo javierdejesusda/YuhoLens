@@ -40,6 +40,12 @@
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in: cubic-bezier(0.4, 0, 1, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* Durations — kept in sync with `lib/motion.ts`. */
+  --dur-fast: 180ms;
+  --dur-base: 640ms;
+  --dur-slow: 900ms;
+  --stagger: 60ms;
 }
 
 :root {
@@ -57,6 +63,9 @@
   /* Dark text used on vermilion fills; constant across themes so
      CTAs keep WCAG AA contrast in both dark and light mode. */
   --type-on-vermilion: #0E0E10;
+  /* Semi-transparent dark veil — used as the section background so the
+     fixed kanji canvas behind the page reads through every section. */
+  --ink-veil: rgba(14, 14, 16, 0.78);
   --type-primary: var(--color-type-primary);
   --type-muted: var(--color-type-muted);
   --type-faint: var(--color-type-faint);
@@ -98,7 +107,7 @@
 
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
-html { scroll-behavior: smooth; background: var(--ink-void); overflow-x: clip; }
+html { scroll-behavior: smooth; background: var(--ink-void); overflow-x: clip; position: relative; }
 body { overflow-x: clip; }
 
 body {
@@ -113,6 +122,9 @@ body {
   cursor: none;
   font-feature-settings: "ss01", "ss02", "calt", "kern", "liga";
   font-variant-ligatures: common-ligatures contextual;
+  /* Optical hangs on opening / closing punctuation at line edges; falls
+     back gracefully on browsers that don't yet implement the spec. */
+  hanging-punctuation: first allow-end last;
 }
 
 /* Film-grain atmosphere — pushes flat blacks into reportage paper.
@@ -194,6 +206,7 @@ a { color: inherit; }
 .skip-to-main:focus,
 .skip-link:focus { left: 12px; top: 12px; }
 
+#main-content { position: relative; }
 #main-content:focus { outline: none; }
 .report-card { scroll-margin: 24px; }
 
@@ -210,6 +223,11 @@ a { color: inherit; }
   word-break: keep-all;
   line-break: strict;
   text-spacing-trim: trim-start;
+  /* Japanese reads denser than Latin at the same nominal tracking; a
+     subtle +0.02em opens the kana/kanji slightly without forcing
+     them apart. Tight typographic anchors (.section-tag .ja, mono
+     .jp glyphs) override locally. */
+  letter-spacing: 0.02em;
 }
 
 /* Romanised Japanese loanwords (e.g. yūhō) inside English copy. Kept upright
@@ -297,16 +315,17 @@ em { font-style: normal; color: var(--vermilion); font-weight: 600; font-family:
 
 .reveal {
   opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 280ms var(--ease-out), transform 280ms var(--ease-out);
+  transform: translateY(64px);
+  transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out);
+  will-change: transform, opacity;
 }
 .reveal.is-in {
   opacity: 1;
   transform: translateY(0);
 }
-.reveal.delay-1 { transition-delay: 60ms; }
-.reveal.delay-2 { transition-delay: 120ms; }
-.reveal.delay-3 { transition-delay: 180ms; }
+.reveal.delay-1 { transition-delay: var(--stagger); }
+.reveal.delay-2 { transition-delay: calc(var(--stagger) * 2); }
+.reveal.delay-3 { transition-delay: calc(var(--stagger) * 3); }
 .reveal.no-anim {
   transition: none;
   opacity: 1;
@@ -364,6 +383,20 @@ em { font-style: normal; color: var(--vermilion); font-weight: 600; font-family:
   border-color: var(--vermilion);
   color: var(--paper-warm);
   mix-blend-mode: normal;
+}
+/* Magnetic snap state — fires on data-magnet="hanko" elements via
+   custom-cursor.tsx. The visual register has to read as "the cursor
+   was drawn in" not "the cursor was reskinned": the same vermilion
+   ring just slightly larger, with a soft outer glow so the user
+   notices the affordance without losing the cursor. The mix-blend
+   normal flip keeps the ring visible against the paper-warm CTA. */
+#cursor.is-magnet {
+  width: 56px;
+  height: 56px;
+  border-color: var(--vermilion);
+  background: rgba(232, 80, 58, 0.18);
+  mix-blend-mode: normal;
+  box-shadow: 0 0 18px -2px rgba(232, 80, 58, 0.55);
 }
 #cursor .label {
   opacity: 0;
@@ -484,7 +517,6 @@ body.use-system-cursor #cursor-dot { display: none !important; }
   from { opacity: 0; }
   to { opacity: 1; }
 }
-@keyframes lineRise { to { transform: translateY(0); } }
 @keyframes glow {
   0%, 100% { text-shadow: 0 0 0 var(--vermilion); }
   50% { text-shadow: 0 0 8px var(--vermilion); }
@@ -682,6 +714,42 @@ nav.topbar {
   background: rgba(250, 247, 238, 0.82);
 }
 nav.topbar.is-visible { opacity: 1; transform: translateY(0); }
+/* Visually-hidden utility used for aria-live announcements (reports
+   rail focus events, etc.). Standard pattern; do not be tempted to
+   replace with `display: none` — that hides the element from screen
+   readers too. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Hairline draw on first appearance: a 1px vermilion line scales-X
+   from 0 to full width when the topbar enters, signalling the
+   transition from "pre-scroll" to "in document". Lives over the
+   existing rule border so the bar's structural border is unaffected. */
+nav.topbar::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: -1px;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--vermilion) 18%, var(--vermilion) 82%, transparent);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 760ms 120ms var(--ease-out);
+  pointer-events: none;
+}
+nav.topbar.is-visible::after { transform: scaleX(1); }
+@media (prefers-reduced-motion: reduce) {
+  nav.topbar::after { transition: none; }
+  nav.topbar.is-visible::after { transform: scaleX(1); }
+}
 nav.topbar .brand {
   font-family: var(--f-mono); font-size: 12px; letter-spacing: 0.32em;
   color: var(--type-primary); text-decoration: none;
@@ -805,8 +873,11 @@ nav.topbar .cta:active { transform: scale(0.96); }
   :root { --paper-gutter: 0vw; --paper-gutter-narrow: 0vw; --paper-counter-x: 0vw; --paper-counter-y: 0vh; }
   /* The 3D paper rail occupies a full-bleed canvas — at tablet/mobile
      widths the editorial composition relies on it sitting in a half-
-     viewport gutter that no longer exists, so hide it cleanly. */
-  #paper-stage { display: none; }
+     viewport gutter that no longer exists, so hide it cleanly.
+     `!important` is load-bearing: the reduced-motion static fallback
+     applies inline `display: flex` (specificity 1000) which would
+     otherwise win and overlap the hero copy at <=390px. */
+  #paper-stage { display: none !important; }
 }
 
 /* Section content is statically positioned within a centred reading
@@ -1097,9 +1168,11 @@ section[data-paper-hide] {
 /* ── Hero ─────────────────────────────────────────────────────── */
 .hero {
   position: relative;
+  z-index: 2;
   min-height: 100vh;
   width: 100%;
   overflow: hidden;
+  background: transparent;
 }
 .hero canvas {
   position: absolute; inset: 0;
@@ -1189,12 +1262,24 @@ h1.hero-title .line {
 }
 h1.hero-title .line .inner {
   display: block;
-  transform: translateY(110%);
-  animation: lineRise 1100ms var(--ease-out) forwards;
+  /* The hero lines render in their FINAL position from first paint —
+     critical for LCP. The earlier choreography started them at
+     translateY(110%) clipped under `overflow: hidden`, which deferred
+     the largest-contentful-paint candidate by ~1.5 s on mobile (LCP
+     went from 1.5 s FCP to 3.4 s) because Lighthouse can only measure
+     the title once it's visible. We keep the in-place fade as a
+     quieter entrance; Phase 2 cinema replaces this with a span-cite
+     entrance that doesn't move the LCP target. */
+  opacity: 0;
+  animation: heroLineFade 320ms var(--ease-out) forwards;
 }
-h1.hero-title .line:nth-child(1) .inner { animation-delay: 200ms; }
-h1.hero-title .line:nth-child(2) .inner { animation-delay: 340ms; }
-h1.hero-title .line:nth-child(3) .inner { animation-delay: 480ms; }
+h1.hero-title .line:nth-child(1) .inner { animation-delay: 60ms; }
+h1.hero-title .line:nth-child(2) .inner { animation-delay: 120ms; }
+h1.hero-title .line:nth-child(3) .inner { animation-delay: 180ms; }
+@keyframes heroLineFade { to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  h1.hero-title .line .inner { opacity: 1; animation: none; }
+}
 h1.hero-title .accent {
   font-style: normal;
   font-weight: 600;
@@ -1202,15 +1287,42 @@ h1.hero-title .accent {
   font-feature-settings: "ss01" on, "ss02" on;
   position: relative;
   display: inline-block;
-  background-image: linear-gradient(to right, var(--vermilion) 0%, var(--vermilion-glow) 100%);
-  background-repeat: no-repeat;
-  background-size: 0% 2px;
-  background-position: 0 100%;
-  animation: heroAccentDraw 900ms 1300ms var(--ease-out) forwards;
 }
-@keyframes heroAccentDraw { to { background-size: 100% 2px; } }
+/* Phase-2 cinema: the vermilion underline doesn't *draw* — it INKS.
+   A wet smear (wide, blurred, semi-transparent) appears left-to-right
+   and then dries into a clean 2px hairline. The pseudo-element lives
+   on its own compositor layer (transform + filter + opacity only),
+   so the .accent span's painted bounds never change — LCP is stable
+   at first paint, the way Phase 1 left it. */
+h1.hero-title .accent::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.05em;
+  height: 8px;
+  background: var(--vermilion);
+  border-radius: 1px;
+  transform: scaleX(0);
+  transform-origin: left;
+  opacity: 0;
+  pointer-events: none;
+  animation: inkUnderline 1200ms 700ms var(--ease-out) forwards;
+}
+@keyframes inkUnderline {
+  0%   { transform: scaleX(0);    opacity: 0;    height: 8px; box-shadow: 0 0 12px rgba(232,80,58,0.55); filter: blur(2.5px); }
+  35%  { transform: scaleX(0.75); opacity: 0.55; height: 8px; box-shadow: 0 0 10px rgba(232,80,58,0.45); filter: blur(2px); }
+  65%  { transform: scaleX(1);    opacity: 0.85; height: 6px; box-shadow: 0 0  6px rgba(232,80,58,0.35); filter: blur(1px); }
+  100% { transform: scaleX(1);    opacity: 1;    height: 2px; box-shadow: 0 1px  0 rgba(232,80,58,0.20); filter: blur(0); }
+}
 @media (prefers-reduced-motion: reduce) {
-  h1.hero-title .accent { background-size: 100% 2px; animation: none; }
+  h1.hero-title .accent::after {
+    animation: none;
+    transform: scaleX(1);
+    opacity: 1;
+    height: 2px;
+    box-shadow: 0 1px 0 rgba(232,80,58,0.20);
+  }
 }
 .hero-sub {
   margin-top: 22px;
@@ -1261,7 +1373,7 @@ h1.hero-title .accent {
 /* ── Metric ticker ────────────────────────────────────────────── */
 .metric-ticker {
   position: relative; z-index: 5;
-  display: flex; gap: 0; flex-wrap: wrap;
+  display: flex; gap: 0; flex-wrap: nowrap;
   margin-top: 22px;
   padding: 10px 0;
   border-top: 1px solid var(--rule-strong);
@@ -1272,37 +1384,85 @@ h1.hero-title .accent {
   animation: fadeUp 800ms 1100ms var(--ease-out) forwards;
 }
 .metric-ticker .mt-cell {
-  flex: 1 1 auto; min-width: 140px;
-  padding: 4px 20px;
+  flex: 1 1 0; min-width: 0;
+  padding: 4px 14px;
   border-right: 1px dashed var(--rule);
   display: flex; flex-direction: column; gap: 4px;
   color: var(--type-faint);
 }
 .metric-ticker .mt-cell:first-child { padding-left: 0; }
-.metric-ticker .mt-cell:last-child { border-right: none; }
+.metric-ticker .mt-cell:last-child { border-right: none; padding-right: 0; }
 .metric-ticker .mt-cell .v {
   font-family: var(--f-display);
   font-style: normal;
-  font-size: 22px; line-height: 1;
+  font-size: clamp(16px, 1.2vw, 19px); line-height: 1;
   color: var(--type-primary);
   letter-spacing: -0.01em;
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 .metric-ticker .mt-cell .v em { color: var(--vermilion); font-style: normal; font-weight: 500; }
-.metric-ticker .mt-cell .k { font-size: 9px; letter-spacing: 0.22em; }
+.mt-caret {
+  display: inline-block;
+  width: 1ch;
+  margin-left: 4px;
+  color: var(--vermilion);
+  font-family: var(--f-mono);
+  font-size: 14px;
+  line-height: 1;
+  vertical-align: -1px;
+  animation: caretBlink 1.05s steps(2, end) infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .mt-caret { animation: none; opacity: 0.6; }
+}
+.metric-ticker .mt-cell .k {
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  line-height: 1.25;
+  /* Two-line max so long labels like "KG-2 coherence" don't truncate. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+  hyphens: auto;
+}
 .hero-cta-row {
   margin-top: 22px;
   display: flex; gap: 14px; flex-wrap: wrap;
   opacity: 0;
   animation: fadeUp 800ms 1300ms var(--ease-out) forwards;
 }
+.hero-microcopy {
+  margin: 18px 0 0;
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--type-faint);
+  font-variant-numeric: tabular-nums;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0;
+  opacity: 0;
+  animation: fadeUp 800ms 1450ms var(--ease-out) forwards;
+}
+.hero-microcopy__dot,
+.hero-microcopy__sep {
+  margin: 0 12px;
+  color: var(--vermilion);
+}
+.hero-microcopy__dot { margin-left: 0; }
 
 /* ── Problem ──────────────────────────────────────────────────── */
 .problem {
-  padding: clamp(110px, 13vh, 168px) clamp(32px, 6vw, 96px);
-  border-top: 1px solid var(--rule);
+  padding: clamp(96px, 12vh, 144px) clamp(32px, 6vw, 96px);
   position: relative;
   z-index: 2;
+  background: transparent;
 }
 .problem .beats {
   display: grid;
@@ -1396,13 +1556,11 @@ h1.hero-title .accent {
 
 /* ── How It Works ─────────────────────────────────────────────── */
 .how {
-  padding: clamp(110px, 13vh, 168px) clamp(32px, 6vw, 96px);
-  border-top: 1px solid var(--rule);
+  padding: clamp(96px, 12vh, 144px) clamp(32px, 6vw, 96px);
   position: relative;
   z-index: 2;
   background:
-    radial-gradient(60% 50% at 80% 0%, rgba(232, 80, 58, 0.05), transparent 70%),
-    transparent;
+    radial-gradient(60% 50% at 80% 0%, rgba(232, 80, 58, 0.05), transparent 70%);
 }
 .how .how-grid {
   display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
@@ -1503,32 +1661,33 @@ h1.hero-title .accent {
 .demo-cite sup::after {
   content: attr(data-pop);
   position: absolute;
-  bottom: 130%; left: 50%; transform: translateX(-50%);
+  bottom: 145%; left: 50%; transform: translateX(-50%);
   background: var(--paper-warm); color: var(--ink-void);
   padding: 6px 8px;
   font-family: var(--f-jp);
   font-size: 10px; line-height: 1.4;
   white-space: nowrap;
+  max-width: 220px;
   opacity: 0; pointer-events: none;
   transition: opacity 180ms;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  z-index: 4;
 }
 .demo-cite sup:hover::after,
 .demo-cite sup.show::after { opacity: 1; }
 
 /* ── Repro ledger ─────────────────────────────────────────────── */
 .repro-section {
-  padding: clamp(100px, 12vh, 150px) clamp(32px, 6vw, 96px);
-  border-top: 1px solid var(--rule);
+  padding: clamp(96px, 12vh, 144px) clamp(32px, 6vw, 96px);
   position: relative; z-index: 3;
-  background: var(--ink-void);
+  background: transparent;
 }
-.repro-grid {
-  display: grid;
-  grid-template-columns: 0.85fr 1.15fr;
-  gap: 80px;
-  align-items: center;
+.repro-head {
+  margin-bottom: clamp(36px, 4vh, 56px);
 }
+.repro-head .section-title { max-width: 22ch; }
+.repro-head .section-lede { max-width: 56ch; margin-bottom: 12px; }
+.repro-head .repro-receipt { margin-top: 16px; }
 .repro-ledger {
   border: 1px solid var(--rule-strong);
   background: var(--ink-card);
@@ -1633,14 +1792,12 @@ h1.hero-title .accent {
 /* ── Live demo ────────────────────────────────────────────────── */
 .live-demo {
   /* extra top room so the section-tag never hides behind the sticky nav */
-  padding: clamp(96px, 14vh, 180px) clamp(32px, 6vw, 96px) clamp(110px, 13vh, 168px);
+  padding: clamp(96px, 12vh, 144px) clamp(32px, 6vw, 96px);
   scroll-margin-top: 80px;
-  border-top: 1px solid var(--rule);
   position: relative; z-index: 3;
   overflow: visible;
   background:
-    radial-gradient(60% 50% at 20% 0%, rgba(232, 80, 58, 0.05), transparent 70%),
-    var(--ink-void);
+    radial-gradient(60% 50% at 20% 0%, rgba(232, 80, 58, 0.05), transparent 70%);
 }
 .live-demo .ld-grid {
   display: grid;
@@ -1999,10 +2156,9 @@ h1.hero-title .accent {
 
 /* ── Hardware ─────────────────────────────────────────────────── */
 .hw-section {
-  padding: clamp(110px, 13vh, 160px) clamp(32px, 6vw, 96px);
-  border-top: 1px solid var(--rule);
+  padding: clamp(96px, 12vh, 144px) clamp(32px, 6vw, 96px);
   position: relative; z-index: 3;
-  background: var(--ink-void);
+  background: transparent;
 }
 .hw-grid {
   display: grid; grid-template-columns: 1fr 1.15fr;
@@ -2197,12 +2353,10 @@ h1.hero-title .accent {
 
 /* ── DAG ──────────────────────────────────────────────────────── */
 .dag-section {
-  padding: clamp(110px, 13vh, 168px) clamp(32px, 6vw, 96px) clamp(90px, 11vh, 130px);
-  border-top: 1px solid var(--rule);
+  padding: clamp(96px, 12vh, 144px) clamp(32px, 6vw, 96px);
   position: relative; z-index: 3;
   background:
-    radial-gradient(50% 60% at 50% 0%, rgba(232, 80, 58, 0.04), transparent 70%),
-    var(--ink-void);
+    radial-gradient(50% 60% at 50% 0%, rgba(232, 80, 58, 0.04), transparent 70%);
 }
 .dag-wrap { margin-top: 36px; position: relative; padding: 36px 0; }
 .dag-wrap svg { width: 100%; height: auto; display: block; }
@@ -2281,10 +2435,9 @@ h1.hero-title .accent {
 
 /* ── Read-along ───────────────────────────────────────────────── */
 .readalong-section {
-  padding: clamp(110px, 13vh, 168px) clamp(32px, 6vw, 96px);
-  border-top: 1px solid var(--rule);
+  padding: clamp(96px, 12vh, 144px) clamp(32px, 6vw, 96px);
   position: relative; z-index: 3;
-  background: var(--ink-void);
+  background: transparent;
 }
 .ra-grid {
   margin-top: 56px;
@@ -2391,14 +2544,13 @@ h1.hero-title .accent {
 
 /* ── KG-2 ─────────────────────────────────────────────────────── */
 .kg2-section {
-  padding: clamp(110px, 13vh, 168px) clamp(32px, 6vw, 96px);
-  border-top: 1px solid var(--rule);
+  padding: clamp(96px, 12vh, 144px) clamp(32px, 6vw, 96px);
   display: grid;
   grid-template-columns: 1fr 1.1fr;
   gap: 72px;
   align-items: center;
   position: relative; z-index: 3;
-  background: var(--ink-void);
+  background: transparent;
 }
 .kg2-section .kg-left h2 { margin-bottom: 22px; }
 .kg2-chart {
@@ -2435,6 +2587,41 @@ h1.hero-title .accent {
   font-variant-numeric: tabular-nums;
 }
 .kg2-chart .arc-pt-score.is-pass { fill: var(--type-primary); }
+/* Pass-gate-crossing callout: a vermilion bracket between the 3.80
+   gate line and the 3.88 SHIP point, with `+0.08 ABOVE GATE` text.
+   Hidden by default; fades in once the chart's parent receives
+   `.is-in`. The animation is opacity-only, so the SVG layout never
+   shifts and there's no CLS. */
+.kg2-pass-callout {
+  opacity: 0;
+  transition: opacity 600ms 320ms var(--ease-out);
+  pointer-events: none;
+}
+.kg2-section.is-in .kg2-pass-callout { opacity: 1; }
+.kg2-pass-callout__bracket,
+.kg2-pass-callout__cap {
+  stroke: var(--vermilion);
+  stroke-width: 1;
+  stroke-linecap: round;
+}
+.kg2-pass-callout__delta {
+  fill: var(--vermilion);
+  font-family: var(--f-display);
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+.kg2-pass-callout__label {
+  fill: var(--type-faint);
+  font-family: var(--f-mono);
+  font-size: 8px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+@media (prefers-reduced-motion: reduce) {
+  .kg2-pass-callout { transition: none; }
+}
 .kg2-chart .arc-pt-tag {
   fill: var(--type-faint);
   font-family: var(--f-mono); font-size: 9px; letter-spacing: 0.22em;
@@ -2530,10 +2717,9 @@ h1.hero-title .accent {
 /* ── Reports rail ─────────────────────────────────────────────── */
 .rail-section {
   padding: clamp(110px, 13vh, 168px) 0;
-  border-top: 1px solid var(--rule);
   overflow: hidden;
   position: relative; z-index: 3;
-  background: var(--ink-void);
+  background: transparent;
 }
 .rail-section .container { padding: 0 80px; }
 .rail-track {
@@ -2551,7 +2737,15 @@ h1.hero-title .accent {
 .report-card {
   flex: 0 0 320px;
   height: 420px;
-  background: var(--paper-warm);
+  /* Paper grain layer (brief Direction B): an inline SVG fractal-noise
+     tile sits on top of the paper-warm fill, blended in via multiply
+     so the highlights and ink absorb naturally. Adjacent cards offset
+     the tile (see :nth-child rules below) so the deck doesn't look
+     photocopied. The data URI is ~280 bytes — within the 4 KB budget. */
+  background-color: var(--paper-warm);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.92' numOctaves='2' seed='7'/><feColorMatrix values='0 0 0 0 0.18  0 0 0 0 0.14  0 0 0 0 0.07  0 0 0 0.18 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  background-blend-mode: multiply;
+  background-size: 160px 160px;
   color: var(--ink-void);
   padding: 26px 26px 22px;
   position: relative;
@@ -2559,18 +2753,58 @@ h1.hero-title .accent {
   overflow: hidden;
   display: flex; flex-direction: column;
   transition: transform 380ms var(--ease-out), box-shadow 380ms var(--ease-out);
-  outline: 1px solid rgba(0, 0, 0, 0.08);
-  outline-offset: -1px;
+  /* Hairline outline pair (brief Phase 8): 1px outer at 0.6 alpha gives
+     a clear card edge against the dark surround; 1px inner highlight at
+     0.4 alpha lifts the paper. Together they make every card feel like
+     a printed artefact rather than a flat tile. */
+  outline: 1px solid rgba(0, 0, 0, 0.6);
+  outline-offset: 0;
   box-shadow:
     0 20px 40px -12px rgba(0, 0, 0, 0.5),
     0 2px 6px rgba(0, 0, 0, 0.25),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+    inset 0 0 0 1px rgba(255, 255, 255, 0.42);
+  isolation: isolate;
 }
+/* Per-card grain offsets so the noise tile doesn't repeat identically
+   between neighbours.  Five distinct positions break the pattern across
+   any reasonable card count. */
+.report-card:nth-child(2n) { background-position: 23px 11px; }
+.report-card:nth-child(3n) { background-position: 47px 33px; }
+.report-card:nth-child(4n) { background-position: 71px 89px; }
+.report-card:nth-child(5n) { background-position: 13px 67px; }
+.report-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    115deg,
+    transparent 35%,
+    rgba(255, 255, 255, 0.45) 48%,
+    rgba(255, 255, 255, 0.65) 52%,
+    transparent 65%
+  );
+  transform: translateX(-130%);
+  transition: transform 700ms var(--ease-out);
+  mix-blend-mode: overlay;
+  z-index: 1;
+}
+.report-card > * { position: relative; z-index: 2; }
 .report-card:nth-child(odd) { background: var(--paper-aged); }
 .report-card:nth-child(3n) { background: var(--paper-deep); }
-.report-card:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 50px 80px -10px rgba(0, 0, 0, 0.7);
+.report-card:hover,
+.report-card:focus-within {
+  transform: translateY(-2px);
+  box-shadow:
+    0 28px 56px -16px rgba(0, 0, 0, 0.66),
+    0 4px 10px rgba(0, 0, 0, 0.32),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.55);
+}
+.report-card:hover::before,
+.report-card:focus-within::before { transform: translateX(130%); }
+@media (prefers-reduced-motion: reduce) {
+  .report-card::before { display: none; }
+  .report-card:hover { transform: none; }
 }
 .report-card .head {
   display: flex; justify-content: space-between; align-items: flex-start;
@@ -2593,6 +2827,8 @@ h1.hero-title .accent {
   letter-spacing: 0.02em;
   margin: 0 0 4px;
   color: var(--ink-void);
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 .report-card .romaji {
   font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.22em;
@@ -2641,10 +2877,9 @@ h1.hero-title .accent {
 
 /* ── Failures ─────────────────────────────────────────────────── */
 .fail-section {
-  padding: clamp(110px, 13vh, 168px) clamp(32px, 6vw, 96px);
-  border-top: 1px solid var(--rule);
+  padding: clamp(96px, 12vh, 144px) clamp(32px, 6vw, 96px);
   position: relative; z-index: 3;
-  background: var(--ink-void);
+  background: transparent;
 }
 /* ── Failure deck (horizontal scroll-snap) ────────────────────── */
 .failure-deck {
@@ -2787,12 +3022,23 @@ h1.hero-title .accent {
 
 /* ── Manifest ─────────────────────────────────────────────────── */
 .manifest {
-  padding: clamp(110px, 13vh, 168px) clamp(32px, 6vw, 96px);
-  border-top: 1px solid var(--rule);
+  padding: clamp(96px, 12vh, 144px) clamp(32px, 6vw, 96px);
   display: grid;
   grid-template-columns: 1fr 1.15fr;
   gap: 84px;
   position: relative; z-index: 2;
+  background: transparent;
+}
+/* Manifest is anchor-center but its own grid already handles layout —
+   escape the global 68% pin so the two columns read full track width.
+   The global rule above is built from many :not() negations and ends up
+   at higher specificity than the simple cascade can override; we'd need
+   five ANDed conditions to outscore it, so an explicit !important is the
+   honest signal: this is a deliberate, scoped escape hatch. */
+section[data-paper-stage].manifest > .left,
+section[data-paper-stage].manifest > .right {
+  max-width: none !important;
+  margin-inline: 0 !important;
 }
 .manifest .left h2 { margin-bottom: 32px; }
 .manifest .left .sig {
@@ -2805,11 +3051,11 @@ h1.hero-title .accent {
 }
 .manifest .left .sig em { color: var(--vermilion); font-style: normal; }
 .manifest .right .pair {
-  display: grid; grid-template-columns: 52px 1fr;
-  gap: 0 22px;
-  padding: 20px 12px;
+  display: grid; grid-template-columns: clamp(64px, 8vw, 96px) 1fr;
+  gap: 0 26px;
+  padding: 26px 12px;
   border-bottom: 1px solid var(--rule);
-  align-items: start;
+  align-items: baseline;
   position: relative;
   transition: padding-left 360ms var(--ease-out);
 }
@@ -2823,17 +3069,27 @@ h1.hero-title .accent {
 .manifest .right .pair:hover::before { width: 2px; }
 .manifest .right .pair:first-child { border-top: 1px solid var(--rule); }
 .manifest .right .pair .num {
-  font-family: var(--f-mono);
-  font-size: 11px; letter-spacing: 0.22em; color: var(--vermilion);
+  font-family: var(--f-display);
+  font-weight: 600;
+  font-size: clamp(40px, 4.4vw, 64px);
+  letter-spacing: -0.04em;
+  line-height: 0.9;
+  color: var(--vermilion);
+  font-variant-numeric: tabular-nums;
+  align-self: start;
+  /* Optical adjustment: digit caps sit a hair above the baseline of
+     the headline they label. Lift slightly so the 0/1/2 baselines
+     align with the h4's x-height. */
+  transform: translateY(-0.04em);
 }
 .manifest .right .pair h4 {
   font-family: var(--f-display);
   font-weight: 500; font-style: normal;
-  font-size: clamp(1.125rem, 1.3vw, 1.375rem);
-  margin: 0 0 8px;
+  font-size: clamp(1.25rem, 1.55vw, 1.625rem);
+  margin: 0 0 10px;
   color: var(--type-primary);
-  letter-spacing: -0.02em;
-  line-height: 1.2;
+  letter-spacing: -0.022em;
+  line-height: 1.18;
   text-wrap: balance;
 }
 .manifest .right .pair p {
@@ -2847,12 +3103,161 @@ h1.hero-title .accent {
 }
 .manifest .right .pair p b { color: var(--type-primary); font-weight: 500; }
 
+/* Closing seal — paper rail ends at this section, the inline 結 stamp
+   carries the closing weight so the access CTA can run paper-hidden. */
+.manifest-close {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-top: 56px;
+  padding: 28px 4px 0;
+  color: var(--type-faint);
+}
+.manifest-close__rule {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, var(--rule) 0%, var(--rule-strong) 50%, var(--rule) 100%);
+}
+.manifest-close__seal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  filter: drop-shadow(0 0 16px var(--vermilion-soft));
+  transform-origin: center;
+  will-change: transform;
+}
+.manifest-close__seal-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.manifest-close__seal-ring {
+  fill: rgba(232, 80, 58, 0.10);
+  stroke: var(--vermilion);
+  stroke-width: 2.2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.manifest-close__seal-ring--inner {
+  fill: none;
+  stroke-width: 0.7;
+  opacity: 0.6;
+}
+.manifest-close__seal-dot {
+  fill: var(--vermilion);
+  opacity: 0.78;
+}
+.manifest-close__seal-glyph {
+  font-family: var(--f-jp);
+  font-size: 28px;
+  font-weight: 700;
+  fill: var(--vermilion);
+  letter-spacing: 0;
+}
+.manifest-close__caption {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--type-muted);
+  white-space: nowrap;
+}
+.manifest-close__caption-jp {
+  font-family: var(--f-jp);
+  letter-spacing: 0;
+  margin-left: 6px;
+  color: var(--vermilion);
+  text-transform: none;
+}
+@media (max-width: 720px) {
+  .manifest-close { gap: 12px; }
+  .manifest-close__seal { width: 52px; height: 52px; }
+  .manifest-close__seal-glyph { font-size: 24px; }
+}
+
+/* Opening declaration stamp — vermilion 宣 watermark behind the manifest
+   title. Paired with the closing 結 seal: the document is bookended by
+   two ink presses. Sits in the manifest left column, behind the heading,
+   pointer-events disabled so it never intercepts a click. */
+.manifest .left { position: relative; }
+.manifest-stamp {
+  position: absolute;
+  top: clamp(-12px, -1vh, -4px);
+  left: clamp(-24px, -2vw, -8px);
+  width: clamp(110px, 11vw, 156px);
+  height: clamp(110px, 11vw, 156px);
+  pointer-events: none;
+  z-index: 0;
+}
+.manifest .left > .section-tag,
+.manifest .left > .reveal,
+.manifest .left .section-tag,
+.manifest .left h2,
+.manifest .left p { position: relative; z-index: 1; }
+.manifest-stamp__seal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  transform-origin: 32% 38%;
+  will-change: transform, opacity;
+  filter: drop-shadow(0 0 24px var(--vermilion-soft));
+}
+.manifest-stamp__svg { width: 100%; height: 100%; display: block; }
+.manifest-stamp__ring {
+  fill: rgba(232, 80, 58, 0.16);
+  stroke: var(--vermilion);
+  stroke-width: 2.6;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.manifest-stamp__ring--inner {
+  fill: none;
+  stroke-width: 0.7;
+  opacity: 0.55;
+}
+.manifest-stamp__glyph {
+  font-family: var(--f-jp);
+  font-size: 30px;
+  font-weight: 700;
+  fill: var(--vermilion);
+  letter-spacing: 0;
+}
+.manifest-stamp__ripple {
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--vermilion);
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  animation: manifest-stamp-ripple 720ms var(--ease-out) 120ms 1 forwards;
+  transform-origin: 32% 38%;
+}
+@keyframes manifest-stamp-ripple {
+  0%   { opacity: 0.55; transform: scale(0.96); }
+  100% { opacity: 0;    transform: scale(1.6);  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .manifest-stamp__ripple { display: none; }
+}
+@media (max-width: 720px) {
+  .manifest-stamp {
+    width: 88px;
+    height: 88px;
+    top: -4px;
+    left: -6px;
+  }
+  .manifest-stamp__glyph { font-size: 26px; }
+}
+
 /* ── FAQ ──────────────────────────────────────────────────────── */
 .faq-section {
-  padding: clamp(110px, 13vh, 168px) clamp(32px, 6vw, 96px);
-  border-top: 1px solid var(--rule);
+  padding: clamp(96px, 12vh, 144px) clamp(32px, 6vw, 96px);
   position: relative; z-index: 3;
-  background: var(--ink-void);
+  background: transparent;
 }
 .faq-grid {
   margin-top: 48px;
@@ -2910,14 +3315,12 @@ h1.hero-title .accent {
 /* ── Footer CTA + footer ─────────────────────────────────────── */
 .footer-cta {
   padding: clamp(140px, 18vh, 200px) clamp(32px, 6vw, 96px) clamp(60px, 8vh, 96px);
-  border-top: 1px solid var(--rule);
   text-align: center;
   position: relative;
   overflow: hidden;
   z-index: 3;
   background:
-    radial-gradient(60% 40% at 50% 0%, rgba(232, 80, 58, 0.08), transparent 70%),
-    var(--ink-void);
+    radial-gradient(60% 40% at 50% 0%, rgba(232, 80, 58, 0.08), transparent 70%);
 }
 .footer-cta::before {
   content: "有価証券報告書";
@@ -3005,7 +3408,7 @@ footer.foot .meta .made {
   .problem, .how, .manifest, .footer-cta, footer.foot { padding-left: 32px; padding-right: 32px; }
   .repro-section, .readalong-section, .fail-section, .hw-section, .faq-section { padding-left: 32px; padding-right: 32px; }
   .rail-section .container, .rail-foot, .rail-track { padding-left: 32px; padding-right: 32px; }
-  .repro-grid, .hw-grid { grid-template-columns: 1fr; gap: 48px; }
+  .hw-grid { grid-template-columns: 1fr; gap: 48px; }
   .ra-grid { grid-template-columns: 1fr; }
   .ra-axis { display: none; }
   .faq-grid { grid-template-columns: 1fr; }
@@ -3338,4 +3741,64 @@ footer.foot .foot-watermark {
     right: 18px; bottom: 8px;
     font-size: clamp(6rem, 26vw, 9rem);
   }
+}
+
+/* Cite gloss preview — quiet hover tag for cited Japanese phrases.
+   The drawer remains the click destination; this just whispers the
+   metadata so a reader knows what's behind the span before committing. */
+.cite-gloss-tip {
+  position: fixed;
+  z-index: 880;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+  max-width: 320px;
+  padding: 6px 10px;
+  background: var(--ink-deep);
+  border: 1px solid var(--rule-strong);
+  border-left: 1px solid var(--vermilion);
+  color: var(--type-primary);
+  font-size: 11px;
+  line-height: 1.35;
+  letter-spacing: 0.02em;
+  pointer-events: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-shadow: 0 2px 18px rgba(0, 0, 0, 0.55);
+  animation: cite-gloss-in 160ms var(--ease-out) both;
+}
+.cite-gloss-tip--above { transform: translate(-50%, -100%); }
+.cite-gloss-tip--below { transform: translate(-50%, 0); }
+.cite-gloss-tip__label {
+  font-family: var(--f-mono);
+  text-transform: uppercase;
+  color: var(--vermilion);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
+.cite-gloss-tip__aux {
+  color: var(--type-muted);
+  font-size: 11px;
+  font-style: italic;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 240px;
+}
+@keyframes cite-gloss-in {
+  from { opacity: 0; transform: translate(-50%, -100%) translateY(2px); }
+  to   { opacity: 1; transform: translate(-50%, -100%) translateY(0); }
+}
+.cite-gloss-tip--below {
+  animation-name: cite-gloss-in-below;
+}
+@keyframes cite-gloss-in-below {
+  from { opacity: 0; transform: translate(-50%, 0) translateY(-2px); }
+  to   { opacity: 1; transform: translate(-50%, 0) translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cite-gloss-tip { animation: none; }
+}
+@media (pointer: coarse) {
+  .cite-gloss-tip { display: none; }
 }

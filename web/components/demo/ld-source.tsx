@@ -47,13 +47,31 @@ function buildSpans(
     return synth(citations);
   }
   if (remaining) out.push({ type: "text", text: remaining });
+  // Append any citations we couldn't anchor in the source body as clean
+  // marks at the end, separated with `。 ` so the page reads like Japanese
+  // prose. The earlier `[evidence: ...]` wrapper leaked machine-tag text
+  // into the rendered yūhō and broke the period-paper aesthetic.
   citations.forEach((c, i) => {
     if (matched.has(i)) return;
     if (!c.span) return;
-    out.push({ type: "text", text: " " });
-    out.push({ type: "mark", text: `[evidence: ${c.span}]`, idx: i });
+    out.push({ type: "text", text: "。 " });
+    out.push({ type: "mark", text: c.span, idx: i });
   });
   return { spans: out, synthesized: false };
+}
+
+function glossLabel(c: { section?: string; pageRef?: string }): string {
+  const sec = (c.section || "").trim();
+  if (sec) return sec.toUpperCase();
+  const pg = (c.pageRef || "").trim();
+  return pg && pg !== "??" ? "PAGE " + pg : "CITATION";
+}
+
+function glossAux(c: { section?: string; pageRef?: string }): string {
+  const sec = (c.section || "").trim();
+  const pg = (c.pageRef || "").trim();
+  if (sec && pg && pg !== "??") return "p. " + pg;
+  return "click to inspect";
 }
 
 function synth(citations: { span: string }[]): BuildResult {
@@ -104,6 +122,8 @@ export const LdSource = forwardRef<HTMLDivElement, { filer: Filer }>(function Ld
                 <mark
                   key={i}
                   data-cite={s.idx}
+                  data-gloss-label={glossLabel(allCitations[s.idx!].ref)}
+                  data-gloss-aux={glossAux(allCitations[s.idx!].ref)}
                   onClick={() =>
                     open({ citation: allCitations[s.idx!].ref, customId: filer.customId, globalIdx: s.idx! })
                   }

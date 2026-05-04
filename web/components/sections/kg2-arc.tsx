@@ -4,6 +4,7 @@ import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion
 import arcData from "@/data/kg2-arc.generated.json";
 import type { ArcPoint } from "@/lib/types";
 import { Reveal } from "@/components/ui/reveal";
+import { NumberRoll } from "@/components/ui/number-roll";
 
 const HISTOGRAM = [
   { score: 1, count: 0, peak: false },
@@ -154,17 +155,32 @@ export function Kg2Arc() {
 
         <Reveal delay={1}>
           <div className="kg-stats">
-            {[
-              { v: "1.000", k: "Citation rate", em: true },
-              { v: "0.994", k: "Coverage", em: false },
-              { v: "3.88", k: "Coherence", em: true },
-              { v: "MI300X", k: "Hardware", em: false, small: true },
-            ].map((s) => (
-              <div className="kg-stat" key={s.k}>
-                <div className="k">{s.k}</div>
-                <div className="v">{s.em ? <strong className="accent">{s.v}</strong> : s.v}</div>
+            <div className="kg-stat" key="cite">
+              <div className="k">Citation rate</div>
+              <div className="v">
+                <strong className="accent">
+                  <NumberRoll to={1.0} decimals={3} />
+                </strong>
               </div>
-            ))}
+            </div>
+            <div className="kg-stat" key="cover">
+              <div className="k">Coverage</div>
+              <div className="v">
+                <NumberRoll to={0.994} decimals={3} />
+              </div>
+            </div>
+            <div className="kg-stat" key="coh">
+              <div className="k">Coherence</div>
+              <div className="v">
+                <strong className="accent">
+                  <NumberRoll to={3.88} decimals={2} />
+                </strong>
+              </div>
+            </div>
+            <div className="kg-stat" key="hw">
+              <div className="k">Hardware</div>
+              <div className="v">MI300X</div>
+            </div>
           </div>
         </Reveal>
 
@@ -222,6 +238,32 @@ export function Kg2Arc() {
             >
               3.80 PASS GATE
             </text>
+            {/* Pass-gate crossing annotation — a discrete-moment label
+                stacked directly above the bo-5 SHIP point. The earlier
+                bracket geometry collided visually with the existing
+                "3.80 PASS GATE" label (the chart is dense at the right
+                edge), so we lean on positional context instead: the
+                delta sits above the dot, centred, in clear space.
+                Fades in via .is-in (parent), so the moment registers
+                when the user arrives — not on first paint. */}
+            <g className="kg2-pass-callout" aria-hidden="true">
+              <text
+                className="kg2-pass-callout__delta"
+                x={xScale(3)}
+                y={yScale(arc[3].coherence) - 38}
+                textAnchor="middle"
+              >
+                +0.08
+              </text>
+              <text
+                className="kg2-pass-callout__label"
+                x={xScale(3)}
+                y={yScale(arc[3].coherence) - 26}
+                textAnchor="middle"
+              >
+                ABOVE GATE
+              </text>
+            </g>
 
             <motion.path
               ref={pathRef}

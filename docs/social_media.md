@@ -94,7 +94,7 @@ The metric arc that closed the gap:
 - best-of-3 same-decoder seeds:             3.64  (SOFT)
 - best-of-5 mixed decoder + seeds:          3.88  (PASS)
 
-Finding worth keeping: cross-decoder variance produces real coherence diversity, but same-decoder different-seed samples mostly produce judge noise. The cache-vs-fresh judge gap was 0.16 on the v4+v5 mixed pool versus 0.44 on the bo3 same-decoder pool. Decoder diversity dominates seed diversity for cross-section argument unity.
+Finding worth keeping: cross-decoder variance produces real coherence diversity, but same-decoder different-seed samples mostly produce judge noise. The cache-vs-fresh judge gap was 0.16 on the v4+v5 mixed pool versus 0.44 on the bo3 same-decoder pool. In our small-N setting, decoder diversity appears to contribute more lift than seed diversity (the bo2-vs-bo3 difference is within one SE at n=50, so report it as a trend, not a significance claim).
 
 The lift is inference-time. Same SFT checkpoint, sampled at five different decoder profiles per prompt, with the coherence judge picking the per-prompt argument-unity peak. ORPO infrastructure is staged but was not exercised — best-of-N over the existing distribution cleared the gate without it.
 
@@ -129,7 +129,7 @@ Links:
 
 Technical highlight: the memo composer is a 4-node LangGraph — Ingestor → Pass-1 Section Detector → MemoCriticAgent (best-of-5 picker) → Citation-Grounder. Two of these nodes do the load-bearing work. The MemoCriticAgent fans out five composer calls across mixed decoder profiles and picks the highest-coherence candidate; that single design choice lifted KG-2 mean coherence from 3.56 (SOFT) to 3.88 (PASS) at zero extra training cost. The Citation-Grounder refuses every claim that lacks a Japanese-span backing — abstention is a first-class output, not a failure mode.
 
-Stats: 1,910 Yuho filings, 3 teacher batches through 5 quality gates, ~38 GPU-hours on a single AMD Instinct MI300X (192 GB HBM3), and 5 GGUF quants from Q3_K_M (7.18 GB, runs on an 8 GB RTX 4070 Laptop at 12.2 tok/s) up to Q8_0 (14.03 GB).
+Stats: 1,910 Yuho filings, 3 teacher batches through 5 quality gates, ~38 GPU-hours on a single AMD Instinct MI300X (192 GB HBM3), and 5 GGUF quants from Q3_K_M (7.18 GiB, runs on an 8 GB RTX 4070 Laptop at 10.06 tok/s) up to Q8_0 (14.03 GiB).
 
 Gratitude: AMD Developer Cloud for the MI300X credit, Preferred Networks for the nekomata-14b-pfn-qfin CPT base, Sakana AI for EDINET-Bench, and lab lab.ai for running the hackathon.
 

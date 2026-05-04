@@ -123,11 +123,16 @@ def _build_pass2_prompt(
 def heuristic_score(memo: str) -> float:
     """Compute the no-API fallback coherence proxy for ``memo``.
 
-    The score is a weighted sum of three components, designed so the relative
-    ordering matches the judge-coherence ordering on the KG-2 fresh-pass
-    sample (Spearman ~0.6 in offline checks): citation density, section
-    coverage, and a soft penalty for memos that fall outside the v5-tuned
-    1,400-3,000-token band.
+    The score is a weighted sum of three components designed to be
+    monotone with judge coherence in the expected direction (citation
+    density, section coverage, and a soft penalty for memos outside the
+    v5-tuned 1,400-3,000-token band). The recomputed Spearman rank
+    correlation against the gpt-5-mini judge across five committed KG-2
+    candidate pools (n=250 paired memos) is approximately 0.22; per-pool
+    rho ranges from 0.07 to 0.55 and the shipping bo5-picked subset is
+    range-restricted to ~0.12 post-selection. The heuristic is intended
+    as a degraded-mode fallback for air-gapped runs, not as a substitute
+    for the judge.
 
     Args:
         memo: Candidate memo string.

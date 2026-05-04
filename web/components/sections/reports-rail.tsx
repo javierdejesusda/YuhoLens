@@ -12,6 +12,14 @@ export function ReportsRail() {
   const cards = memos as Filer[];
   const reduced = useReducedMotion();
   const [hovered, setHovered] = useState<string | null>(null);
+  const [focusedIdx, setFocusedIdx] = useState<number | null>(null);
+  const focusedCard = focusedIdx != null ? cards[focusedIdx] : null;
+  // Screen-reader announcement on focus change. Polite — interrupts
+  // nothing, fires once per keyboard step. Names follow the brand
+  // pattern: "Report 2 of 6 — Nippon Steel".
+  const announcement = focusedCard
+    ? `Report ${(focusedIdx ?? 0) + 1} of ${cards.length} — ${focusedCard.enName || focusedCard.jpName}`
+    : "";
 
   return (
     <section className="rail-section is-paper-anchor-right" id="reports" data-paper-stage="reports" data-paper-hide>
@@ -26,7 +34,7 @@ export function ReportsRail() {
         </Reveal>
         <Reveal>
           <h2 className="section-title">
-            The shelf — <span className="accent">span-cited memos</span> from real EDINET rows.
+            The shelf — <span className="accent">span&#8209;cited memos</span> from real EDINET rows.
           </h2>
         </Reveal>
       </div>
@@ -37,16 +45,28 @@ export function ReportsRail() {
         tabIndex={0}
         aria-label="Sample memos — horizontal scroll, use arrow keys"
       >
-        {cards.map((m) => {
+        {cards.map((m, i) => {
           const isHovered = hovered === m.customId;
           return (
             <article
               className="report-card"
               key={m.customId}
+              tabIndex={0}
+              aria-label={`Report ${i + 1} of ${cards.length} — ${m.enName || m.jpName}`}
               onMouseEnter={() => setHovered(m.customId)}
               onMouseLeave={() => setHovered((h) => (h === m.customId ? null : h))}
-              onFocus={() => setHovered(m.customId)}
-              onBlur={() => setHovered((h) => (h === m.customId ? null : h))}
+              onFocus={() => {
+                setHovered(m.customId);
+                setFocusedIdx(i);
+                const article = (document.activeElement as HTMLElement | null);
+                if (article && typeof article.scrollIntoView === "function") {
+                  article.scrollIntoView({ block: "nearest", inline: "center", behavior: reduced ? "auto" : "smooth" });
+                }
+              }}
+              onBlur={() => {
+                setHovered((h) => (h === m.customId ? null : h));
+                setFocusedIdx((f) => (f === i ? null : f));
+              }}
             >
               <div className="head">
                 <span>EDINET · {m.subset}</span>
@@ -95,6 +115,15 @@ export function ReportsRail() {
             </article>
           );
         })}
+      </div>
+
+      <div
+        className="sr-only"
+        aria-live="polite"
+        aria-atomic="true"
+        role="status"
+      >
+        {announcement}
       </div>
 
       <div className="rail-foot">

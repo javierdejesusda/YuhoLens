@@ -143,6 +143,25 @@ export function Dag() {
                 markerEnd="url(#arrow)"
               />
             ))}
+            {/* Active-edge flow: dashes drift along the live edge in
+                the same direction as the packet, so the eye sees not
+                just *where* the packet is but *which way* it's
+                travelling. Reduced-motion freezes the offset. */}
+            {edge < NODES.length - 1 && (
+              <line
+                className="dag-edge-flow"
+                x1={NODES[edge].x + 200}
+                y1={110}
+                x2={NODES[edge + 1].x}
+                y2={110}
+                stroke="var(--vermilion-soft)"
+                strokeWidth={1}
+                strokeDasharray="3 5"
+                strokeDashoffset={reducedMotion ? 0 : -t * 16}
+                opacity={reducedMotion ? 0.4 : 0.55}
+                strokeLinecap="round"
+              />
+            )}
             {NODES.map((n, i) => (
               <DagNode
                 key={n.label}

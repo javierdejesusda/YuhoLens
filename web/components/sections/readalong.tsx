@@ -8,6 +8,20 @@ import { useInkPressure } from "@/lib/use-ink-pressure";
 
 const REFUSED_PAIR = ["Refused", "拒"] as const;
 
+function glossLabel(section: string | undefined, page: string | undefined): string {
+  const sec = (section || "").trim();
+  const pg = (page || "").trim();
+  if (sec && pg && pg !== "??") return sec.toUpperCase() + " · P" + pg;
+  if (sec) return sec.toUpperCase();
+  if (pg && pg !== "??") return "PAGE " + pg;
+  return "EN MEMO";
+}
+
+function truncate(s: string, n: number): string {
+  if (!s) return "";
+  return s.length > n ? s.slice(0, n - 1).trimEnd() + "…" : s;
+}
+
 export function ReadAlong() {
   const filers = filersData as Filer[];
   const filer = filers.find((f) => f.customId === "REFUSE.X") ?? filers[0];
@@ -27,6 +41,7 @@ export function ReadAlong() {
             en: line.text,
             jp: c.span,
             page: c.pageRef,
+            section: c.section,
             refused: line.refused,
           })),
         )
@@ -120,6 +135,8 @@ export function ReadAlong() {
                   key={p.pair}
                   className={"ra-span" + (hovered === p.pair ? " is-on" : "")}
                   data-pair={p.pair}
+                  data-gloss-label={glossLabel(p.section, p.page)}
+                  data-gloss-aux={truncate(p.en, 96)}
                   onMouseEnter={() => setHovered(p.pair)}
                   onMouseLeave={() => setHovered(null)}
                 >

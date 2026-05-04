@@ -12,7 +12,6 @@ const ReadAlong = dynamic(
         className="readalong-section is-paper-anchor-left"
         aria-label="Read-along"
         data-paper-stage="readalong"
-        data-paper-hide
         style={{ minHeight: "900px" }}
       />
     ),

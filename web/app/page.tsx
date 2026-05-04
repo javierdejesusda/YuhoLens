@@ -10,7 +10,7 @@ import { Manifest } from "@/components/sections/manifest";
 import { Faq } from "@/components/sections/faq";
 import { AccessCta } from "@/components/sections/access-cta";
 import { SiteFooter } from "@/components/sections/site-footer";
-import WebGLStageMount from "@/components/canvas/webgl-stage-mount";
+import { KanjiField } from "@/components/canvas/kanji-field";
 import { LiveDemoMount } from "@/components/sections/live-demo-mount";
 import { ReadAlongMount } from "@/components/sections/readalong-mount";
 import { FailureGalleryMount } from "@/components/sections/failure-gallery-mount";
@@ -18,7 +18,7 @@ import { FailureGalleryMount } from "@/components/sections/failure-gallery-mount
 export default function Home() {
   return (
     <>
-      <WebGLStageMount />
+      <KanjiField />
       <main id="main-content" tabIndex={-1}>
         <Hero />
         <Problem />

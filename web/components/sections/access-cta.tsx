@@ -95,7 +95,7 @@ export function AccessCta() {
             </a>
           </div>
         </Reveal>
-        <p className="small">YuhoLens v2.5 · MIT (code) · Tongyi Qianwen (weights)</p>
+        <p className="small">YuhoLens v2.5 · MIT (code) · pfnet/nekomata-14b-pfn-qfin (base · Qwen 1)</p>
       </div>
     </section>
   );

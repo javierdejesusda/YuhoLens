@@ -95,9 +95,30 @@ function readArcPoints(): ArcPoint[] {
   });
 }
 
+const JP_CHAR_RE = /[぀-ヿ㐀-䶿一-鿿]/g;
+
+function jpRatio(s: string): number {
+  if (!s) return 0;
+  const matches = s.match(JP_CHAR_RE);
+  return matches ? matches.length / s.length : 0;
+}
+
 function extractJpExcerpt(memo: string): string {
-  const m = [...memo.matchAll(/['"]([^'"]{20,400}[一-龯][^'"]*)['"]/g)];
-  return m.length ? m[0][1] : "";
+  const seen = new Set<string>();
+  const unique: string[] = [];
+  for (const m of memo.matchAll(/['"]([^'"]{20,400})['"]/g)) {
+    const s = m[1];
+    if (jpRatio(s) < 0.5) continue;
+    if (seen.has(s)) continue;
+    seen.add(s);
+    unique.push(s);
+  }
+  if (!unique.length) return "";
+  // Sort by length and take the most substantial Japanese spans. Joining
+  // with `。 ` reads as native prose; earlier versions emitted a single
+  // span which gave the source pane a one-line excerpt.
+  unique.sort((a, b) => b.length - a.length);
+  return unique.slice(0, 4).join("。 ");
 }
 
 /** Map raw subset slug → human-readable label. */
@@ -150,8 +171,8 @@ function buildDisplayLabel(customId: string, subset: string): string {
  */
 const EN_NAMES: Record<string, string> = {
   "earnings_forecast-00271": "Kintetsu Group Holdings",
-  "earnings_forecast-00288": "TOYO INK SC HOLDINGS",
-  "earnings_forecast_v2-00173": "Asahi Group Holdings",
+  "industry_prediction-00373": "Nippon Steel Corporation",
+  "industry_prediction-00398": "Asahi Holdings",
   "fraud_detection-00467": "SBI Holdings",
   "fraud_detection-00580": "Riso Education",
 };
@@ -163,8 +184,8 @@ const EN_NAMES: Record<string, string> = {
  * never invented.
  */
 const JP_NAMES: Record<string, string> = {
-  "earnings_forecast-00288": "東洋インキSCホールディングス株式会社",
-  "earnings_forecast_v2-00173": "アサヒグループホールディングス株式会社",
+  "industry_prediction-00373": "日本製鉄株式会社",
+  "industry_prediction-00398": "株式会社アサヒホールディングス",
   "fraud_detection-00467": "SBIホールディングス株式会社",
   "fraud_detection-00580": "株式会社リソー教育",
 };
@@ -207,10 +228,17 @@ function readFilers(): Filer[] {
   // English filer name is verifiable from the memo text. Order = chip strip
   // order. If a row drops out of the JSONL at some future regeneration we
   // fall back to the highest-coherence remaining rows.
+  // Picked rows must satisfy two constraints: (1) the memo introduces the
+  // filer with a verifiable English name, and (2) the prose contains no
+  // rounded-down placeholder figures (the model occasionally collapses
+  // unknown values to ¥1,000,000,000 — those spans look broken on the page).
+  // Earlier picks earnings_forecast-00288 and earnings_forecast_v2-00173 hit
+  // constraint (2) and were swapped for the cleanest replacements available
+  // in kg2_memos_bo5_picked.jsonl.
   const PICKED_DEMO_IDS = [
     "earnings_forecast-00271",
-    "earnings_forecast-00288",
-    "earnings_forecast_v2-00173",
+    "industry_prediction-00373",
+    "industry_prediction-00398",
     "fraud_detection-00467",
     "fraud_detection-00580",
   ];

@@ -48,8 +48,12 @@ const LEFT_BIG_MID  = { x: -1.95, y: 0.10, z: -0.05, rx: -0.05, ry:  0.20, rz: -
 const RIGHT_BIG_NEAR = { x: 2.10, y: 0.05, z: 0.10,  rx: -0.05, ry: -0.24, rz: 0.04, s: 1.20 } as const;
 const RIGHT_BIG_MID  = { x: 1.95, y: 0.10, z: -0.05, rx: -0.05, ry: -0.20, rz: 0.04, s: 1.16 } as const;
 const RIGHT_DEEP = { x: 1.7, y: 0.18, z: -0.22, rx: -0.07, ry: -0.18, rz: 0.04, s: 0.98 } as const;
-const CENTRE_HERO = { x: 0.0, y: -0.05, z: -0.4, rx: 0.0, ry: 0.0, rz: 0.0, s: 1.18 } as const;
 const CENTRE_FAR = { x: 0.0, y: -0.05, z: -1.0, rx: 0.0, ry: 0.0, rz: 0.0, s: 0.9 } as const;
+// Closing pose for the manifest stage — paper docks lower-right like an
+// envelope being sealed and filed, so the headline + tenets read clean
+// while the manifest texture (with its 宣 stamp) still anchors the final
+// editorial moment.
+const MANIFEST_CLOSE = { x: 1.55, y: -0.55, z: -0.65, rx: -0.04, ry: -0.18, rz: 0.06, s: 0.86 } as const;
 
 // Side alternation: hero=RIGHT, problem=LEFT, how=LEFT, repro=RIGHT,
 // demo=RIGHT (hide), hardware=LEFT (hide), dag=RIGHT, readalong=LEFT,
@@ -67,7 +71,7 @@ const STAGES: Record<StageKey, StagePose> = {
   kg2: { ...RIGHT_DEEP, side: "right", texture: "rail", inkProgram: 3 },
   reports: { ...RIGHT_BIG_MID, side: "right", texture: "rail", inkProgram: 3 },
   failures: { ...LEFT_BIG_NEAR, side: "left", texture: "problem", inkProgram: 1 },
-  manifest: { ...CENTRE_HERO, side: "centre", texture: "manifest", inkProgram: 4 },
+  manifest: { ...MANIFEST_CLOSE, side: "centre", texture: "manifest", inkProgram: 4 },
   faq: { ...CENTRE_FAR, side: "centre", texture: "manifest", inkProgram: 4 },
   access: { ...CENTRE_FAR, side: "centre", texture: "footer", inkProgram: 5 },
 };
@@ -279,26 +283,25 @@ const buildHow = (g: CanvasRenderingContext2D) => {
 
   g.textBaseline = "top";
   const steps: Array<[string, string, string]> = [
-    ["01", "INGEST", "有報PDF · OCR · レイアウト保持"],
-    ["02", "STRUCTURE", "節 · 表 · 注釈 · index 化"],
-    ["03", "TRANSLATE", "保守的・原文ロック・diff 表示"],
-    ["04", "CITE", "span 単位・p / §  / 行 番号"],
+    ["01", "INGEST", "EDINET 行 ID · 有報 PDF · 節分割"],
+    ["02", "FETCH", "ページ整列 · スパン基底 · 引用候補"],
+    ["03", "READ", "英文メモ · span 単位 · p / §  / 行 番号"],
   ];
   let y = 240;
   for (const [n, en, jp] of steps) {
     g.strokeStyle = "rgba(14,14,16,0.18)";
     g.lineWidth = 1;
-    g.strokeRect(70, y, TEX_W - 140, 130);
+    g.strokeRect(70, y, TEX_W - 140, 160);
     g.fillStyle = "#E8503A";
     g.font = "700 28px 'JetBrains Mono', monospace";
-    g.fillText(n, 90, y + 24);
+    g.fillText(n, 90, y + 30);
     g.fillStyle = "#15161A";
-    g.font = "700 32px 'Playfair Display', serif";
-    g.fillText(en, 170, y + 22);
+    g.font = "700 36px 'Playfair Display', serif";
+    g.fillText(en, 170, y + 26);
     g.fillStyle = "#5C594F";
     g.font = "400 22px 'Noto Serif JP', serif";
-    g.fillText(jp, 170, y + 70);
-    y += 150;
+    g.fillText(jp, 170, y + 90);
+    y += 180;
   }
 
   g.save();
@@ -1057,8 +1060,13 @@ export function PaperRail() {
       const spZ = makeSpring(initialPose.z, 80, 28);
       const spRX = makeSpring(initialPose.rx, 60, 24);
       const spRY = makeSpring(initialPose.ry, 60, 24);
-      const spRZ = makeSpring(initialPose.rz, 60, 24);
-      const spS = makeSpring(initialPose.s, 70, 22);
+      // First-paint settle: start rz off-target by ~0.04 rad and let the
+      // spring damp back. Reads as a tiny "place down" gesture (~220ms),
+      // not a slide-in.
+      const spRZ = makeSpring(initialPose.rz + 0.04, 60, 24);
+      // Same idea for scale — start a touch smaller so the paper "lands"
+      // into its hero pose rather than appearing already at rest.
+      const spS = makeSpring(initialPose.s * 0.96, 70, 22);
       // Camera dolly + exit-flight springs.
       const spCamZ = makeSpring(8.6, 55, 22);
       const spExit = makeSpring(0, 90, 26); // 0 = on-stage, 1 = flown out
@@ -1617,8 +1625,39 @@ export function PaperRail() {
       };
     };
 
+    // Viewport gate: the active WebGL canvas is CSS-hidden under 1101px
+    // (globals.css:828). Booting Three.js anyway costs ~660 KB of parse
+    // work on a slow mobile CPU and was the dominant contributor to a
+    // 1.69 s mobile TBT. We skip the dynamic import entirely on small
+    // viewports — the page is paper-free on mobile by design.
+    const desktopMQ = matchMedia("(min-width: 1101px)");
+    if (!desktopMQ.matches) {
+      return;
+    }
+
+    // Defer the dynamic three.js import + renderer setup to an idle
+    // window so it never competes with LCP paint or hero hydration.
+    // requestIdleCallback gives the browser permission to slot the
+    // parse into a free frame; setTimeout(200) is the fallback path
+    // for Safari (where rIC is still behind a flag).
+    type IdleCb = (cb: () => void, opts?: { timeout?: number }) => number;
+    const ric = (window as unknown as { requestIdleCallback?: IdleCb })
+      .requestIdleCallback;
+    const scheduleBoot = () => {
+      if (disposed) return;
+      if (typeof ric === "function") {
+        ric(() => {
+          if (!disposed) boot();
+        }, { timeout: 1500 });
+      } else {
+        setTimeout(() => {
+          if (!disposed) boot();
+        }, 200);
+      }
+    };
+
     if (document.body.dataset.preloaderDone === "1") {
-      boot();
+      scheduleBoot();
     } else {
       const onPreloaderDone = () => {
         if (disposed) return;
@@ -1627,7 +1666,7 @@ export function PaperRail() {
           onPreloaderDone,
         );
         preloaderListener = null;
-        boot();
+        scheduleBoot();
       };
       preloaderListener = onPreloaderDone;
       document.body.addEventListener(

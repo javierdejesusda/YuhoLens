@@ -84,8 +84,10 @@ the 2026-04-25 session.
 If `OPENAI_API_KEY` is not exported on the demo laptop, fall back
 to `judge_mode="heuristic"` and explain that the heuristic uses
 citation count + section coverage + a length window — it's the
-no-API stand-in for offline demos and has Spearman ~0.6 against
-the judge on the KG-2 fresh-pass sample.
+no-API stand-in for offline demos. Calibration is modest: union
+Spearman ρ ≈ 0.22 against the judge on n=250 paired memos across
+five candidate pools, range-restricted to ≈ 0.12 on the shipping
+bo5 picked subset.
 
 ### Beat 4 — Final memo (04:00–05:00)
 

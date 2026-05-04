@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, JetBrains_Mono } from "next/font/google";
 import Script from "next/script";
 import { CiteDrawerProvider } from "@/components/ui/cite-drawer";
+import { CiteGlossLayer } from "@/components/ui/cite-gloss-tip";
 import { CustomCursor } from "@/components/ui/custom-cursor";
 import { ProgressRail } from "@/components/ui/progress-rail";
 import { Preloader } from "@/components/ui/preloader";
@@ -120,6 +121,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <CiteDrawerProvider>{children}</CiteDrawerProvider>
         </LenisProvider>
         <CustomCursor />
+        <CiteGlossLayer />
         <ProgressRail />
         <Script
           id="ld-json"

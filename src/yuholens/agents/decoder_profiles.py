@@ -4,10 +4,12 @@ The KG-2 PASS configuration on 2026-04-25 lifted mean coherence from 3.56
 single-shot to 3.88 best-of-5 by sampling the same SFT checkpoint at five
 different ``(temperature, top_p, repetition_penalty, no_repeat_ngram_size,
 seed)`` tuples and letting the coherence judge pick the winner per prompt.
-The session summary established that decoder diversity dominates seed
-diversity for cross-section argument unity, so the default catalogue
-combines two perturbed-decoder variants (v4-style mixed) with three
-v5-profile fixed-decoder seeds.
+In our small-N setting, decoder diversity appears to contribute more
+lift than seed diversity (the bo2-vs-bo3 difference is 0.08 at n=50,
+within a one-SE noise band, so this is a trend rather than a
+significance claim), so the default catalogue combines two
+perturbed-decoder variants (v4-style mixed) with three v5-profile
+fixed-decoder seeds.
 
 This module exists so the LangGraph composer can ship the same five-way
 fan-out behaviour without each caller hand-rolling the tuple list.

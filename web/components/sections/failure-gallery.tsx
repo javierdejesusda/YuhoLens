@@ -113,7 +113,7 @@ export function FailureGallery() {
   }
 
   return (
-    <section className="fail-section is-paper-anchor-left" id="failures" data-paper-stage="failures" data-paper-hide>
+    <section className="fail-section is-paper-anchor-left" id="failures" data-paper-stage="failures">
       <Reveal>
         <div className="section-tag">
           <span className="num">03·5 / 04</span>

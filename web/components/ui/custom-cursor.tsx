@@ -3,6 +3,12 @@ import { useEffect, useRef } from "react";
 
 const LINK_SELECTOR = "a, button, input, [role=button], .ld-chip, .ldd-btn";
 const CARD_SELECTOR = ".report-card, .step-card, .doc-card, .arc-pt";
+const MAGNET_SELECTOR = '[data-magnet="hanko"]';
+// Pull radius (px) added on top of the element's half-bounds: the
+// cursor begins to snap when its centre is within this many px of
+// the element's edge.  18 px is the smallest distance that reads as
+// "the cursor noticed" without yanking the user's pointer.
+const MAGNET_PULL_PX = 18;
 
 export function CustomCursor() {
   const ringRef = useRef<HTMLDivElement>(null);
@@ -22,11 +28,44 @@ export function CustomCursor() {
     let cx = mx;
     let cy = my;
     let raf = 0;
+    // Magnets are queried once on mount and refreshed on click (the
+    // routes are anchor-only so the DOM is stable across navigations).
+    let magnets: HTMLElement[] = [];
+    const refreshMagnets = () => {
+      magnets = Array.from(
+        document.querySelectorAll<HTMLElement>(MAGNET_SELECTOR),
+      );
+    };
+    refreshMagnets();
 
     const onMove = (e: MouseEvent) => {
-      mx = e.clientX;
-      my = e.clientY;
+      // Magnetic snap: when the pointer crosses inside an element's
+      // pull-radius, override mx/my with the element's centre.  The
+      // 0.18 lerp in tick() is what gives the cursor its inertia, so
+      // the snap reads as "the cursor was drawn in" rather than a
+      // teleport — precisely the editorial register the brand wants.
+      let targetX = e.clientX;
+      let targetY = e.clientY;
+      let snapped = false;
+      for (const el of magnets) {
+        const r = el.getBoundingClientRect();
+        const ecx = r.left + r.width / 2;
+        const ecy = r.top + r.height / 2;
+        const dx = e.clientX - ecx;
+        const dy = e.clientY - ecy;
+        const pullR =
+          Math.min(r.width, r.height) / 2 + MAGNET_PULL_PX;
+        if (dx * dx + dy * dy < pullR * pullR) {
+          targetX = ecx;
+          targetY = ecy;
+          snapped = true;
+          break;
+        }
+      }
+      mx = targetX;
+      my = targetY;
       dot.style.transform = `translate(${mx}px, ${my}px) translate(-50%, -50%)`;
+      ring.classList.toggle("is-magnet", snapped);
     };
 
     const tick = () => {
@@ -90,11 +129,13 @@ export function CustomCursor() {
       }
     };
 
+    const onClick = () => refreshMagnets();
     document.addEventListener("mousemove", onMove);
     document.addEventListener("mousemove", onSystemMove);
     document.addEventListener("mouseover", onOver);
     document.addEventListener("mouseout", onOut);
     document.addEventListener("keydown", onKeyDown);
+    document.addEventListener("click", onClick);
     raf = requestAnimationFrame(tick);
 
     return () => {
@@ -103,6 +144,7 @@ export function CustomCursor() {
       document.removeEventListener("mouseover", onOver);
       document.removeEventListener("mouseout", onOut);
       document.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("click", onClick);
       cancelAnimationFrame(raf);
     };
   }, []);

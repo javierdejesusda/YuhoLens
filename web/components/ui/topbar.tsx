@@ -30,7 +30,11 @@ export function TopBar() {
 
   // preloaderTick is read so the listener-driven re-render counts as used.
   void preloaderTick;
-  const visible = innerH > 0 ? y > innerH * 0.7 : false;
+  // Earlier fade-in: the previous 0.7vh threshold felt like a delay —
+  // by the time the topbar appeared the user had already scrolled past
+  // the hero. 0.18vh corresponds to ~160 px on a 900-tall viewport, so
+  // the topbar materialises just as the user has committed to scrolling.
+  const visible = innerH > 0 ? y > innerH * 0.18 : false;
 
   return (
     <nav

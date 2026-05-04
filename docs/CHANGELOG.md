@@ -25,10 +25,10 @@ artefact is the HuggingFace checkpoint, not a Python package release.
   and per-quant smoke results.
 - `docs/hf_upload_runbook.md` — end-to-end upload procedure with
   pre-flight, README staging, and post-push verification.
-- Q3_K_M smoke on RTX 4070 Laptop (8 GB): 12.2 gen tok/s, 65.5 prompt
+- Q3_K_M smoke on RTX 4070 Laptop (8 GB): 10.06 gen tok/s, 109.05 prompt
   tok/s, full GPU offload, `-c 2048`.
 - Q4_K_M smoke on RTX 4070 Laptop with `--n-gpu-layers 30` partial
-  offload: 7.9 gen tok/s, 152 prompt tok/s.
+  offload: 7.92 gen tok/s, 152.30 prompt tok/s.
 
 ### Changed
 
@@ -51,7 +51,7 @@ artefact is the HuggingFace checkpoint, not a Python package release.
 
 Both HuggingFace artefacts are public:
 - BF16: <https://huggingface.co/javierdejesusda/yuholens-14b> — 19
-  files, 26.4 GiB, 6 safetensors shards.
+  files, 28.3 GB (26.4 GiB), 6 safetensors shards.
 - GGUF: <https://huggingface.co/javierdejesusda/yuholens-14b-GGUF> —
   7 files, 51.4 GiB, 5 quants Q3_K_M..Q8_0 plus README.
 
