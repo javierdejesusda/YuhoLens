@@ -114,11 +114,12 @@ data/eval/*.jsonl
 data/eval/*.txt
 data/sample/
 
-# Internal engineering notes for the r2 / awwwards / audit passes.
+# Internal engineering notes for the r2 / r3 / awwwards / audit passes.
 /r2-handoff.md
 /r2-readout.md
 /r2-findings.md
 /r2-cinema.md
+/r3-*.md
 /phase*-readout.md
 /audit-findings.md
 /awwwards-readout.md
