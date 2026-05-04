@@ -26,12 +26,17 @@ export function ReportsRail() {
       <div className="container">
         <Reveal>
           <div className="section-tag">
-            <span className="num">03 / 04</span>
+            <span className="num">§ 03</span>
             <span>The shelf</span>
             <span className="ja">本棚</span>
             <span className="rule" />
           </div>
         </Reveal>
+        <div className="evidence-strip" aria-hidden="true">
+          <span>Evidence</span>
+          <span className="evidence-strip__num">II / III</span>
+          <span>· output</span>
+        </div>
         <Reveal>
           <h2 className="section-title">
             The shelf — <span className="accent">span&#8209;cited memos</span> from real EDINET rows.

@@ -175,7 +175,7 @@ export function HardwareFit() {
     >
       <Reveal>
         <div className="section-tag">
-          <span className="num">02·6 / 04</span>
+          <span className="num">§ 02 · 6</span>
           <span>Hardware fit</span>
           <span className="ja">適合</span>
           <span className="rule" />
@@ -186,7 +186,7 @@ export function HardwareFit() {
         <Reveal>
           <div>
             <h2 className="section-title">
-              One laptop GPU <span className="accent">runs it.</span>
+              7.18 → 14.03 GiB <span className="accent">on a laptop.</span>
             </h2>
             <p className="section-lede">
               Five GGUF quantizations ship with the model — from a 7.18 GiB Q3_K_M that fits an

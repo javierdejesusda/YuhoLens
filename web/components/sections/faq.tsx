@@ -21,7 +21,7 @@ export function Faq() {
     <section className="faq-section is-paper-anchor-center" id="faq" data-paper-stage="faq" data-paper-hide>
       <Reveal>
         <div className="section-tag">
-          <span className="num">04·5 / 04</span>
+          <span className="num">§ 04 · 5</span>
           <span>Marginalia</span>
           <span className="ja">余白</span>
           <span className="rule" />

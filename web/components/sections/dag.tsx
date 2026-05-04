@@ -92,7 +92,7 @@ export function Dag() {
     <section className="dag-section is-paper-anchor-right" id="dag" data-paper-stage="dag" data-paper-hide>
       <Reveal>
         <div className="section-tag">
-          <span className="num">02·7 / 04</span>
+          <span className="num">§ 02 · 7</span>
           <span>Architecture</span>
           <span className="ja">骨格</span>
           <span className="rule" />
@@ -121,10 +121,15 @@ export function Dag() {
                 <path d="M0,0 L8,4 L0,8 z" className="edge-arrow" />
               </marker>
             </defs>
-            {NODES.map((n) => (
+            {NODES.map((n, i) => (
               <text
                 key={`${n.label}-role`}
-                className="agent-role"
+                className={
+                  "agent-role" +
+                  (i === edge && edge < NODES.length - 1
+                    ? " is-now-reading"
+                    : "")
+                }
                 x={n.x + 100}
                 y={62}
                 textAnchor="middle"

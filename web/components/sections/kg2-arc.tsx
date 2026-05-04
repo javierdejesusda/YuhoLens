@@ -135,12 +135,17 @@ export function Kg2Arc() {
       <div className="kg-left">
         <Reveal>
           <div className="section-tag">
-            <span className="num">02·9 / 04</span>
+            <span className="num">§ 02 · 9</span>
             <span>The arc</span>
             <span className="ja">実証</span>
             <span className="rule" />
           </div>
         </Reveal>
+        <div className="evidence-strip" aria-hidden="true">
+          <span>Evidence</span>
+          <span className="evidence-strip__num">I / III</span>
+          <span>· score</span>
+        </div>
         <Reveal>
           <h2 className="section-title">
             3.56 → 3.88 <span className="accent">PASS.</span>

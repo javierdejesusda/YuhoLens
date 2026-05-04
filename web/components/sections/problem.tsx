@@ -59,7 +59,7 @@ export function Problem() {
     <section className="problem is-paper-anchor-left" id="problem" data-paper-stage="problem">
       <Reveal>
         <div className="section-tag">
-          <span className="num">01 / 04</span>
+          <span className="num">§ 01</span>
           <span>The reading problem</span>
           <span className="ja">読まれない</span>
           <span className="rule" />

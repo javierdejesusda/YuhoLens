@@ -116,12 +116,17 @@ export function FailureGallery() {
     <section className="fail-section is-paper-anchor-left" id="failures" data-paper-stage="failures">
       <Reveal>
         <div className="section-tag">
-          <span className="num">03·5 / 04</span>
+          <span className="num">§ 03 · 5</span>
           <span>Where it refuses</span>
           <span className="ja">節度</span>
           <span className="rule" />
         </div>
       </Reveal>
+      <div className="evidence-strip" aria-hidden="true">
+        <span>Evidence</span>
+        <span className="evidence-strip__num">III / III</span>
+        <span>· refusal</span>
+      </div>
       <Reveal>
         <h2 className="section-title">
           Three honest <span className="accent">failures.</span>

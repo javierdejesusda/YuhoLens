@@ -169,7 +169,7 @@ export function Manifest() {
         <DeclarationSeal />
         <Reveal>
           <div className="section-tag">
-            <span className="num">04 / 04</span>
+            <span className="num">§ 04</span>
             <span>The discipline</span>
             <span className="ja">節度</span>
             <span className="rule" />

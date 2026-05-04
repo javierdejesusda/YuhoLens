@@ -32,7 +32,7 @@ export function ReproducibilityLedger() {
     <section className="repro-section is-paper-anchor-right" id="repro" data-paper-stage="repro">
       <Reveal>
         <div className="section-tag">
-          <span className="num">02·3 / 04</span>
+          <span className="num">§ 02 · 3</span>
           <span>The ledger</span>
           <span className="ja">明細</span>
           <span className="rule" />

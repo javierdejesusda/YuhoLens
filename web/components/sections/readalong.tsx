@@ -103,7 +103,7 @@ export function ReadAlong() {
     <section className="readalong-section is-paper-anchor-left" id="readalong" data-paper-stage="readalong" data-paper-hide>
       <Reveal>
         <div className="section-tag">
-          <span className="num">02·8 / 04</span>
+          <span className="num">§ 02 · 8</span>
           <span>Read along</span>
           <span className="ja">対訳</span>
           <span className="rule" />

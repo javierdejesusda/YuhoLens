@@ -133,7 +133,7 @@ export function HowItWorks() {
     <section className="how is-paper-anchor-left" id="how" data-paper-stage="how">
       <Reveal>
         <div className="section-tag">
-          <span className="num">02 / 04</span>
+          <span className="num">§ 02</span>
           <span>The mechanism</span>
           <span className="ja">仕組み</span>
           <span className="rule" />

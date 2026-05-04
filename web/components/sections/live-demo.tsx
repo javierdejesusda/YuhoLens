@@ -201,7 +201,7 @@ export function LiveDemo() {
     <section className="live-demo is-paper-anchor-right" id="demo" data-paper-stage="demo" data-paper-hide>
       <Reveal>
         <div className="section-tag">
-          <span className="num">02·5 / 04</span>
+          <span className="num">§ 02 · 5</span>
           <span>The lens, live</span>
           <span className="ja">実演</span>
           <span className="rule" />

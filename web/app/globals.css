@@ -277,6 +277,28 @@ section { position: relative; }
   background: var(--vermilion);
 }
 
+/* Evidence strip — sits below the section-tag on KG-2 / Reports / Failures.
+   The three sections are the document's three forms of evidence (score,
+   output, refusal). The strip's "I / III · score" line names the form so
+   the trilogy reads as a trilogy, not three independent sections. Mono
+   9 px to undercut the section-title without competing with it. */
+.evidence-strip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--type-faint);
+  margin: -8px 0 18px;
+  font-variant-numeric: tabular-nums;
+}
+.evidence-strip__num {
+  color: var(--vermilion);
+  font-weight: 500;
+}
+
 h2.section-title {
   font-family: var(--f-display);
   font-weight: 500;
@@ -1103,7 +1125,13 @@ section[data-paper-hide] {
   --paper-edge-progress: 0;
 }
 #paper-stage {
-  opacity: var(--paper-fade, 1);
+  /* Mid-transit fade: paper-vel is 0..1 normalized scroll velocity (paper-
+     rail.tsx:1356). Multiplying it into the opacity factor pulls the paper
+     down to ~0.45 at peak velocity, then back to 1.0 at rest. The intent
+     is "the paper steps aside while you read" — the moving paper used to
+     occlude readable headlines mid-transit between hero/problem/how/repro;
+     dimming during motion stops that without altering the choreography. */
+  opacity: calc(var(--paper-fade, 1) * (1 - var(--paper-vel, 0) * 0.55));
   pointer-events: none;
   will-change: opacity;
 }
@@ -2423,7 +2451,15 @@ h1.hero-title .accent::after {
 .dag-wrap .agent-rect { fill: var(--ink-deep); stroke: var(--rule-strong); stroke-width: 1; }
 .dag-wrap .agent-name { fill: var(--type-primary); font-family: var(--f-display); font-style: normal; font-weight: 500; font-size: 18px; }
 .dag-wrap .agent-num { fill: var(--vermilion); font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; font-variant-numeric: tabular-nums; }
-.dag-wrap .agent-role { fill: var(--type-muted); font-family: var(--f-mono); font-size: 9px; letter-spacing: 0.32em; text-transform: uppercase; }
+.dag-wrap .agent-role { fill: var(--type-muted); font-family: var(--f-mono); font-size: 9px; letter-spacing: 0.32em; text-transform: uppercase; transition: fill 220ms var(--ease-out); }
+/* Active-edge source node: the agent currently emitting the packet gets
+   a vermilion role label so the reader sees not just *where* the packet
+   is but *which agent is doing the reading*. Replaces a heavier "NOW
+   READING" overlay with the existing role line — minimum-viable signal. */
+.dag-wrap .agent-role.is-now-reading { fill: var(--vermilion); font-weight: 600; }
+@media (prefers-reduced-motion: reduce) {
+  .dag-wrap .agent-role { transition: none; }
+}
 .dag-wrap .agent-sub { fill: var(--type-muted); font-family: var(--f-mono); font-size: 10px; }
 .dag-legend {
   margin-top: 56px;
@@ -3354,21 +3390,25 @@ section[data-paper-stage].manifest > .right {
 }
 .faq-grid {
   margin-top: 48px;
-  display: grid; grid-template-columns: repeat(3, 1fr);
+  display: grid;
+  /* FAQ as marginalia: single column on desktop too. The 3-col grid read
+     as a feature comparison and broke the manifesto's quietude that
+     precedes it. One question per row reads as page-bottom marginalia. */
+  grid-template-columns: 1fr;
   gap: 0;
   border-top: 1px solid var(--rule-strong);
   border-left: 1px solid var(--rule);
   border-right: 1px solid var(--rule);
+  max-width: 78ch;
+  margin-inline: auto;
 }
 .faq-item {
-  padding: 32px 32px 36px;
+  padding: 28px 36px 32px;
   border-bottom: 1px solid var(--rule);
-  border-right: 1px solid var(--rule);
   display: flex; flex-direction: column; gap: 14px;
   position: relative;
   transition: background 280ms var(--ease-out);
 }
-.faq-item:nth-child(3n) { border-right: none; }
 .faq-item::before {
   content: "";
   position: absolute; left: 0; right: 0; bottom: -1px;
@@ -3401,8 +3441,8 @@ section[data-paper-stage].manifest > .right {
 }
 .faq-item p b { color: var(--type-primary); font-weight: 500; font-style: normal; }
 @media (max-width: 1100px) {
-  .faq-grid { grid-template-columns: 1fr; }
-  .faq-item, .faq-item:nth-child(3n) { border-right: none !important; }
+  .faq-grid { max-width: none; margin-inline: 0; }
+  .faq-item { padding: 24px 24px 28px; }
 }
 
 /* ── Footer CTA + footer ─────────────────────────────────────── */
@@ -3504,8 +3544,6 @@ footer.foot .meta .made {
   .hw-grid { grid-template-columns: 1fr; gap: 48px; }
   .ra-grid { grid-template-columns: 1fr; }
   .ra-axis { display: none; }
-  .faq-grid { grid-template-columns: 1fr; }
-  .faq-item { border-right: none !important; }
   .live-demo { padding: 120px 32px; }
   .live-demo .ld-grid { grid-template-columns: 1fr; gap: 32px; }
   .ld-source { min-height: 420px; }
