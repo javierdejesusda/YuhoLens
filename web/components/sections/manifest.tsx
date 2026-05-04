@@ -164,7 +164,7 @@ function ClosingSeal() {
 
 export function Manifest() {
   return (
-    <section className="manifest is-paper-anchor-center" id="manifest" data-paper-stage="manifest" data-paper-hide>
+    <section className="manifest is-paper-anchor-left" id="manifest" data-paper-stage="manifest">
       <div className="left">
         <DeclarationSeal />
         <Reveal>

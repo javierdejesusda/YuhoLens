@@ -11,7 +11,7 @@ export function AccessCta() {
   const [hover, setHover] = useState(false);
 
   return (
-    <section className="footer-cta is-paper-anchor-center" id="access" data-paper-stage="access" data-paper-hide>
+    <section className="footer-cta is-paper-anchor-left" id="access" data-paper-stage="access">
       <div className="inner">
         <Reveal>
           <h2>

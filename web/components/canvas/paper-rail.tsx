@@ -42,18 +42,22 @@ type TextureKey = "hero" | "problem" | "how" | "rail" | "manifest" | "footer";
 
 // Bigger / more present poses — user complained the LEFT pose was too
 // small. Both LEFT and RIGHT are bumped to s ≈ 1.20 for symmetry so the
-// paper has equal weight on either side as the alternation cycles.
-const LEFT_BIG_NEAR = { x: -2.10, y: 0.05, z: 0.10,  rx: -0.05, ry:  0.24, rz: -0.04, s: 1.20 } as const;
-const LEFT_BIG_MID  = { x: -1.95, y: 0.10, z: -0.05, rx: -0.05, ry:  0.20, rz: -0.04, s: 1.16 } as const;
-const RIGHT_BIG_NEAR = { x: 2.10, y: 0.05, z: 0.10,  rx: -0.05, ry: -0.24, rz: 0.04, s: 1.20 } as const;
-const RIGHT_BIG_MID  = { x: 1.95, y: 0.10, z: -0.05, rx: -0.05, ry: -0.20, rz: 0.04, s: 1.16 } as const;
-const RIGHT_DEEP = { x: 1.7, y: 0.18, z: -0.22, rx: -0.07, ry: -0.18, rz: 0.04, s: 0.98 } as const;
-const CENTRE_FAR = { x: 0.0, y: -0.05, z: -1.0, rx: 0.0, ry: 0.0, rz: 0.0, s: 0.9 } as const;
-// Closing pose for the manifest stage — paper docks lower-right like an
-// envelope being sealed and filed, so the headline + tenets read clean
-// while the manifest texture (with its 宣 stamp) still anchors the final
-// editorial moment.
-const MANIFEST_CLOSE = { x: 1.55, y: -0.55, z: -0.65, rx: -0.04, ry: -0.18, rz: 0.06, s: 0.86 } as const;
+// paper has equal weight on either side as the alternation cycles. The
+// x offsets are pushed past the half-viewport edge (~±2.4) so the paper
+// rides outside the content reading column instead of bleeding into it.
+const LEFT_BIG_NEAR = { x: -2.55, y: 0.05, z: 0.10,  rx: -0.05, ry:  0.26, rz: -0.04, s: 1.18 } as const;
+const LEFT_BIG_MID  = { x: -2.40, y: 0.10, z: -0.05, rx: -0.05, ry:  0.22, rz: -0.04, s: 1.14 } as const;
+const RIGHT_BIG_NEAR = { x: 2.55, y: 0.05, z: 0.10,  rx: -0.05, ry: -0.26, rz: 0.04, s: 1.18 } as const;
+const RIGHT_BIG_MID  = { x: 2.40, y: 0.10, z: -0.05, rx: -0.05, ry: -0.22, rz: 0.04, s: 1.14 } as const;
+const RIGHT_DEEP = { x: 2.20, y: 0.18, z: -0.22, rx: -0.07, ry: -0.20, rz: 0.04, s: 0.96 } as const;
+// Manifest, faq, access used to dock the paper at x≈0 (CENTRE_FAR /
+// MANIFEST_CLOSE) which crashed straight into centred headlines and the
+// tenets list. They now ride the side opposite their content gutter so
+// the paper-anchor-{left,right} CSS pulls headlines to the empty half
+// while the paper itself stays in the matching half.
+const MANIFEST_DOCK = { x: 2.30, y: -0.20, z: -0.30, rx: -0.04, ry: -0.20, rz: 0.05, s: 1.02 } as const;
+const FAQ_DOCK = { x: -2.30, y: 0.05, z: -0.20, rx: -0.04, ry: 0.20, rz: -0.05, s: 1.02 } as const;
+const ACCESS_DOCK = { x: 2.45, y: -0.30, z: -0.45, rx: -0.06, ry: -0.18, rz: 0.06, s: 0.92 } as const;
 
 // Side alternation: hero=RIGHT, problem=LEFT, how=LEFT, repro=RIGHT,
 // demo=RIGHT (hide), hardware=LEFT (hide), dag=RIGHT, readalong=LEFT,
@@ -71,9 +75,9 @@ const STAGES: Record<StageKey, StagePose> = {
   kg2: { ...RIGHT_DEEP, side: "right", texture: "rail", inkProgram: 3 },
   reports: { ...RIGHT_BIG_MID, side: "right", texture: "rail", inkProgram: 3 },
   failures: { ...LEFT_BIG_NEAR, side: "left", texture: "problem", inkProgram: 1 },
-  manifest: { ...MANIFEST_CLOSE, side: "centre", texture: "manifest", inkProgram: 4 },
-  faq: { ...CENTRE_FAR, side: "centre", texture: "manifest", inkProgram: 4 },
-  access: { ...CENTRE_FAR, side: "centre", texture: "footer", inkProgram: 5 },
+  manifest: { ...MANIFEST_DOCK, side: "right", texture: "manifest", inkProgram: 4 },
+  faq: { ...FAQ_DOCK, side: "left", texture: "manifest", inkProgram: 4 },
+  access: { ...ACCESS_DOCK, side: "right", texture: "footer", inkProgram: 5 },
 };
 
 const cachedTextures: Partial<Record<TextureKey, THREE.Texture>> = {};
@@ -1106,22 +1110,47 @@ export function PaperRail() {
       let transitionStart = 0;
       const EXIT_MS = 320;   // time spent flying off-screen
       const ENTER_MS = 380;  // time spent flying back in
+      // Active-section pick: distance from a viewport "reading line" set
+      // at 40% down from the top. Whichever section spans that line owns
+      // the paper. If two sections are crossing it during a transition,
+      // we pick the one whose center is closest to the line. This fires
+      // the swap as soon as the next section's TOP crosses 40%, and
+      // releases the moment its bottom does — much earlier than the
+      // previous "biggest intersection ratio wins" rule, which only
+      // flipped after the new section had already dominated the screen.
+      const TRIGGER_FRACTION = 0.40;
       const pickActive = () => {
-        let best: HTMLElement | null = null;
-        let bestRatio = -1;
+        const vh = window.innerHeight || 1;
+        const triggerY = vh * TRIGGER_FRACTION;
+        let bestEl: HTMLElement | null = null;
+        let bestDist = Infinity;
+        let visibleBestEl: HTMLElement | null = null;
+        let visibleBestDist = Infinity;
         let lastVisibleStageEl: HTMLElement | null = null;
-        let lastVisibleStageRatio = -1;
+        let lastVisibleStageRatio = 0;
         for (const [el, ratio] of visibility) {
-          if (ratio > bestRatio) {
-            bestRatio = ratio;
-            best = el;
+          const r = el.getBoundingClientRect();
+          const center = r.top + r.height / 2;
+          const dist = Math.abs(center - triggerY);
+          // Section spans the trigger line — strong claim on the paper.
+          const spans = r.top <= triggerY && r.bottom >= triggerY;
+          const score = spans ? dist : dist + vh;
+          if (score < bestDist) {
+            bestDist = score;
+            bestEl = el;
           }
-          if (!sectionHide.get(el) && ratio > lastVisibleStageRatio) {
-            lastVisibleStageRatio = ratio;
-            lastVisibleStageEl = el;
+          if (!sectionHide.get(el)) {
+            if (score < visibleBestDist) {
+              visibleBestDist = score;
+              visibleBestEl = el;
+            }
+            if (ratio > lastVisibleStageRatio) {
+              lastVisibleStageRatio = ratio;
+              lastVisibleStageEl = el;
+            }
           }
         }
-        const target = lastVisibleStageEl ?? best;
+        const target = visibleBestEl ?? bestEl;
         if (target) {
           const k = sectionStage.get(target);
           if (k && k !== activeStage && k !== queuedStage) {
@@ -1184,6 +1213,23 @@ export function PaperRail() {
         { threshold: [0, 0.05, 0.1, 0.2, 0.35, 0.5, 0.65, 0.8, 0.95, 1] },
       );
       for (const el of sectionEls) io.observe(el);
+
+      // The IO only re-fires when a section crosses one of its discrete
+      // thresholds. Between fires the rect-based pickActive() sees stale
+      // geometry, so we also re-run it every scroll tick (rAF-throttled
+      // to one call per animation frame). This is what makes the paper
+      // hand off as soon as the trigger line crosses, instead of waiting
+      // for the next IO threshold tick.
+      let scrollPickPending = false;
+      const onScroll = () => {
+        if (scrollPickPending) return;
+        scrollPickPending = true;
+        requestAnimationFrame(() => {
+          scrollPickPending = false;
+          pickActive();
+        });
+      };
+      window.addEventListener("scroll", onScroll, { passive: true });
 
       // Raw pointer values arrive at high frequency and produce twitch
       // when fed straight into the paper transform — we keep the raw
@@ -1584,6 +1630,7 @@ export function PaperRail() {
         io.disconnect();
         window.removeEventListener("mousemove", onMouse);
         window.removeEventListener("resize", onResize);
+        window.removeEventListener("scroll", onScroll);
         document.removeEventListener("visibilitychange", onVisibility);
         if (
           motionChangeListener &&

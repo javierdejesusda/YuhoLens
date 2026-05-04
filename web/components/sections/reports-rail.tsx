@@ -22,7 +22,7 @@ export function ReportsRail() {
     : "";
 
   return (
-    <section className="rail-section is-paper-anchor-right" id="reports" data-paper-stage="reports" data-paper-hide>
+    <section className="rail-section is-paper-anchor-right" id="reports" data-paper-stage="reports">
       <div className="container">
         <Reveal>
           <div className="section-tag">

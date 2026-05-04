@@ -18,7 +18,7 @@ export function Faq() {
   const [openId, setOpenId] = useState<number | null>(null);
 
   return (
-    <section className="faq-section is-paper-anchor-center" id="faq" data-paper-stage="faq" data-paper-hide>
+    <section className="faq-section is-paper-anchor-right" id="faq" data-paper-stage="faq">
       <Reveal>
         <div className="section-tag">
           <span className="num">§ 04 · 5</span>

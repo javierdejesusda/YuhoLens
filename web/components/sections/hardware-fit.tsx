@@ -171,7 +171,6 @@ export function HardwareFit() {
       className="hw-section is-paper-anchor-left"
       id="hardware"
       data-paper-stage="hardware"
-      data-paper-hide
     >
       <Reveal>
         <div className="section-tag">

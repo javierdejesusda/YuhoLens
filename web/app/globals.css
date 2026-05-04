@@ -915,14 +915,6 @@ nav.topbar .cta:active { transform: scale(0.96); }
     radial-gradient(ellipse 95% 78% at 50% 50%, transparent 0%, transparent 62%, rgba(14, 14, 16, 0.26) 92%, rgba(14, 14, 16, 0.46) 100%);
   z-index: 2;
 }
-#paper-stage::after {
-  content: "";
-  position: absolute; inset: 0;
-  pointer-events: none;
-  background: radial-gradient(ellipse 42% 36% at 50% 50%, rgba(232, 80, 58, 0.05), transparent 60%);
-  z-index: 2;
-  mix-blend-mode: screen;
-}
 
 /* ── Paper-orbit layout ────────────────────────────────────────────
    The fixed 3D paper is the focal point.  Every section orbits around
@@ -1051,8 +1043,14 @@ html.has-paper .paper-orbit {
   transform: none;
 }
 
-/* Mobile: drop the gutter, drop the parallax, keep the reading flow. */
-@media (max-width: 1100px) {
+/* True mobile: not enough horizontal room for paper + content side-by-side.
+   Hide the rail and let the sections claim the full viewport. The desktop
+   offset above kicks in from 820px so this only fires on small phones. */
+@media (max-width: 819px) {
+  html.has-paper #paper-stage {
+    opacity: 0 !important;
+    pointer-events: none;
+  }
   html.has-paper [class*="is-paper-anchor-"],
   html.has-paper [class*="is-paper-anchor-"] .section-title,
   html.has-paper [class*="is-paper-anchor-"] .section-lede,
@@ -1218,16 +1216,16 @@ section[data-paper-hide] {
 /* Sections that keep the paper visible reserve room for it on the
    active side by narrowing direct children to a reading column.
    Only paper-VISIBLE sections (no data-paper-hide) get this. */
-@media (min-width: 1101px) {
+@media (min-width: 820px) {
   section[data-paper-stage]:not([data-paper-hide]).is-paper-anchor-right
     > *:not(.corner):not(.scroll-hint):not(.hero-grid) {
-    max-width: 56%;
+    max-width: 54%;
     margin-right: auto;
     margin-left: 0;
   }
   section[data-paper-stage]:not([data-paper-hide]).is-paper-anchor-left
     > *:not(.corner):not(.scroll-hint):not(.hero-grid) {
-    max-width: 56%;
+    max-width: 54%;
     margin-left: auto;
     margin-right: 0;
   }
@@ -1688,8 +1686,6 @@ h1.hero-title .accent::after {
   padding: clamp(96px, 12vh, 144px) clamp(32px, 6vw, 96px);
   position: relative;
   z-index: 2;
-  background:
-    radial-gradient(60% 50% at 80% 0%, rgba(232, 80, 58, 0.05), transparent 70%);
 }
 .how .how-grid {
   display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
@@ -1925,8 +1921,6 @@ h1.hero-title .accent::after {
   scroll-margin-top: 80px;
   position: relative; z-index: 3;
   overflow: visible;
-  background:
-    radial-gradient(60% 50% at 20% 0%, rgba(232, 80, 58, 0.05), transparent 70%);
 }
 .live-demo .ld-grid {
   display: grid;
@@ -2484,8 +2478,6 @@ h1.hero-title .accent::after {
 .dag-section {
   padding: clamp(96px, 12vh, 144px) clamp(32px, 6vw, 96px);
   position: relative; z-index: 3;
-  background:
-    radial-gradient(50% 60% at 50% 0%, rgba(232, 80, 58, 0.04), transparent 70%);
 }
 .dag-wrap { margin-top: 36px; position: relative; padding: 36px 0; }
 .dag-wrap svg { width: 100%; height: auto; display: block; }
@@ -3496,8 +3488,6 @@ section[data-paper-stage].manifest > .right {
   position: relative;
   overflow: hidden;
   z-index: 3;
-  background:
-    radial-gradient(60% 40% at 50% 0%, rgba(232, 80, 58, 0.08), transparent 70%);
 }
 .footer-cta::before {
   content: "有価証券報告書";

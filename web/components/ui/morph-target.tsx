@@ -94,17 +94,40 @@ function OneShotMorph({ className }: { className?: string }) {
     return () => cancelAnimationFrame(raf);
   }, []);
 
+  const widestPair = FINAL_EN.length >= START_JA.length ? FINAL_EN : START_JA;
   return (
     <span
-      ref={ref}
-      className={(className ?? "accent") + (done ? "" : " jp")}
-      style={
-        done
-          ? undefined
-          : { fontFamily: "var(--f-jp)", fontStyle: "normal", willChange: "contents" }
-      }
+      className={className ?? "accent"}
+      style={{
+        display: "inline-grid",
+        verticalAlign: "baseline",
+        lineHeight: "inherit",
+        gridTemplateColumns: "max-content",
+      }}
     >
-      {FINAL_EN}
+      <span
+        aria-hidden="true"
+        style={{
+          gridArea: "1 / 1",
+          visibility: "hidden",
+          fontFamily: "var(--f-jp)",
+          fontStyle: "normal",
+        }}
+      >
+        {widestPair}
+      </span>
+      <span
+        ref={ref}
+        className={done ? "" : "jp"}
+        style={{
+          gridArea: "1 / 1",
+          fontStyle: "normal",
+          willChange: "contents",
+          ...(done ? null : { fontFamily: "var(--f-jp)" }),
+        }}
+      >
+        {FINAL_EN}
+      </span>
     </span>
   );
 }
@@ -193,13 +216,39 @@ function CyclingMorph({
     };
   }, [pairs]);
 
+  const widestPair = pairs[0].length >= pairs[1].length ? pairs[0] : pairs[1];
   return (
     <span
       className={className ?? "accent"}
       data-phase={phase}
-      style={{ fontFamily: "var(--f-jp)", fontStyle: "normal", willChange: "contents" }}
+      style={{
+        display: "inline-grid",
+        verticalAlign: "baseline",
+        lineHeight: "inherit",
+        gridTemplateColumns: "max-content",
+      }}
     >
-      {text}
+      <span
+        aria-hidden="true"
+        style={{
+          gridArea: "1 / 1",
+          visibility: "hidden",
+          fontFamily: "var(--f-jp)",
+          fontStyle: "normal",
+        }}
+      >
+        {widestPair}
+      </span>
+      <span
+        style={{
+          gridArea: "1 / 1",
+          fontFamily: "var(--f-jp)",
+          fontStyle: "normal",
+          willChange: "contents",
+        }}
+      >
+        {text}
+      </span>
     </span>
   );
 }
