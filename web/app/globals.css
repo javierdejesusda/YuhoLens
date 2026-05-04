@@ -1329,7 +1329,23 @@ section[data-paper-hide] {
   margin-bottom: 22px;
 }
 .hero-eyebrow .sq { width: 6px; height: 6px; background: var(--vermilion); }
-.hero-eyebrow .jp { font-family: var(--f-jp); letter-spacing: 0.04em; color: var(--paper-aged); font-size: 13px; text-transform: none; }
+.hero-eyebrow .jp { font-family: var(--f-jp); letter-spacing: 0.04em; color: var(--paper-aged); font-size: 13px; text-transform: none; position: relative; }
+/* CSS pseudo-separator instead of an inline `|` glyph: the desktop
+   eyebrow gets a clean mono pipe between the two spans, mobile drops
+   it (the spans wrap to two lines and the gap reads as separation). */
+.hero-eyebrow .jp::before {
+  content: "|";
+  display: inline-block;
+  margin-right: 10px;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  color: var(--type-faint);
+  letter-spacing: 0;
+  vertical-align: 1px;
+}
+@media (max-width: 600px) {
+  .hero-eyebrow .jp::before { display: none; }
+}
 h1.hero-title {
   font-family: var(--f-display);
   font-weight: 500;

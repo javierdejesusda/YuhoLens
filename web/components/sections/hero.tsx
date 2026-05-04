@@ -24,7 +24,7 @@ export function Hero() {
           <div className="hero-eyebrow paper-orbit">
             <span className="sq" />
             <span>Vol. II — Edition 047</span>
-            <span className="jp">　|　有価証券報告書、英訳。</span>
+            <span className="jp" lang="ja">有価証券報告書、英訳。</span>
           </div>
           <h1 className="hero-title">
             <span className="line"><span className="inner">Every Japanese</span></span>
