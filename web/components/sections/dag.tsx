@@ -110,6 +110,9 @@ export function Dag() {
         </p>
       </Reveal>
 
+      <p className="dag-scroll-hint" aria-hidden="true">
+        ↔ scroll horizontally
+      </p>
       <Reveal delay={1}>
         <div className="dag-wrap">
           <svg viewBox="0 0 1300 240" role="img" aria-labelledby="dag-title">

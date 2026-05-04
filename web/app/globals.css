@@ -2529,6 +2529,9 @@ h1.hero-title .accent::after {
   .dag-wrap .dag-chroma { transition: none; }
 }
 
+/* DAG scroll hint — only visible at narrow viewports (rule below). */
+.dag-scroll-hint { display: none; }
+
 /* ── Read-along ───────────────────────────────────────────────── */
 .readalong-section {
   padding: clamp(96px, 12vh, 144px) clamp(32px, 6vw, 96px);
@@ -3543,7 +3546,29 @@ footer.foot .meta .made {
   .rail-section .container, .rail-foot, .rail-track { padding-left: 32px; padding-right: 32px; }
   .hw-grid { grid-template-columns: 1fr; gap: 48px; }
   .ra-grid { grid-template-columns: 1fr; }
-  .ra-axis { display: none; }
+  /* On mobile the JA / EN panes stack vertically; the SVG axis curve
+     can't connect them in 2D, so it becomes a slim horizontal "MATE ↓"
+     divider — keeps the citation discipline visible without forcing a
+     curve to render off-screen. */
+  .ra-axis {
+    background: transparent !important;
+    height: 36px;
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-top: 1px dashed var(--rule-strong);
+    border-bottom: 1px dashed var(--rule-strong);
+  }
+  .ra-axis svg { display: none; }
+  .ra-axis::before {
+    content: "Mate ↓";
+    font-family: var(--f-mono);
+    font-size: 9px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--vermilion);
+  }
   .live-demo { padding: 120px 32px; }
   .live-demo .ld-grid { grid-template-columns: 1fr; gap: 32px; }
   .ld-source { min-height: 420px; }
@@ -3551,6 +3576,19 @@ footer.foot .meta .made {
   .dag-section { padding: 120px 32px; }
   .dag-wrap svg { min-width: 1100px; }
   .dag-wrap { overflow-x: auto; }
+  /* Hint that the DAG SVG (1100 px wide) overflows on narrow screens.
+     Sits above the chart so the reader sees it before noticing the
+     crop. Hidden by default, displayed only at this breakpoint. */
+  .dag-scroll-hint {
+    display: block;
+    margin: 24px 0 -12px;
+    font-family: var(--f-mono);
+    font-size: 9px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--vermilion);
+    text-align: center;
+  }
   .problem .beats { grid-template-columns: 1fr; }
   .problem .beat { border-right: none; border-bottom: 1px solid var(--rule); }
   .how .how-grid { grid-template-columns: 1fr; }
