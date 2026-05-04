@@ -210,6 +210,16 @@ a { color: inherit; }
 #main-content:focus { outline: none; }
 .report-card { scroll-margin: 24px; }
 
+/* Card-of-cards focus: an inset vermilion shadow reads cleaner inside a
+   horizontally-scrolling rail than an outer outline (which would clip
+   against neighbours). Cards also keep their existing hover-stamp drama
+   on focus because onFocus mirrors onMouseEnter in the JSX. */
+.report-card:focus-visible,
+.failure-card:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--vermilion);
+}
+
 .mono {
   font-family: var(--f-mono);
   font-size: 11px;
@@ -337,7 +347,10 @@ em { font-style: normal; color: var(--vermilion); font-weight: 600; font-family:
 
 .reveal {
   opacity: 0;
-  transform: translateY(64px);
+  /* 28 px matches the side-aware paper-anchor reveal offset further down
+     in this file (translate3d(±3vw, 28px, 0)). The original 64 px read as
+     content "jumping in" — quieter at 28. */
+  transform: translateY(28px);
   transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out);
   will-change: transform, opacity;
 }
@@ -1465,7 +1478,10 @@ h1.hero-title .accent::after {
 .metric-ticker .mt-cell {
   flex: 1 1 0; min-width: 0;
   padding: 4px 14px;
-  border-right: 1px dashed var(--rule);
+  /* Solid hairline reads cleaner than dashed at 1 px on integer-DPI
+     monitors (the dashed pattern fragmented into 4-5 visible bits per
+     cell). The metric-ticker IS a typographer's bar — keep it clean. */
+  border-right: 1px solid var(--rule);
   display: flex; flex-direction: column; gap: 4px;
   color: var(--type-faint);
 }
@@ -1602,7 +1618,9 @@ h1.hero-title .accent::after {
   color: var(--paper-aged);
   min-height: 140px;
   overflow: hidden;
+  transition: border-color 280ms var(--ease-out);
 }
+.problem .beat:hover .demo { border-color: var(--rule-strong); }
 .problem .beat .demo::before {
   content: ""; position: absolute; inset: 0;
   background-image: repeating-linear-gradient(0deg, rgba(240, 236, 227, 0.04) 0 1px, transparent 1px 4px);

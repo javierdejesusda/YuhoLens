@@ -101,6 +101,7 @@ export function SealStamp({ state = "verified", label, className }: SealStampPro
         <text
           x={SIZE / 2}
           y={SIZE / 2}
+          dy="0.04em"
           textAnchor="middle"
           dominantBaseline="central"
           fontFamily={glyphFamily}
