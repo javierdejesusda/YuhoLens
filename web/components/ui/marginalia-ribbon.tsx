@@ -3,11 +3,10 @@ import { useEffect, useState } from "react";
 
 type SectionMeta = { id: string; num: string; ja: string };
 
-// Section-header data, mirrored from each section's `<div className="section-tag">`.
-// Phase-4 ships these in the post-Phase-5 §-numbering format so the ribbon
-// reads coherently from day one; Phase 5 brings the in-section tags into
-// alignment. Hero / Access intentionally omitted — they bookend the document
-// and don't carry a §-numbered chapter label.
+// Section ids and § labels mirror the in-section `.section-tag` `.num` and
+// `.ja` text. Keep these in sync with the corresponding section component.
+// Hero / Access intentionally omitted — they bookend the document and don't
+// carry a §-numbered chapter label, so the ribbon hides over those zones.
 const SECTIONS: SectionMeta[] = [
   { id: "problem", num: "§ 01", ja: "読まれない" },
   { id: "how", num: "§ 02", ja: "仕組み" },
@@ -25,11 +24,13 @@ const SECTIONS: SectionMeta[] = [
 
 // Editorial running header. Sits in the top-right gutter just below the
 // topbar, fades in 1.5 s after page-load (same delay as ProgressRail) so
-// it never competes with the hero. Tracks the section currently dominant
-// in the viewport via an IntersectionObserver tuned to the centre band
-// (rootMargin: -30% 0px -30% 0px) so it reads what the user is reading,
-// not what is just barely on screen. Hidden on tablet/mobile so the
-// reduced viewport keeps the typographic spine.
+// it never competes with the hero. Reads which section the reader is in
+// by picking the chapter whose vertical centre is closest to the
+// viewport's centre — `intersectionRatio` favours shorter sections (their
+// area-fraction inside any band is higher), so we recompute on each
+// observer fire from `getBoundingClientRect`. The ribbon stays null when
+// no observed section straddles the viewport centre — i.e. while the
+// user is reading the hero or the access bookends, the ribbon hides.
 export function MarginaliaRibbon() {
   const [active, setActive] = useState<SectionMeta | null>(null);
   const [visible, setVisible] = useState(false);
@@ -40,23 +41,38 @@ export function MarginaliaRibbon() {
   }, []);
 
   useEffect(() => {
-    const obs = new IntersectionObserver(
-      (entries) => {
-        const inView = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
-        if (inView[0]) {
-          const id = (inView[0].target as HTMLElement).id;
-          const meta = SECTIONS.find((s) => s.id === id);
-          if (meta) setActive(meta);
-        }
-      },
-      { rootMargin: "-30% 0px -30% 0px", threshold: [0, 0.25, 0.5, 0.75, 1] },
-    );
+    const recompute = () => {
+      const viewportCenter = window.innerHeight / 2;
+      let best: { meta: SectionMeta; dist: number } | null = null;
+      for (const s of SECTIONS) {
+        const el = document.getElementById(s.id);
+        if (!el) continue;
+        const r = el.getBoundingClientRect();
+        // Section must straddle the centre line — its top above and its
+        // bottom below the viewport midpoint. Otherwise we're between
+        // chapters or outside them entirely (hero / access).
+        if (r.top > viewportCenter || r.bottom < viewportCenter) continue;
+        const sectionCenter = r.top + r.height / 2;
+        const dist = Math.abs(sectionCenter - viewportCenter);
+        if (!best || dist < best.dist) best = { meta: s, dist };
+      }
+      setActive(best ? best.meta : null);
+    };
+
+    const obs = new IntersectionObserver(recompute, {
+      // A thin centre band — only fires when sections cross the viewport
+      // midpoint. Combined with the recompute walk above, this gives one
+      // active section at a time without favouring shorter ones.
+      rootMargin: "-50% 0px -49.99% 0px",
+      threshold: 0,
+    });
     SECTIONS.forEach((s) => {
       const el = document.getElementById(s.id);
       if (el) obs.observe(el);
     });
+    // Run once on mount so first paint isn't blank if the observer's
+    // first fire is delayed.
+    recompute();
     return () => obs.disconnect();
   }, []);
 

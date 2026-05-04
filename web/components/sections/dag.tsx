@@ -54,6 +54,15 @@ export function Dag() {
   pressureRef.current = reducedMotion ? 0 : pressure;
 
   useEffect(() => {
+    // Skip the RAF loop entirely under reduced-motion. Previously the
+    // loop kept advancing at base speed (just without ink-pressure
+    // multiplier), so React still re-rendered every frame with new
+    // `edge` / `t` values for users who explicitly opted out of motion.
+    if (reducedMotion) {
+      setEdge(0);
+      setT(0);
+      return;
+    }
     let raf = 0;
     const tick = (now: number) => {
       const last = lastRef.current ?? now;
@@ -75,7 +84,7 @@ export function Dag() {
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, []);
+  }, [reducedMotion]);
 
   const fromNode = NODES[edge];
   const toNode = NODES[edge + 1] ?? NODES[edge];

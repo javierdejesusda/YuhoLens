@@ -1148,6 +1148,13 @@ section[data-paper-hide] {
   pointer-events: none;
   will-change: opacity;
 }
+@media (prefers-reduced-motion: reduce) {
+  /* Defence in depth: paper-rail.tsx already pins --paper-vel to 0 under
+     reduced-motion (line 855), but if a future refactor ever moved the
+     motion-media check, the calc above would silently start animating
+     opacity. Strip the velocity coupling explicitly for this cohort. */
+  #paper-stage { opacity: var(--paper-fade, 1); }
+}
 
 /* Hero → Problem edge bleed.  PaperRail writes --paper-edge-progress
    between 0 and 1 during the handoff window where the paper is still
