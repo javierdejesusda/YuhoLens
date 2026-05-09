@@ -63,11 +63,17 @@ describe("MorphTarget cadence formula", () => {
 });
 
 describe("MorphTarget cycling render", () => {
+  // The component renders a hidden width-reservation span (aria-hidden=true)
+  // alongside the visible text span, so container.textContent contains both.
+  // Query the visible inner span via the :not([aria-hidden]) selector.
+  const visibleText = (container: HTMLElement) =>
+    container.querySelector('span > span:not([aria-hidden="true"])')?.textContent;
+
   it("renders pairs[0] synchronously when pairs are provided", () => {
     const { container } = render(
       <MorphTarget pairs={["memo", "覚書"]} pressure={0} />
     );
-    expect(container.textContent).toBe("memo");
+    expect(visibleText(container)).toBe("memo");
   });
 
   it("reduced-motion: stays on first entry without flipping", () => {
@@ -75,7 +81,7 @@ describe("MorphTarget cycling render", () => {
     const { container } = render(
       <MorphTarget pairs={["memo", "覚書"]} pressure={1} />
     );
-    expect(container.textContent).toBe("memo");
+    expect(visibleText(container)).toBe("memo");
   });
 
   it("preserves the no-pairs API (defaults to one-shot JA→EN morph)", () => {
