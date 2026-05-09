@@ -1,0 +1,62 @@
+[
+  {
+    "num": "Case 01",
+    "type": "Hallucinated number",
+    "caughtBy": "Caught by Grounder",
+    "headline": [
+      {
+        "text": "A claim with "
+      },
+      {
+        "text": "no Japanese span",
+        "em": true
+      },
+      {
+        "text": " gets refused."
+      }
+    ],
+    "claim": "Pass-2 drafted a sentence asserting a revenue figure that no Pass-1 span backed. The Citation-Grounder replaces the sentence with [evidence insufficient].",
+    "outputBlock": "draft  → \"FY25 revenue is forecast at ¥12.4 trillion.\"\nground → [evidence insufficient]",
+    "customId": "fraud_detection-00467"
+  },
+  {
+    "num": "Case 02",
+    "type": "Ambiguous span",
+    "caughtBy": "Resolved by Critic",
+    "headline": [
+      {
+        "text": "Two candidates disagree — the "
+      },
+      {
+        "text": "judge picks the tighter span",
+        "em": true
+      },
+      {
+        "text": "."
+      }
+    ],
+    "claim": "Two of five decoder profiles cited adjacent Japanese spans that overlap. The bo-5 judge selected the candidate whose citations matched a unique Pass-1 span.",
+    "outputBlock": "v4_mixed_warm  → score 3 (overlap)\nv5_seed_a      → score 4 ★ (unique span)",
+    "customId": "fraud_detection-00580"
+  },
+  {
+    "num": "Case 03",
+    "type": "Contradictory signal",
+    "caughtBy": "Logged · escalated",
+    "headline": [
+      {
+        "text": "OCF up while DSO stretches — "
+      },
+      {
+        "text": "flagged, not muted",
+        "em": true
+      },
+      {
+        "text": "."
+      }
+    ],
+    "claim": "Pass-1 detected a positive operating-cash-flow swing alongside DSO drift. The memo surfaces the tension as a risk note rather than smoothing it away.",
+    "outputBlock": "OCF      +2.1B (positive)\nDSO      +6 days  (negative)\nRisk note  ★ kept",
+    "customId": "industry_prediction_v2-00119"
+  }
+]

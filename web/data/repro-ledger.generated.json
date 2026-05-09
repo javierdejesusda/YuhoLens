@@ -1,0 +1,51 @@
+[
+  {
+    "key": "Hardware",
+    "value": "1× AMD Instinct MI300X — 192 GB HBM3 — ROCm 7.0",
+    "tag": "AMD",
+    "scriptPath": "configs/sft.yaml",
+    "isTotal": false
+  },
+  {
+    "key": "Base model",
+    "value": "pfnet/nekomata-14b-pfn-qfin (Qwen 1, 14B, JP-finance pretrained)",
+    "tag": "PFN",
+    "scriptPath": "src/yuholens/training/sft.py",
+    "isTotal": false
+  },
+  {
+    "key": "Fine-tune",
+    "value": "Full-parameter SFT · seq 8192 · 2 epochs · lr 1e-5 · paged_adamw_8bit",
+    "tag": "SFT",
+    "scriptPath": "src/yuholens/training/sft.py",
+    "isTotal": false
+  },
+  {
+    "key": "Dataset",
+    "value": "1,910 rows from SakanaAI/EDINET-Bench (865 fraud + 549 earnings + 496 industry)",
+    "tag": "EDINET",
+    "scriptPath": "src/yuholens/training/teacher.py",
+    "isTotal": false
+  },
+  {
+    "key": "Inference",
+    "value": "4-agent LangGraph · best-of-5 mixed decoder · gpt-5-mini judge",
+    "tag": "BO-5",
+    "scriptPath": "src/yuholens/agents/graph.py",
+    "isTotal": false
+  },
+  {
+    "key": "Eval",
+    "value": "KG-2 PASS · coherence 3.88 · citation 1.000 · coverage 0.994",
+    "tag": "KG-2",
+    "scriptPath": "src/yuholens/eval/run_kg2.py",
+    "isTotal": false
+  },
+  {
+    "key": "All-in cost",
+    "value": "~$80 · 23 days · open weights",
+    "tag": "MIT",
+    "scriptPath": "docs/blog_post.md",
+    "isTotal": true
+  }
+]

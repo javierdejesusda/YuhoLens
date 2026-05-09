@@ -1,0 +1,52 @@
+[
+  {
+    "name": "v4_mixed_warm",
+    "temperature": 0.2,
+    "top_p": 0.9,
+    "repetition_penalty": 1.1,
+    "no_repeat_ngram_size": 0,
+    "seed": 4040,
+    "uiLabel": "P-1",
+    "isDefault": false
+  },
+  {
+    "name": "v4_mixed_warmer",
+    "temperature": 0.15,
+    "top_p": 0.9,
+    "repetition_penalty": 1.125,
+    "no_repeat_ngram_size": 0,
+    "seed": 4141,
+    "uiLabel": "P-2",
+    "isDefault": false
+  },
+  {
+    "name": "v5_seed_a",
+    "temperature": 0.1,
+    "top_p": 0.9,
+    "repetition_penalty": 1.15,
+    "no_repeat_ngram_size": 0,
+    "seed": 5151,
+    "uiLabel": "P-3",
+    "isDefault": true
+  },
+  {
+    "name": "v5_seed_b",
+    "temperature": 0.1,
+    "top_p": 0.9,
+    "repetition_penalty": 1.15,
+    "no_repeat_ngram_size": 0,
+    "seed": 5252,
+    "uiLabel": "P-4",
+    "isDefault": false
+  },
+  {
+    "name": "v5_seed_c",
+    "temperature": 0.1,
+    "top_p": 0.9,
+    "repetition_penalty": 1.15,
+    "no_repeat_ngram_size": 0,
+    "seed": 5353,
+    "uiLabel": "P-5",
+    "isDefault": false
+  }
+]

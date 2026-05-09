@@ -1,0 +1,376 @@
+[
+  {
+    "customId": "earnings_forecast-00271",
+    "jpName": "近鉄グループホールディングス株式会社",
+    "enName": "Kintetsu Group Holdings",
+    "chipLabel": "近鉄HD",
+    "subset": "earnings_forecast",
+    "displayLabel": "EDINET Row 00271 · Earnings Forecast",
+    "coherence": 4,
+    "memo": [
+      {
+        "text": "1. Executive summary",
+        "displayText": "1. Executive summary",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- Kintetsu Corporation (近鉄グループホールディングス株式会社, TSE code 90410) reported consolidated revenue of ¥1,125,288 million for FY2023, up slightly from ¥1,118,386 million prior year; operating profit fell to ¥13,592 million from ¥15,064 million and net income attributable to owners decreased to ¥10,295 million from ¥12,135 million (ref: \"売上高は1,125,288百万円(前期比1.6％増)、営業利益は13,592百万円(同▲2.5％減)、親会社株主に帰属する当期純利益は10,295百万円(同▲15.1％減)\" p.??).",
+        "displayText": "• Kintetsu Corporation (近鉄グループホールディングス株式会社, TSE code 90410) reported consolidated revenue of ¥1,125,288 million for FY2023, up slightly from ¥1,118,386 million prior year; operating profit fell to ¥13,592 million from ¥15,064 million and net income attributable to owners decreased to ¥10,295 million from ¥12,135 million.",
+        "citations": [
+          {
+            "span": "売上高は1,125,288百万円(前期比1.6％増)、営業利益は13,592百万円(同▲2.5％減)、親会社株主に帰属する当期純利益は10,295百万円(同▲15.1％減)",
+            "section": "",
+            "pageRef": "??"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Balance-sheet liquidity improved materially: cash & equivalents rose to ¥108,837 million from ¥76,311 million; total assets increased to ¥1,104,389 million (ref: \"現金及び現金同等物…108,837百万円…総資産…1,104,389百万円\" p.??).",
+        "displayText": "• Balance-sheet liquidity improved materially: cash & equivalents rose to ¥108,837 million from ¥76,311 million; total assets increased to ¥1,104,389 million.",
+        "citations": [
+          {
+            "span": "現金及び現金同等物…108,837百万円…総資産…1,104,389百万円",
+            "section": "",
+            "pageRef": "??"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Operating cash flow swung strongly negative to -¥12,363 million from positive ¥11,232 million prior year (ref: \"営業キャッシュフロー…-12,363百万円\" p.??).",
+        "displayText": "• Operating cash flow swung strongly negative to -¥12,363 million from positive ¥11,232 million prior year.",
+        "citations": [
+          {
+            "span": "営業キャッシュフロー…-12,363百万円",
+            "section": "",
+            "pageRef": "??"
+          }
+        ],
+        "refused": false
+      }
+    ],
+    "jpSourceExcerpt": "自然災害等…運輸事業の運休・不通や事故等により、旅客・貨物の輸送量が減少し、業績に影響を及ぼす可能性があります。。 情報セキュリティ…情報システムの障害やサイバー攻撃等により、業績に影響を及ぼす可能性があります。。 当社グループは、当社及び連結子会社11社並びに非連結子会社11社により構成されており…。 当社及び連結子会社間の資金の貸借については、通常の利息を付しておこなっております。"
+  },
+  {
+    "customId": "industry_prediction-00373",
+    "jpName": "日本製鉄株式会社",
+    "enName": "Nippon Steel Corporation",
+    "chipLabel": "日本",
+    "subset": "industry_prediction",
+    "displayLabel": "EDINET Row 00373 · Industry Prediction",
+    "coherence": 4,
+    "memo": [
+      {
+        "text": "1. Executive summary",
+        "displayText": "1. Executive summary",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- Nippon Steel & Sumitomo Metal Corporation (日本製鉄株式会社, 証券コード 54010) reported consolidated revenue of ¥1,395,695 million and operating profit of ¥10,277 million for the year ended 2025-03-31, up from prior-year sales of ¥1,563,762 million and operating profit of ¥1,223 million (ref: \"売上高...1,395,695,000,000\" and \"営業利益...10,277,000,000\" p.BS/PL).",
+        "displayText": "• Nippon Steel & Sumitomo Metal Corporation (日本製鉄株式会社, 証券コード 54010) reported consolidated revenue of ¥1,395,695 million and operating profit of ¥10,277 million for the year ended 2025-03-31, up from prior-year sales of ¥1,563,762 million and operating profit of ¥1,223 million.",
+        "citations": [
+          {
+            "span": "売上高...1,395,695,000,000",
+            "section": "",
+            "pageRef": ""
+          },
+          {
+            "span": "営業利益...10,277,000,000",
+            "section": "",
+            "pageRef": "BS/PL"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Net income attributable to parent shareholders rose to ¥1,097 million from an impairment loss of ¥1,008 million in prior year (ref: \"親会社株主に帰属する当期純利益...1,097,000,000\" and \"親会社株主に帰属する当期純損失...-1,008,000,000\" p.P&L).",
+        "displayText": "• Net income attributable to parent shareholders rose to ¥1,097 million from an impairment loss of ¥1,008 million in prior year.",
+        "citations": [
+          {
+            "span": "親会社株主に帰属する当期純利益...1,097,000,000",
+            "section": "",
+            "pageRef": ""
+          },
+          {
+            "span": "親会社株主に帰属する当期純損失...-1,008,000,000",
+            "section": "",
+            "pageRef": "P&L"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Balance sheet shows total assets of ¥1,607,596 million and net assets of ¥1,046,227 million at period-end; cash and equivalents increased to ¥136,628 million (ref: \"総資産...1,607,596,000,000\" and \"純資産...1,046,227,000,000\" and \"現金及び現金同等物...136,628,000,000\" p.BS).",
+        "displayText": "• Balance sheet shows total assets of ¥1,607,596 million and net assets of ¥1,046,227 million at period-end; cash and equivalents increased to ¥136,628 million.",
+        "citations": [
+          {
+            "span": "総資産...1,607,596,000,000",
+            "section": "",
+            "pageRef": ""
+          },
+          {
+            "span": "純資産...1,046,227,000,000",
+            "section": "",
+            "pageRef": ""
+          },
+          {
+            "span": "現金及び現金同等物...136,628,000,000",
+            "section": "",
+            "pageRef": "BS"
+          }
+        ],
+        "refused": false
+      }
+    ],
+    "jpSourceExcerpt": "当社グループは...連結子会社12社、持分法適用関連会社1社"
+  },
+  {
+    "customId": "industry_prediction-00398",
+    "jpName": "株式会社アサヒホールディングス",
+    "enName": "Asahi Holdings",
+    "chipLabel": "アサ",
+    "subset": "industry_prediction",
+    "displayLabel": "EDINET Row 00398 · Industry Prediction",
+    "coherence": 5,
+    "memo": [
+      {
+        "text": "1. Executive summary",
+        "displayText": "1. Executive summary",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- ASAHI Group (株式会社アサヒホールディングス, 証券コード 58570) reported consolidated revenue of ¥1,069,239 million and operating profit of ¥10,481 million for the year ended Mar 31, 2024 (ref: \"売上高...1,069,239,000,000\" p.連結損益計算書; \"営業利益...10,481,000,000\" p.連結損益計算書).",
+        "displayText": "• ASAHI Group (株式会社アサヒホールディングス, 証券コード 58570) reported consolidated revenue of ¥1,069,239 million and operating profit of ¥10,481 million for the year ended Mar 31, 2024.",
+        "citations": [
+          {
+            "span": "売上高...1,069,239,000,000",
+            "section": "",
+            "pageRef": "連結損益計算書"
+          },
+          {
+            "span": "営業利益...10,481,000,000",
+            "section": "",
+            "pageRef": "連結損益計算書"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Net income attributable to parent was ¥10,015 million (ref: \"親会社株主に帰属する当期純利益...10,015,000,000\" p.連結損益計算書).",
+        "displayText": "• Net income attributable to parent was ¥10,015 million.",
+        "citations": [
+          {
+            "span": "親会社株主に帰属する当期純利益...10,015,000,000",
+            "section": "",
+            "pageRef": "連結損益計算書"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Balance sheet shows total assets of ¥1,142,675 million and shareholders’ equity of ¥69,046 million at year-end (ref: \"総資産...1,142,675,000,000\" p.B/S; \"株主資本...69,046,000,000\" p.B/S).",
+        "displayText": "• Balance sheet shows total assets of ¥1,142,675 million and shareholders’ equity of ¥69,046 million at year-end.",
+        "citations": [
+          {
+            "span": "総資産...1,142,675,000,000",
+            "section": "",
+            "pageRef": "B/S"
+          },
+          {
+            "span": "株主資本...69,046,000,000",
+            "section": "",
+            "pageRef": "B/S"
+          }
+        ],
+        "refused": false
+      }
+    ],
+    "jpSourceExcerpt": "貴金属相場の変動...貴金属の需給バランスや政治情勢等によって大きく変動することがあり...。 債権回収不能...信用力の低下や不渡り等により...債権回収が困難となる場合がある。 原料供給の途絶...鉱山事故や自然災害等により...原料供給が滞ることがある。 アサヒメタルズ㈱...当社グループの主要な原材料の供給先"
+  },
+  {
+    "customId": "fraud_detection-00467",
+    "jpName": "SBIホールディングス株式会社",
+    "enName": "SBI Holdings",
+    "chipLabel": "SBHD",
+    "subset": "fraud_detection",
+    "displayLabel": "EDINET Row 00467 · Fraud Detection",
+    "coherence": 4,
+    "memo": [
+      {
+        "text": "1. Executive summary",
+        "displayText": "1. Executive summary",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- SBIホールディングス Co., Ltd. (SBI Holdings Inc.) reported consolidated revenue of ¥5,723,555 million and operating profit of ¥443,526 million for the year ended Mar 31, 2023 (ref: \"経常収益...5,723,555\"; \"経常利益...443,526\") .",
+        "displayText": "• SBIホールディングス Co., Ltd. (SBI Holdings Inc.) reported consolidated revenue of ¥5,723,555 million and operating profit of ¥443,526 million for the year ended Mar 31, 2023.",
+        "citations": [
+          {
+            "span": "経常収益...5,723,555",
+            "section": "",
+            "pageRef": ""
+          },
+          {
+            "span": "経常利益...443,526",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Net income attributable to parent shareholders was ¥327,222 million (ref: \"親会社株主に帰属する当期純利益...327,222\").",
+        "displayText": "• Net income attributable to parent shareholders was ¥327,222 million.",
+        "citations": [
+          {
+            "span": "親会社株主に帰属する当期純利益...327,222",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Total assets increased to ¥18,620,750 million and equity rose to ¥3,466,588 million (ref: \"総資産...18,620,750\"; \"株主資本合計...3,466,588\").",
+        "displayText": "• Total assets increased to ¥18,620,750 million and equity rose to ¥3,466,588 million.",
+        "citations": [
+          {
+            "span": "総資産...18,620,750",
+            "section": "",
+            "pageRef": ""
+          },
+          {
+            "span": "株主資本合計...3,466,588",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      }
+    ],
+    "jpSourceExcerpt": "中期経営計画「Vision 2025」を策定し、...2025年３月期までに連結営業収益5,000億円以上を目指す。。 市場リスク...金利・為替レート・信用・商品市況等の変動により...影響を及ぼす可能性があります。。 流動性リスク...資金調達が困難になることにより...影響を及ぼす可能性があります。。 関係会社の状況...SBIインベストメント...役員の兼任あり...資金の借入あり"
+  },
+  {
+    "customId": "fraud_detection-00580",
+    "jpName": "株式会社リソー教育",
+    "enName": "Riso Education",
+    "chipLabel": "リソ",
+    "subset": "fraud_detection",
+    "displayLabel": "EDINET Row 00580 · Fraud Detection",
+    "coherence": 3,
+    "memo": [
+      {
+        "text": "1. Executive summary",
+        "displayText": "1. Executive summary",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- Riso Education Co., Ltd. (株式会社リソー教育, 証券コード 47140) reported consolidated revenue of ¥12,364,635 thousand and operating profit of ¥1,015,462 thousand for the year ended Feb 28, 2021 (ref: \"売上高...12,364,635千円\" p.―; \"営業利益...1,015,462千円\" p.―).",
+        "displayText": "• Riso Education Co., Ltd. (株式会社リソー教育, 証券コード 47140) reported consolidated revenue of ¥12,364,635 thousand and operating profit of ¥1,015,462 thousand for the year ended Feb 28, 2021.",
+        "citations": [
+          {
+            "span": "売上高...12,364,635千円",
+            "section": "",
+            "pageRef": "―"
+          },
+          {
+            "span": "営業利益...1,015,462千円",
+            "section": "",
+            "pageRef": "―"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Net income attributable to parent was ¥591,856 thousand (parent net income), up from ¥481,375 thousand prior year (ref: \"親会社株主に帰属する当期純利益...591,856千円\" p.―).",
+        "displayText": "• Net income attributable to parent was ¥591,856 thousand (parent net income), up from ¥481,375 thousand prior year.",
+        "citations": [
+          {
+            "span": "親会社株主に帰属する当期純利益...591,856千円",
+            "section": "",
+            "pageRef": "―"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Balance sheet shows total assets of ¥12,916,052 thousand and shareholders’ equity of ¥7,436,563 thousand at period-end (ref: \"総資産...12,916,052千円\" p.―; \"株主資本...7,436,563千円\" p.―).",
+        "displayText": "• Balance sheet shows total assets of ¥12,916,052 thousand and shareholders’ equity of ¥7,436,563 thousand at period-end.",
+        "citations": [
+          {
+            "span": "総資産...12,916,052千円",
+            "section": "",
+            "pageRef": "―"
+          },
+          {
+            "span": "株主資本...7,436,563千円",
+            "section": "",
+            "pageRef": "―"
+          }
+        ],
+        "refused": false
+      }
+    ],
+    "jpSourceExcerpt": "親会社株主に帰属する当期純利益...591,856千円。 営業キャッシュフロー...1,045,762千円"
+  },
+  {
+    "customId": "REFUSE.X",
+    "jpName": "当社グループ",
+    "enName": "",
+    "chipLabel": "当社グル",
+    "subset": "industry_prediction_v2",
+    "displayLabel": "EDINET Row REFUSE.X · Industry Prediction",
+    "coherence": 2,
+    "memo": [
+      {
+        "text": "Executive summary",
+        "displayText": "Executive summary",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- Material risk: The company reports that it faces significant competition for qualified staff across all service lines, which could limit its ability to expand or maintain operations (ref: \"有資格者の確保について...同業他社及び医療機関等と雇用関係で継続的に競合しているため、今後有資格者の確保が思うように進まない場合、当社グループの事業の維持、拡大に影響を与える可能性があります.\" p. \"事業等のリスク\").",
+        "displayText": "• Material risk: The company reports that it faces significant competition for qualified staff across all service lines, which could limit its ability to expand or maintain operations.",
+        "citations": [
+          {
+            "span": "有資格者の確保について...同業他社及び医療機関等と雇用関係で継続的に競合しているため、今後有資格者の確保が思うように進まない場合、当社グループの事業の維持、拡大に影響を与える可能性があります.",
+            "section": "",
+            "pageRef": "事業等のリスク"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Revenue mix: The group derives over half of revenue from home care services (訪問介護、訪問入浴介護、居宅介護支援、訪問看護), followed by residential care (認知症対応型共同生活介護（グループホーム）) and short-stay (短期入所生活介護（ショートステイ）) (ref: \"訪問介護、訪問入浴介護、居宅介護支援、訪問看護、認知症対応型共同生活介護（グループホーム）、短期入所生活介護（ショートステイ）\" p. \"事業の内容\").",
+        "displayText": "• Revenue mix: The group derives over half of revenue from home care services (訪問介護、訪問入浴介護、居宅介護支援、訪問看護), followed by residential care (認知症対応型共同生活介護（グループホーム）) and short-stay (短期入所生活介護（ショートステイ）).",
+        "citations": [
+          {
+            "span": "訪問介護、訪問入浴介護、居宅介護支援、訪問看護、認知症対応型共同生活介護（グループホーム）、短期入所生活介護（ショートステイ）",
+            "section": "",
+            "pageRef": "事業の内容"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Profitability: Operating profit declined materially year-on-year to ¥890 million from ¥1,340 million prior year (ref: \"営業利益 ... 前期比△45.0％の890百万円\" p. \"業績等の概要\").",
+        "displayText": "• Profitability: Operating profit declined materially year-on-year to ¥890 million from ¥1,340 million prior year.",
+        "citations": [
+          {
+            "span": "営業利益 ... 前期比△45.0％の890百万円",
+            "section": "",
+            "pageRef": "業績等の概要"
+          }
+        ],
+        "refused": false
+      }
+    ],
+    "jpSourceExcerpt": "有資格者の確保について...同業他社及び医療機関等と雇用関係で継続的に競合しているため、今後有資格者の確保が思うように進まない場合、当社グループの事業の維持、拡大に影響を与える可能性があります.。 訪問介護、訪問入浴介護、居宅介護支援、訪問看護、認知症対応型共同生活介護（グループホーム）、短期入所生活介護（ショートステイ）。 新型コロナウイルス感染症の影響...当社グループの資金繰りに大きな影響を与えた。 財政状態、経営成績及びキャッシュ・フローの状況の分析"
+  }
+]

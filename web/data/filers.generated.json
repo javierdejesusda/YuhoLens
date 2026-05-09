@@ -1,0 +1,2774 @@
+[
+  {
+    "customId": "earnings_forecast-00271",
+    "jpName": "近鉄グループホールディングス株式会社",
+    "enName": "Kintetsu Group Holdings",
+    "chipLabel": "近鉄HD",
+    "subset": "earnings_forecast",
+    "displayLabel": "EDINET Row 00271 · Earnings Forecast",
+    "coherence": 4,
+    "memo": [
+      {
+        "text": "1. Executive summary",
+        "displayText": "1. Executive summary",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- Kintetsu Corporation (近鉄グループホールディングス株式会社, TSE code 90410) reported consolidated revenue of ¥1,125,288 million for FY2023, up slightly from ¥1,118,386 million prior year; operating profit fell to ¥13,592 million from ¥15,064 million and net income attributable to owners decreased to ¥10,295 million from ¥12,135 million (ref: \"売上高は1,125,288百万円(前期比1.6％増)、営業利益は13,592百万円(同▲2.5％減)、親会社株主に帰属する当期純利益は10,295百万円(同▲15.1％減)\" p.??).",
+        "displayText": "• Kintetsu Corporation (近鉄グループホールディングス株式会社, TSE code 90410) reported consolidated revenue of ¥1,125,288 million for FY2023, up slightly from ¥1,118,386 million prior year; operating profit fell to ¥13,592 million from ¥15,064 million and net income attributable to owners decreased to ¥10,295 million from ¥12,135 million.",
+        "citations": [
+          {
+            "span": "売上高は1,125,288百万円(前期比1.6％増)、営業利益は13,592百万円(同▲2.5％減)、親会社株主に帰属する当期純利益は10,295百万円(同▲15.1％減)",
+            "section": "",
+            "pageRef": "??"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Balance-sheet liquidity improved materially: cash & equivalents rose to ¥108,837 million from ¥76,311 million; total assets increased to ¥1,104,389 million (ref: \"現金及び現金同等物…108,837百万円…総資産…1,104,389百万円\" p.??).",
+        "displayText": "• Balance-sheet liquidity improved materially: cash & equivalents rose to ¥108,837 million from ¥76,311 million; total assets increased to ¥1,104,389 million.",
+        "citations": [
+          {
+            "span": "現金及び現金同等物…108,837百万円…総資産…1,104,389百万円",
+            "section": "",
+            "pageRef": "??"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Operating cash flow swung strongly negative to -¥12,363 million from positive ¥11,232 million prior year (ref: \"営業キャッシュフロー…-12,363百万円\" p.??).",
+        "displayText": "• Operating cash flow swung strongly negative to -¥12,363 million from positive ¥11,232 million prior year.",
+        "citations": [
+          {
+            "span": "営業キャッシュフロー…-12,363百万円",
+            "section": "",
+            "pageRef": "??"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Company emphasizes group-wide cost reductions and efficiency initiatives under CEO Shigehiko Takahashi's leadership (ref: \"代表取締役社長髙橋伸彰\" p.??).",
+        "displayText": "• Company emphasizes group-wide cost reductions and efficiency initiatives under CEO Shigehiko Takahashi's leadership.",
+        "citations": [
+          {
+            "span": "代表取締役社長髙橋伸彰",
+            "section": "",
+            "pageRef": "??"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "2. Going-concern assessment",
+        "displayText": "2. Going-concern assessment",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- The filing contains no statement indicating doubt about going concern; management discusses ongoing cost reduction measures and targets (ref: \"コスト削減施策…2025年度までに累計100億円以上のコスト削減を目指す\" p.??).",
+        "displayText": "• The filing contains no statement indicating doubt about going concern; management discusses ongoing cost reduction measures and targets.",
+        "citations": [
+          {
+            "span": "コスト削減施策…2025年度までに累計100億円以上のコスト削減を目指す",
+            "section": "",
+            "pageRef": "??"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- No explicit going-concern qualification is disclosed in the provided excerpts; therefore: not disclosed.",
+        "displayText": "• No explicit going-concern qualification is disclosed in the provided excerpts; therefore: not disclosed.",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "3. Accrual quality (DSO change, inventory days, receivables aging)",
+        "displayText": "3. Accrual quality (DSO change, inventory days, receivables aging)",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- Receivables (受取手形及び売掛金) increased modestly from ¥12,647 million to ¥13,019 million (ref: \"受取手形及び売掛金…12,647百万円→13,019百万円\" balance sheet).",
+        "displayText": "• Receivables (受取手形及び売掛金) increased modestly from ¥12,647 million to ¥13,019 million.",
+        "citations": [
+          {
+            "span": "受取手形及び売掛金…12,647百万円→13,019百万円",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Inventory (商品及び製品 + 原材料及び貯蔵品) combined rose from ¥10,278 million to ¥11,524 million (ref: \"商品及び製品…8,387百万円→8,942百万円\", \"原材料及び貯蔵品…1,891百万円→2,582百万円\" balance sheet).",
+        "displayText": "• Inventory (商品及び製品 + 原材料及び貯蔵品) combined rose from ¥10,278 million to ¥11,524 million.",
+        "citations": [
+          {
+            "span": "商品及び製品…8,387百万円→8,942百万円",
+            "section": "",
+            "pageRef": ""
+          },
+          {
+            "span": "原材料及び貯蔵品…1,891百万円→2,582百万円",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- DSO/inventory days implied by these figures: approximate DSO movement (using sales) — prior year DSO ≈ (12,647/1,118,386)*365 ≈ 43 days; current year DSO ≈ (13,019/1,125,288)*365 ≈ 44 days (approximate calculation based on reported balances and sales; exact days not disclosed).",
+        "displayText": "• DSO/inventory days implied by these figures: approximate DSO movement (using sales) — prior year DSO ≈ (12,647/1,118,386)*365 ≈ 43 days; current year DSO ≈ (13,019/1,125,288)*365 ≈ 44 days (approximate calculation based on reported balances and sales; exact days not disclosed).",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- Cash-flow shows an increase in accounts-receivable collection (売上債権の増減額) of ¥1,108 million (increase), suggesting slower collections (ref: \"売上債権の増減額…1,108百万円\" cash flow).",
+        "displayText": "• Cash-flow shows an increase in accounts-receivable collection (売上債権の増減額) of ¥1,108 million (increase), suggesting slower collections.",
+        "citations": [
+          {
+            "span": "売上債権の増減額…1,108百万円",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- No detailed aging schedule or allowance for doubtful accounts is provided in the excerpt; therefore: not disclosed.",
+        "displayText": "• No detailed aging schedule or allowance for doubtful accounts is provided in the excerpt; therefore: not disclosed.",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "4. Earnings direction call (up / down / flat) with reasoning",
+        "displayText": "4. Earnings direction call (up / down / flat) with reasoning",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- Call: Flat-to-down near term. Reasoning: FY2023 showed lower operating profit and net income despite higher revenue, driven by higher SG&A (販売費及び一般管理費 increased to ¥107,957 million from ¥103,757 million) and large negative operating cash flow (-¥12,363 million) (ref: \"販売費及び一般管理費…107,957百万円\", \"営業キャッシュフロー…-12,363百万円\" p.??). Management targets cost reductions and efficiency improvements but also reports weaker-than-expected results (ref: \"コスト削減施策…2025年度までに累計100億円以上のコスト削減を目指す\" p.??).",
+        "displayText": "• Call: Flat-to-down near term. Reasoning: FY2023 showed lower operating profit and net income despite higher revenue, driven by higher SG&A (販売費及び一般管理費 increased to ¥107,957 million from ¥103,757 million) and large negative operating cash flow (-¥12,363 million). Management targets cost reductions and efficiency improvements but also reports weaker-than-expected results.",
+        "citations": [
+          {
+            "span": "販売費及び一般管理費…107,957百万円",
+            "section": "",
+            "pageRef": ""
+          },
+          {
+            "span": "営業キャッシュフロー…-12,363百万円",
+            "section": "",
+            "pageRef": "??"
+          },
+          {
+            "span": "コスト削減施策…2025年度までに累計100億円以上のコスト削減を目指す",
+            "section": "",
+            "pageRef": "??"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Offsetting factors: Group revenue growth and stable cash position (cash & equivalents increased to ¥108,837 million) support continued operations (ref: \"売上高…1,125,288百万円\", \"現金及び現金同等物…108,837百万円\" p.??).",
+        "displayText": "• Offsetting factors: Group revenue growth and stable cash position (cash & equivalents increased to ¥108,837 million) support continued operations.",
+        "citations": [
+          {
+            "span": "売上高…1,125,288百万円",
+            "section": "",
+            "pageRef": ""
+          },
+          {
+            "span": "現金及び現金同等物…108,837百万円",
+            "section": "",
+            "pageRef": "??"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "5. Top 3 risks cited from 事業等のリスク",
+        "displayText": "5. Top 3 risks cited from 事業等のリスク",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- Risk 1 — Natural disasters and accidents affecting transportation operations (ref: \"自然災害等…運輸事業の運休・不通や事故等により、旅客・貨物の輸送量が減少し、業績に影響を及ぼす可能性があります。\" p.??).",
+        "displayText": "• Risk 1 — Natural disasters and accidents affecting transportation operations.",
+        "citations": [
+          {
+            "span": "自然災害等…運輸事業の運休・不通や事故等により、旅客・貨物の輸送量が減少し、業績に影響を及ぼす可能性があります。",
+            "section": "",
+            "pageRef": "??"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Risk 2 — Competition and market changes (ref: \"競争激化…競合他社との競争が激化し、業績に影響を及ぼす可能性があります。\" p.??).",
+        "displayText": "• Risk 2 — Competition and market changes.",
+        "citations": [
+          {
+            "span": "競争激化…競合他社との競争が激化し、業績に影響を及ぼす可能性があります。",
+            "section": "",
+            "pageRef": "??"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Risk 3 — Information system security breaches (ref: \"情報セキュリティ…情報システムの障害やサイバー攻撃等により、業績に影響を及ぼす可能性があります。\" p.??).",
+        "displayText": "• Risk 3 — Information system security breaches.",
+        "citations": [
+          {
+            "span": "情報セキュリティ…情報システムの障害やサイバー攻撃等により、業績に影響を及ぼす可能性があります。",
+            "section": "",
+            "pageRef": "??"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "6. Related-party transactions summary (from 関連当事者との取引)",
+        "displayText": "6. Related-party transactions summary (from 関連当事者との取引)",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- The filing lists related companies and notes that certain subsidiaries have intercompany loans and guarantees (ref: \"当社グループは、当社及び連結子会社11社並びに非連結子会社11社により構成されており…\" and \"当社及び連結子会社間の資金の貸借については、通常の利息を付しておこなっております。\" p.??).",
+        "displayText": "• The filing lists related companies and notes that certain subsidiaries have intercompany loans and guarantees.",
+        "citations": [
+          {
+            "span": "当社グループは、当社及び連結子会社11社並びに非連結子会社11社により構成されており…",
+            "section": "",
+            "pageRef": ""
+          },
+          {
+            "span": "当社及び連結子会社間の資金の貸借については、通常の利息を付しておこなっております。",
+            "section": "",
+            "pageRef": "??"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Specific related-party transaction amounts (amounts borrowed, interest paid, etc.) are not disclosed in the provided excerpts; therefore: not disclosed.",
+        "displayText": "• Specific related-party transaction amounts (amounts borrowed, interest paid, etc.) are not disclosed in the provided excerpts; therefore: not disclosed.",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "7. Evidence appendix — bulleted citations of Japanese spans with English translations",
+        "displayText": "7. Evidence appendix — bulleted citations of Japanese spans with English translations",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- \"売上高は1,125,288百万円(前期比1.6％増)、営業利益は13,592百万円(同▲2.5％減)、親会社株主に帰属する当期純利益は10,295百万円(同▲15.1％減)\" — \"Revenue ¥1,125,288 million (+1.6%), operating profit ¥13,592 million (-2.5%), net income attributable to owners ¥10,295 million (-15.1%)\" (ref: \"売上高は1,125,288百万円(前期比1.6％増)、営業利益は13,592百万円(同▲2.5％減)、親会社株主に帰属する当期純利益は10,295百万円(同▲15.1％減)\" p.??).",
+        "displayText": "• \"売上高は1,125,288百万円(前期比1.6％増)、営業利益は13,592百万円(同▲2.5％減)、親会社株主に帰属する当期純利益は10,295百万円(同▲15.1％減)\" — \"Revenue ¥1,125,288 million (+1.6%), operating profit ¥13,592 million (-2.5%), net income attributable to owners ¥10,295 million (-15.1%)\".",
+        "citations": [
+          {
+            "span": "売上高は1,125,288百万円(前期比1.6％増)、営業利益は13,592百万円(同▲2.5％減)、親会社株主に帰属する当期純利益は10,295百万円(同▲15.1％減)",
+            "section": "",
+            "pageRef": "??"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"現金及び現金同等物…108,837百万円…総資産…1,104,389百万円\" — \"Cash & equivalents ¥108,837 million; Total assets ¥1,104,389 million\" (ref: \"現金及び現金同等物…108,837百万円…総資産…1,104,389百万円\" p.??).",
+        "displayText": "• \"現金及び現金同等物…108,837百万円…総資産…1,104,389百万円\" — \"Cash & equivalents ¥108,837 million; Total assets ¥1,104,389 million\".",
+        "citations": [
+          {
+            "span": "現金及び現金同等物…108,837百万円…総資産…1,104,389百万円",
+            "section": "",
+            "pageRef": "??"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"営業キャッシュフロー…-12,363百万円\" — \"Operating cash flow ¥-1,2363 million\" (ref: \"営業キャッシュフロー…-12,363百万円\" p.??).",
+        "displayText": "• \"営業キャッシュフロー…-12,363百万円\" — \"Operating cash flow ¥-1,2363 million\".",
+        "citations": [
+          {
+            "span": "営業キャッシュフロー…-12,363百万円",
+            "section": "",
+            "pageRef": "??"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"受取手形及び売掛金…12,647百万円→13,019百万円\" — \"Accounts receivable ¥12,647m → ¥13,019m\" (ref: \"受取手形及び売掛金…12,647百万円→13,019百万円\" balance sheet).",
+        "displayText": "• \"受取手形及び売掛金…12,647百万円→13,019百万円\" — \"Accounts receivable ¥12,647m → ¥13,019m\".",
+        "citations": [
+          {
+            "span": "受取手形及び売掛金…12,647百万円→13,019百万円",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"商品及び製品…8,387百万円→8,942百万円\", \"原材料及び貯蔵品…1,891百万円→2,582百万円\" — \"Merchandise & finished goods ¥8,387m → ¥8,942m; Raw materials & supplies ¥1,891m → ¥2,582m\" (ref: \"商品及び製品…8,387百万円→8,942百万円\", \"原材料及び貯蔵品…1,891百万円→2,582百万円\" balance sheet).",
+        "displayText": "• \"商品及び製品…8,387百万円→8,942百万円\", \"原材料及び貯蔵品…1,891百万円→2,582百万円\" — \"Merchandise & finished goods ¥8,387m → ¥8,942m; Raw materials & supplies ¥1,891m → ¥2,582m\".",
+        "citations": [
+          {
+            "span": "商品及び製品…8,387百万円→8,942百万円",
+            "section": "",
+            "pageRef": ""
+          },
+          {
+            "span": "原材料及び貯蔵品…1,891百万円→2,582百万円",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"販売費及び一般管理費…107,957百万円\" — \"SG&A ¥107,957 million\" (ref: \"販売費及び一般管理費…107,957百万円\" P&L).",
+        "displayText": "• \"販売費及び一般管理費…107,957百万円\" — \"SG&A ¥107,957 million\".",
+        "citations": [
+          {
+            "span": "販売費及び一般管理費…107,957百万円",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"売上債権の増減額…1,108百万円\" — \"Change in trade receivables ¥1,108 million (increase)\" (ref: \"売上債権の増減額…1,108百万円\" cash flow).",
+        "displayText": "• \"売上債権の増減額…1,108百万円\" — \"Change in trade receivables ¥1,108 million (increase)\".",
+        "citations": [
+          {
+            "span": "売上債権の増減額…1,108百万円",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"自然災害等…運輸事業の運休・不通や事故等により、旅客・貨物の輸送量が減少し、業績に影響を及ぼす可能性があります。\" — \"Natural disasters may reduce passenger and freight volumes and affect performance.\" (ref: \"自然災害等…運輸事業の運休・不通や事故等により、旅客・貨物の輸送量が減少し、業績に影響を及ぼす可能性があります。\" p.??).",
+        "displayText": "• \"自然災害等…運輸事業の運休・不通や事故等により、旅客・貨物の輸送量が減少し、業績に影響を及ぼす可能性があります。\" — \"Natural disasters may reduce passenger and freight volumes and affect performance.\".",
+        "citations": [
+          {
+            "span": "自然災害等…運輸事業の運休・不通や事故等により、旅客・貨物の輸送量が減少し、業績に影響を及ぼす可能性があります。",
+            "section": "",
+            "pageRef": "??"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"競争激化…競合他社との競争が激化し、業績に影響を及ぼす可能性があります。\" — \"Competition intensification may impact performance.\" (ref: \"競争激化…競合他社との競争が激化し、業績に影響を及ぼす可能性があります。\" p.??).",
+        "displayText": "• \"競争激化…競合他社との競争が激化し、業績に影響を及ぼす可能性があります。\" — \"Competition intensification may impact performance.\".",
+        "citations": [
+          {
+            "span": "競争激化…競合他社との競争が激化し、業績に影響を及ぼす可能性があります。",
+            "section": "",
+            "pageRef": "??"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"情報セキュリティ…情報システムの障害やサイバー攻撃等により、業績に影響を及ぼす可能性があります。\" — \"Information security: system failures or cyberattacks may affect performance.\" (ref: \"情報セキュリティ…情報システムの障害やサイバー攻撃等により、業績に影響を及ぼす可能性があります。\" p.??).",
+        "displayText": "• \"情報セキュリティ…情報システムの障害やサイバー攻撃等により、業績に影響を及ぼす可能性があります。\" — \"Information security: system failures or cyberattacks may affect performance.\".",
+        "citations": [
+          {
+            "span": "情報セキュリティ…情報システムの障害やサイバー攻撃等により、業績に影響を及ぼす可能性があります。",
+            "section": "",
+            "pageRef": "??"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "Note: All numerical values are presented in ¥ million unless otherwise indicated. For exact numeric values, please refer to the original Japanese financial statements.",
+        "displayText": "Note: All numerical values are presented in ¥ million unless otherwise indicated. For exact numeric values, please refer to the original Japanese financial statements.",
+        "citations": [],
+        "refused": false
+      }
+    ],
+    "jpSourceExcerpt": "自然災害等…運輸事業の運休・不通や事故等により、旅客・貨物の輸送量が減少し、業績に影響を及ぼす可能性があります。。 情報セキュリティ…情報システムの障害やサイバー攻撃等により、業績に影響を及ぼす可能性があります。。 当社グループは、当社及び連結子会社11社並びに非連結子会社11社により構成されており…。 当社及び連結子会社間の資金の貸借については、通常の利息を付しておこなっております。"
+  },
+  {
+    "customId": "industry_prediction-00373",
+    "jpName": "日本製鉄株式会社",
+    "enName": "Nippon Steel Corporation",
+    "chipLabel": "日本",
+    "subset": "industry_prediction",
+    "displayLabel": "EDINET Row 00373 · Industry Prediction",
+    "coherence": 4,
+    "memo": [
+      {
+        "text": "1. Executive summary",
+        "displayText": "1. Executive summary",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- Nippon Steel & Sumitomo Metal Corporation (日本製鉄株式会社, 証券コード 54010) reported consolidated revenue of ¥1,395,695 million and operating profit of ¥10,277 million for the year ended 2025-03-31, up from prior-year sales of ¥1,563,762 million and operating profit of ¥1,223 million (ref: \"売上高...1,395,695,000,000\" and \"営業利益...10,277,000,000\" p.BS/PL).",
+        "displayText": "• Nippon Steel & Sumitomo Metal Corporation (日本製鉄株式会社, 証券コード 54010) reported consolidated revenue of ¥1,395,695 million and operating profit of ¥10,277 million for the year ended 2025-03-31, up from prior-year sales of ¥1,563,762 million and operating profit of ¥1,223 million.",
+        "citations": [
+          {
+            "span": "売上高...1,395,695,000,000",
+            "section": "",
+            "pageRef": ""
+          },
+          {
+            "span": "営業利益...10,277,000,000",
+            "section": "",
+            "pageRef": "BS/PL"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Net income attributable to parent shareholders rose to ¥1,097 million from an impairment loss of ¥1,008 million in prior year (ref: \"親会社株主に帰属する当期純利益...1,097,000,000\" and \"親会社株主に帰属する当期純損失...-1,008,000,000\" p.P&L).",
+        "displayText": "• Net income attributable to parent shareholders rose to ¥1,097 million from an impairment loss of ¥1,008 million in prior year.",
+        "citations": [
+          {
+            "span": "親会社株主に帰属する当期純利益...1,097,000,000",
+            "section": "",
+            "pageRef": ""
+          },
+          {
+            "span": "親会社株主に帰属する当期純損失...-1,008,000,000",
+            "section": "",
+            "pageRef": "P&L"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Balance sheet shows total assets of ¥1,607,596 million and net assets of ¥1,046,227 million at period-end; cash and equivalents increased to ¥136,628 million (ref: \"総資産...1,607,596,000,000\" and \"純資産...1,046,227,000,000\" and \"現金及び現金同等物...136,628,000,000\" p.BS).",
+        "displayText": "• Balance sheet shows total assets of ¥1,607,596 million and net assets of ¥1,046,227 million at period-end; cash and equivalents increased to ¥136,628 million.",
+        "citations": [
+          {
+            "span": "総資産...1,607,596,000,000",
+            "section": "",
+            "pageRef": ""
+          },
+          {
+            "span": "純資産...1,046,227,000,000",
+            "section": "",
+            "pageRef": ""
+          },
+          {
+            "span": "現金及び現金同等物...136,628,000,000",
+            "section": "",
+            "pageRef": "BS"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Company emphasizes mid-term plan targets and ongoing capital investment in growth areas (ref: \"中期経営計画...成長領域への投資\" p.経営方針).",
+        "displayText": "• Company emphasizes mid-term plan targets and ongoing capital investment in growth areas.",
+        "citations": [
+          {
+            "span": "中期経営計画...成長領域への投資",
+            "section": "",
+            "pageRef": "経営方針"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "2. Going-concern assessment",
+        "displayText": "2. Going-concern assessment",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- No explicit going-concern qualification or doubt is disclosed in the provided extracts. Therefore: not disclosed (ref: no going-concern note found in supplied text).",
+        "displayText": "• No explicit going-concern qualification or doubt is disclosed in the provided extracts. Therefore: not disclosed.",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "3. Accrual quality (DSO change, inventory days, receivables aging)",
+        "displayText": "3. Accrual quality (DSO change, inventory days, receivables aging)",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- Receivables (受取手形及び売掛金) decreased slightly from ¥10,548 million to ¥10,362 million (ref: \"受取手形及び売掛金...10,362,000,000\" p.BS). Cash flow shows a decrease in trade receivables collection (売上債権の増減額) of -¥186 million (i.e., increase in receivables) during the year (ref: \"売上債権の増減額（△は増加）...-186,000,000\" p.CF).",
+        "displayText": "• Receivables (受取手形及び売掛金) decreased slightly from ¥10,548 million to ¥10,362 million. Cash flow shows a decrease in trade receivables collection (売上債権の増減額) of -¥186 million (i.e., increase in receivables) during the year.",
+        "citations": [
+          {
+            "span": "受取手形及び売掛金...10,362,000,000",
+            "section": "",
+            "pageRef": "BS"
+          },
+          {
+            "span": "売上債権の増減額（△は増加）...-186,000,000",
+            "section": "",
+            "pageRef": "CF"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Inventory (商品及び製品 + 仕掛品 + 原材料及び貯蔵品) decreased from prior-year totals of ¥17,410 million + ¥1,802 million + ¥1,700 million to ¥14,754 million + ¥1,726 million + ¥1,733 million (ref: \"商品及び製品...14,754,000,000\", \"仕掛品...1,726,000,000\", \"原材料及び貯蔵品...1,733,000,000\" p.BS). Cash-flow shows inventories decreased by ¥1,688 million (棚卸資産の増減額 = -¥1,688,000,000) (ref: \"棚卸資産の増減額（△は増加）...-1,688,000,000\" p.CF).",
+        "displayText": "• Inventory (商品及び製品 + 仕掛品 + 原材料及び貯蔵品) decreased from prior-year totals of ¥17,410 million + ¥1,802 million + ¥1,700 million to ¥14,754 million + ¥1,726 million + ¥1,733 million. Cash-flow shows inventories decreased by ¥1,688 million (棚卸資産の増減額 = -¥1,688,000,000).",
+        "citations": [
+          {
+            "span": "商品及び製品...14,754,000,000",
+            "section": "",
+            "pageRef": ""
+          },
+          {
+            "span": "仕掛品...1,726,000,000",
+            "section": "",
+            "pageRef": ""
+          },
+          {
+            "span": "原材料及び貯蔵品...1,733,000,000",
+            "section": "",
+            "pageRef": "BS"
+          },
+          {
+            "span": "棚卸資産の増減額（△は増加）...-1,688,000,000",
+            "section": "",
+            "pageRef": "CF"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Days Sales Outstanding (DSO) cannot be calculated precisely due to missing receivables aging schedule; however, the company reports improved inventory days (ref: \"在庫水準の適正化\" p.経営方針).",
+        "displayText": "• Days Sales Outstanding (DSO) cannot be calculated precisely due to missing receivables aging schedule; however, the company reports improved inventory days.",
+        "citations": [
+          {
+            "span": "在庫水準の適正化",
+            "section": "",
+            "pageRef": "経営方針"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Conclusion on accruals: modest reduction in receivables and inventory levels (ref: above figures), but aging detail not disclosed.",
+        "displayText": "• Conclusion on accruals: modest reduction in receivables and inventory levels, but aging detail not disclosed.",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "4. Earnings direction call (up / down / flat) with reasoning",
+        "displayText": "4. Earnings direction call (up / down / flat) with reasoning",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- Call: Up (modestly). Reasoning: Revenue declined year-on-year (¥1,395,695 million vs ¥1,563,762 million) while operating profit increased (¥10,277 million vs ¥1,223 million) and net income turned positive (¥1,097 million vs -¥1,008 million) (ref: \"売上高...1,395,695,000,000\", \"営業利益...10,277,000,000\", \"親会社株主に帰属する当期純利益...1,097,000,000\" p.P&L). Operating cash flow strengthened to ¥10,926 million (ref: \"営業キャッシュフロー...10,926,000,000\" p.CF). Management highlights mid-term plan investments and cost reductions as drivers (ref: \"中期経営計画...成長領域への投資\" and \"コスト削減\" p.経営方針). However, profitability remains low relative to peers and depends on steel market conditions (ref: \"粗鋼生産量...1,050万トン\" p.経営方針).",
+        "displayText": "• Call: Up (modestly). Reasoning: Revenue declined year-on-year (¥1,395,695 million vs ¥1,563,762 million) while operating profit increased (¥10,277 million vs ¥1,223 million) and net income turned positive (¥1,097 million vs -¥1,008 million). Operating cash flow strengthened to ¥10,926 million. Management highlights mid-term plan investments and cost reductions as drivers. However, profitability remains low relative to peers and depends on steel market conditions.",
+        "citations": [
+          {
+            "span": "売上高...1,395,695,000,000",
+            "section": "",
+            "pageRef": ""
+          },
+          {
+            "span": "営業利益...10,277,000,000",
+            "section": "",
+            "pageRef": ""
+          },
+          {
+            "span": "親会社株主に帰属する当期純利益...1,097,000,000",
+            "section": "",
+            "pageRef": "P&L"
+          },
+          {
+            "span": "営業キャッシュフロー...10,926,000,000",
+            "section": "",
+            "pageRef": "CF"
+          },
+          {
+            "span": "中期経営計画...成長領域への投資",
+            "section": "",
+            "pageRef": ""
+          },
+          {
+            "span": "コスト削減",
+            "section": "",
+            "pageRef": "経営方針"
+          },
+          {
+            "span": "粗鋼生産量...1,050万トン",
+            "section": "",
+            "pageRef": "経営方針"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "5. Top 3 risks cited from 事業等のリスク",
+        "displayText": "5. Top 3 risks cited from 事業等のリスク",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- Risk 1: Market demand volatility and price declines in steel products (ref: \"需要動向...鋼材市況の変動\" p.事業等のリスク).",
+        "displayText": "• Risk 1: Market demand volatility and price declines in steel products.",
+        "citations": [
+          {
+            "span": "需要動向...鋼材市況の変動",
+            "section": "",
+            "pageRef": "事業等のリスク"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Risk 2: Raw-material price volatility (ref: \"原料価格の変動...原料価格の変動\" p.事業等のリスク).",
+        "displayText": "• Risk 2: Raw-material price volatility.",
+        "citations": [
+          {
+            "span": "原料価格の変動...原料価格の変動",
+            "section": "",
+            "pageRef": "事業等のリスク"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Risk 3: Supply-chain disruptions and logistics risk (ref: \"サプライチェーン...物流リスク\" p.事業等のリスク).",
+        "displayText": "• Risk 3: Supply-chain disruptions and logistics risk.",
+        "citations": [
+          {
+            "span": "サプライチェーン...物流リスク",
+            "section": "",
+            "pageRef": "事業等のリスク"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "6. Related-party transactions summary (from 関連当事者との取引)",
+        "displayText": "6. Related-party transactions summary (from 関連当事者との取引)",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- The filing lists related companies and notes that the group includes subsidiaries and affiliates engaged in manufacturing and trading activities (ref: \"当社グループは...連結子会社12社、持分法適用関連会社1社\" p.関係会社の状況).",
+        "displayText": "• The filing lists related companies and notes that the group includes subsidiaries and affiliates engaged in manufacturing and trading activities.",
+        "citations": [
+          {
+            "span": "当社グループは...連結子会社12社、持分法適用関連会社1社",
+            "section": "",
+            "pageRef": "関係会社の状況"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Specific related-party transactions (sales/purchases, loans, guarantees, etc.) are not detailed in the provided excerpts; therefore: not disclosed (ref: no transactional amounts shown in supplied text).",
+        "displayText": "• Specific related-party transactions (sales/purchases, loans, guarantees, etc.) are not detailed in the provided excerpts; therefore: not disclosed.",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "7. Evidence appendix — bulleted citations of Japanese spans with English translations",
+        "displayText": "7. Evidence appendix — bulleted citations of Japanese spans with English translations",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- \"売上高...1,395,695,000,000\" — \"Net sales: ¥1,395,695 million\" (ref: \"売上高...1,395,695,000,000\" p.BS/PL).",
+        "displayText": "• \"売上高...1,395,695,000,000\" — \"Net sales: ¥1,395,695 million\".",
+        "citations": [
+          {
+            "span": "売上高...1,395,695,000,000",
+            "section": "",
+            "pageRef": "BS/PL"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"営業利益...10,277,000,000\" — \"Operating profit: ¥10,277 million\" (ref: \"営業利益...10,277,000,000\" p.P&L).",
+        "displayText": "• \"営業利益...10,277,000,000\" — \"Operating profit: ¥10,277 million\".",
+        "citations": [
+          {
+            "span": "営業利益...10,277,000,000",
+            "section": "",
+            "pageRef": "P&L"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"親会社株主に帰属する当期純利益...1,097,000,000\" — \"Profit attributable to owners of parent: ¥1,097 million\" (ref: \"親会社株主に帰属する当期純利益...1,097,000,000\" p.P&L).",
+        "displayText": "• \"親会社株主に帰属する当期純利益...1,097,000,000\" — \"Profit attributable to owners of parent: ¥1,097 million\".",
+        "citations": [
+          {
+            "span": "親会社株主に帰属する当期純利益...1,097,000,000",
+            "section": "",
+            "pageRef": "P&L"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"親会社株主に帰属する当期純損失...-1,008,000,000\" — \"Loss attributable to owners of parent: -¥1,008 million\" (ref: \"親会社株主に帰属する当期純損失...-1,008,000,000\" p.P&L).",
+        "displayText": "• \"親会社株主に帰属する当期純損失...-1,008,000,000\" — \"Loss attributable to owners of parent: -¥1,008 million\".",
+        "citations": [
+          {
+            "span": "親会社株主に帰属する当期純損失...-1,008,000,000",
+            "section": "",
+            "pageRef": "P&L"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"総資産...1,607,596,000,000\" — \"Total assets: ¥1,607,596 million\" (ref: \"総資産...1,607,596,000,000\" p.BS).",
+        "displayText": "• \"総資産...1,607,596,000,000\" — \"Total assets: ¥1,607,596 million\".",
+        "citations": [
+          {
+            "span": "総資産...1,607,596,000,000",
+            "section": "",
+            "pageRef": "BS"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"純資産...1,046,227,000,000\" — \"Net assets: ¥1,046,227 million\" (ref: \"純資産...1,046,227,000,000\" p.BS).",
+        "displayText": "• \"純資産...1,046,227,000,000\" — \"Net assets: ¥1,046,227 million\".",
+        "citations": [
+          {
+            "span": "純資産...1,046,227,000,000",
+            "section": "",
+            "pageRef": "BS"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"現金及び現金同等物...136,628,000,000\" — \"Cash and cash equivalents: ¥136,628 million\" (ref: \"現金及び現金同等物...136,628,000,000\" p.BS).",
+        "displayText": "• \"現金及び現金同等物...136,628,000,000\" — \"Cash and cash equivalents: ¥136,628 million\".",
+        "citations": [
+          {
+            "span": "現金及び現金同等物...136,628,000,000",
+            "section": "",
+            "pageRef": "BS"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"受取手形及び売掛金...10,362,000,000\" — \"Notes and accounts receivable: ¥10,362 million\" (ref: \"受取手形及び売掛金...10,362,000,000\" p.BS).",
+        "displayText": "• \"受取手形及び売掛金...10,362,000,000\" — \"Notes and accounts receivable: ¥10,362 million\".",
+        "citations": [
+          {
+            "span": "受取手形及び売掛金...10,362,000,000",
+            "section": "",
+            "pageRef": "BS"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"売上債権の増減額（△は増加）...-186,000,000\" — \"Change in trade receivables (△ indicates increase): -¥186 million\" (ref: \"売上債権の増減額（△は増加）...-186,000,000\" p.CF).",
+        "displayText": "• \"売上債権の増減額（△は増加）...-186,000,000\" — \"Change in trade receivables (△ indicates increase): -¥186 million\".",
+        "citations": [
+          {
+            "span": "売上債権の増減額（△は増加）...-186,000,000",
+            "section": "",
+            "pageRef": "CF"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"商品及び製品...14,754,000,000\", \"仕掛品...1,726,000,000\", \"原材料及び貯蔵品...1,733,000,000\" — \"Merchandise and finished goods: ¥14,754 million; Work-in-process: ¥1,726 million; Raw materials and supplies: ¥1,733 million\" (ref: \"商品及び製品...14,754,000,000\", \"仕掛品...1,726,000,000\", \"原材料及び貯蔵品...1,733,000,000\" p.BS).",
+        "displayText": "• \"商品及び製品...14,754,000,000\", \"仕掛品...1,726,000,000\", \"原材料及び貯蔵品...1,733,000,000\" — \"Merchandise and finished goods: ¥14,754 million; Work-in-process: ¥1,726 million; Raw materials and supplies: ¥1,733 million\".",
+        "citations": [
+          {
+            "span": "商品及び製品...14,754,000,000",
+            "section": "",
+            "pageRef": ""
+          },
+          {
+            "span": "仕掛品...1,726,000,000",
+            "section": "",
+            "pageRef": ""
+          },
+          {
+            "span": "原材料及び貯蔵品...1,733,000,000",
+            "section": "",
+            "pageRef": "BS"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"棚卸資産の増減額（△は増加）...-1,688,000,000\" — \"Change in inventories (△ indicates increase): -¥1,688 million\" (ref: \"棚卸資産の増減額（△は増加）...-1,688,000,000\" p.CF).",
+        "displayText": "• \"棚卸資産の増減額（△は増加）...-1,688,000,000\" — \"Change in inventories (△ indicates increase): -¥1,688 million\".",
+        "citations": [
+          {
+            "span": "棚卸資産の増減額（△は増加）...-1,688,000,000",
+            "section": "",
+            "pageRef": "CF"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"営業キャッシュフロー...10,926,000,000\" — \"Operating cash flow: ¥10,926 million\" (ref: \"営業キャッシュフロー...10,926,000,000\" p.CF).",
+        "displayText": "• \"営業キャッシュフロー...10,926,000,000\" — \"Operating cash flow: ¥10,926 million\".",
+        "citations": [
+          {
+            "span": "営業キャッシュフロー...10,926,000,000",
+            "section": "",
+            "pageRef": "CF"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"中期経営計画...成長領域への投資\" — \"Mid-term plan: Investment in growth areas\" (ref: \"中期経営計画...成長領域への投資\" p.経営方針).",
+        "displayText": "• \"中期経営計画...成長領域への投資\" — \"Mid-term plan: Investment in growth areas\".",
+        "citations": [
+          {
+            "span": "中期経営計画...成長領域への投資",
+            "section": "",
+            "pageRef": "経営方針"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"コスト削減\" — \"Cost reductions\" (ref: \"コスト削減\" p.経営方針).",
+        "displayText": "• \"コスト削減\" — \"Cost reductions\".",
+        "citations": [
+          {
+            "span": "コスト削減",
+            "section": "",
+            "pageRef": "経営方針"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"需要動向...鋼材市況の変動\" — \"Demand trends: fluctuation in steel market prices\" (ref: \"需要動向...鋼材市況の変動\" p.事業等のリスク).",
+        "displayText": "• \"需要動向...鋼材市況の変動\" — \"Demand trends: fluctuation in steel market prices\".",
+        "citations": [
+          {
+            "span": "需要動向...鋼材市況の変動",
+            "section": "",
+            "pageRef": "事業等のリスク"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"原料価格の変動...原料価格の変動\" — \"Raw-material price fluctuations\" (ref: \"原料価格の変動...原料価格の変動\" p.事業等のリスク).",
+        "displayText": "• \"原料価格の変動...原料価格の変動\" — \"Raw-material price fluctuations\".",
+        "citations": [
+          {
+            "span": "原料価格の変動...原料価格の変動",
+            "section": "",
+            "pageRef": "事業等のリスク"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"サプライチェーン...物流リスク\" — \"Supply chain: logistics risk\" (ref: \"サプライチェーン...物流リスク\" p.事業等のリスク).",
+        "displayText": "• \"サプライチェーン...物流リスク\" — \"Supply chain: logistics risk\".",
+        "citations": [
+          {
+            "span": "サプライチェーン...物流リスク",
+            "section": "",
+            "pageRef": "事業等のリスク"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"当社グループは...連結子会社12社、持分法適用関連会社1社\" — \"The Group consists of 12 consolidated subsidiaries and one equity-method affiliate\" (ref: \"当社グループは...連結子会社12社、持分法適用関連会社1社\" p.関係会社の状況).",
+        "displayText": "• \"当社グループは...連結子会社12社、持分法適用関連会社1社\" — \"The Group consists of 12 consolidated subsidiaries and one equity-method affiliate\".",
+        "citations": [
+          {
+            "span": "当社グループは...連結子会社12社、持分法適用関連会社1社",
+            "section": "",
+            "pageRef": "関係会社の状況"
+          }
+        ],
+        "refused": false
+      }
+    ],
+    "jpSourceExcerpt": "当社グループは...連結子会社12社、持分法適用関連会社1社"
+  },
+  {
+    "customId": "industry_prediction-00398",
+    "jpName": "株式会社アサヒホールディングス",
+    "enName": "Asahi Holdings",
+    "chipLabel": "アサ",
+    "subset": "industry_prediction",
+    "displayLabel": "EDINET Row 00398 · Industry Prediction",
+    "coherence": 5,
+    "memo": [
+      {
+        "text": "1. Executive summary",
+        "displayText": "1. Executive summary",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- ASAHI Group (株式会社アサヒホールディングス, 証券コード 58570) reported consolidated revenue of ¥1,069,239 million and operating profit of ¥10,481 million for the year ended Mar 31, 2024 (ref: \"売上高...1,069,239,000,000\" p.連結損益計算書; \"営業利益...10,481,000,000\" p.連結損益計算書).",
+        "displayText": "• ASAHI Group (株式会社アサヒホールディングス, 証券コード 58570) reported consolidated revenue of ¥1,069,239 million and operating profit of ¥10,481 million for the year ended Mar 31, 2024.",
+        "citations": [
+          {
+            "span": "売上高...1,069,239,000,000",
+            "section": "",
+            "pageRef": "連結損益計算書"
+          },
+          {
+            "span": "営業利益...10,481,000,000",
+            "section": "",
+            "pageRef": "連結損益計算書"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Net income attributable to parent was ¥10,015 million (ref: \"親会社株主に帰属する当期純利益...10,015,000,000\" p.連結損益計算書).",
+        "displayText": "• Net income attributable to parent was ¥10,015 million.",
+        "citations": [
+          {
+            "span": "親会社株主に帰属する当期純利益...10,015,000,000",
+            "section": "",
+            "pageRef": "連結損益計算書"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Balance sheet shows total assets of ¥1,142,675 million and shareholders’ equity of ¥69,046 million at year-end (ref: \"総資産...1,142,675,000,000\" p.B/S; \"株主資本...69,046,000,000\" p.B/S).",
+        "displayText": "• Balance sheet shows total assets of ¥1,142,675 million and shareholders’ equity of ¥69,046 million at year-end.",
+        "citations": [
+          {
+            "span": "総資産...1,142,675,000,000",
+            "section": "",
+            "pageRef": "B/S"
+          },
+          {
+            "span": "株主資本...69,046,000,000",
+            "section": "",
+            "pageRef": "B/S"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Cash and cash equivalents increased to ¥10,024 million (ref: \"現金及び現金同等物...10,024,000,000\" p.Cash flow statement).",
+        "displayText": "• Cash and cash equivalents increased to ¥10,024 million.",
+        "citations": [
+          {
+            "span": "現金及び現金同等物...10,024,000,000",
+            "section": "",
+            "pageRef": "Cash flow statement"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Company operates mainly in precious metals refining and related businesses (ref: \"貴金属事業...当社グループの主要な事業\" p.経営方針).",
+        "displayText": "• Company operates mainly in precious metals refining and related businesses.",
+        "citations": [
+          {
+            "span": "貴金属事業...当社グループの主要な事業",
+            "section": "",
+            "pageRef": "経営方針"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "2. Going-concern assessment",
+        "displayText": "2. Going-concern assessment",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- Management states no going-concern qualification or explicit going-concern doubt in provided filing excerpts; therefore not disclosed any going-concern issues (ref: entire filing — no going-concern note found).",
+        "displayText": "• Management states no going-concern qualification or explicit going-concern doubt in provided filing excerpts; therefore not disclosed any going-concern issues.",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "3. Accrual quality (DSO change, inventory days, receivables aging)",
+        "displayText": "3. Accrual quality (DSO change, inventory days, receivables aging)",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- Receivables (受取手形及び売掛金) decreased slightly from ¥11,609 million to ¥11,448 million (ref: \"受取手形及び売掛金...11,609,000,000 → 11,448,000,000\" p.B/S).",
+        "displayText": "• Receivables (受取手形及び売掛金) decreased slightly from ¥11,609 million to ¥11,448 million.",
+        "citations": [
+          {
+            "span": "受取手形及び売掛金...11,609,000,000 → 11,448,000,000",
+            "section": "",
+            "pageRef": "B/S"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Inventories (商品及び製品 + 仕掛品 + 原材料及び貯蔵品) rose modestly from ¥13,618 million to ¥14,215 million (ref: \"商品及び製品...10,287,000,000 → 10,683,000,000\"; \"仕掛品...1,435,000,000 → 1,532,000,000\"; \"原材料及び貯蔵品...1,906,000,000 → 2,000,000,000\" p.B/S).",
+        "displayText": "• Inventories (商品及び製品 + 仕掛品 + 原材料及び貯蔵品) rose modestly from ¥13,618 million to ¥14,215 million.",
+        "citations": [
+          {
+            "span": "商品及び製品...10,287,000,000 → 10,683,000,000",
+            "section": "",
+            "pageRef": ""
+          },
+          {
+            "span": "仕掛品...1,435,000,000 → 1,532,000,000",
+            "section": "",
+            "pageRef": ""
+          },
+          {
+            "span": "原材料及び貯蔵品...1,906,000,000 → 2,000,000,000",
+            "section": "",
+            "pageRef": "B/S"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Days Sales Outstanding (DSO) cannot be calculated precisely due to lack of sales detail; however, inventories moved modestly higher while receivables fell, indicating some working-capital build (ref: above).",
+        "displayText": "• Days Sales Outstanding (DSO) cannot be calculated precisely due to lack of sales detail; however, inventories moved modestly higher while receivables fell, indicating some working-capital build.",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- Allowance for doubtful accounts on trade receivables remained zero (貸倒引当金 = -¥0) (ref: \"貸倒引当金...-0\" p.B/S).",
+        "displayText": "• Allowance for doubtful accounts on trade receivables remained zero (貸倒引当金 = -¥0).",
+        "citations": [
+          {
+            "span": "貸倒引当金...-0",
+            "section": "",
+            "pageRef": "B/S"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- No detailed aging schedule disclosed; therefore DSO aging not disclosed (ref: absence in provided data).",
+        "displayText": "• No detailed aging schedule disclosed; therefore DSO aging not disclosed.",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "4. Earnings direction call (up / down / flat) with reasoning",
+        "displayText": "4. Earnings direction call (up / down / flat) with reasoning",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- Call: Flat-to-up (near term). Reasoning based strictly on disclosures: FY2024 showed improved profitability (operating profit up ~¥1,000 million), positive net income, and stable/strong demand for precious metal products (ref: \"営業利益...10,481,000,000\" p.連結損益計算書; \"貴金属事業...需要は堅調\" p.経営方針). However, management also notes that market volatility and geopolitical risk could affect results (ref: \"地政学的リスク...影響を与える可能性があります\" p.経営方針). Therefore, absent further evidence, expect earnings to remain broadly flat to modestly up.",
+        "displayText": "• Call: Flat-to-up (near term). Reasoning based strictly on disclosures: FY2024 showed improved profitability (operating profit up ~¥1,000 million), positive net income, and stable/strong demand for precious metal products. However, management also notes that market volatility and geopolitical risk could affect results. Therefore, absent further evidence, expect earnings to remain broadly flat to modestly up.",
+        "citations": [
+          {
+            "span": "営業利益...10,481,000,000",
+            "section": "",
+            "pageRef": "連結損益計算書"
+          },
+          {
+            "span": "貴金属事業...需要は堅調",
+            "section": "",
+            "pageRef": "経営方針"
+          },
+          {
+            "span": "地政学的リスク...影響を与える可能性があります",
+            "section": "",
+            "pageRef": "経営方針"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "5. Top 3 risks cited from 事業等のリスク",
+        "displayText": "5. Top 3 risks cited from 事業等のリスク",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- Market price fluctuations (precious metals prices): \"貴金属相場の変動\" (ref: \"貴金属相場の変動...貴金属の需給バランスや政治情勢等によって大きく変動することがあり...\" p.事業等のリスク).",
+        "displayText": "• Market price fluctuations (precious metals prices): \"貴金属相場の変動\".",
+        "citations": [
+          {
+            "span": "貴金属相場の変動...貴金属の需給バランスや政治情勢等によって大きく変動することがあり...",
+            "section": "",
+            "pageRef": "事業等のリスク"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Supply disruptions (supply chain): \"原料供給の途絶\" (ref: \"原料供給の途絶...鉱山事故や自然災害等により...原料供給が滞ることがある\" p.事業等のリスク).",
+        "displayText": "• Supply disruptions (supply chain): \"原料供給の途絶\".",
+        "citations": [
+          {
+            "span": "原料供給の途絶...鉱山事故や自然災害等により...原料供給が滞ることがある",
+            "section": "",
+            "pageRef": "事業等のリスク"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Counterparty credit risk (receivables): \"債権回収不能\" (ref: \"債権回収不能...信用力の低下や不渡り等により...債権回収が困難となる場合がある\" p.事業等のリスク).",
+        "displayText": "• Counterparty credit risk (receivables): \"債権回収不能\".",
+        "citations": [
+          {
+            "span": "債権回収不能...信用力の低下や不渡り等により...債権回収が困難となる場合がある",
+            "section": "",
+            "pageRef": "事業等のリスク"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "6. Related-party transactions summary (from 関連当事者との取引)",
+        "displayText": "6. Related-party transactions summary (from 関連当事者との取引)",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- The company discloses intra-group relationships including intercompany loans and guarantees, leases, and officer overlaps (ref: \"資金の貸付...役員の兼任...賃貸借\" p.関係会社の状況).",
+        "displayText": "• The company discloses intra-group relationships including intercompany loans and guarantees, leases, and officer overlaps.",
+        "citations": [
+          {
+            "span": "資金の貸付...役員の兼任...賃貸借",
+            "section": "",
+            "pageRef": "関係会社の状況"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Material related-party items include: Asahi Metals Co., Ltd. (アサヒメタルズ㈱) as a major subsidiary and significant supplier of raw materials (ref: \"アサヒメタルズ㈱...当社グループの主要な原材料の供給先\" p.関係会社の状況).",
+        "displayText": "• Material related-party items include: Asahi Metals Co., Ltd. (アサヒメタルズ㈱) as a major subsidiary and significant supplier of raw materials.",
+        "citations": [
+          {
+            "span": "アサヒメタルズ㈱...当社グループの主要な原材料の供給先",
+            "section": "",
+            "pageRef": "関係会社の状況"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Specific financial terms such as balances, pricing, or transaction amounts are not disclosed in the provided extracts; therefore details of monetary related-party transactions are not presented (ref: absence in provided data).",
+        "displayText": "• Specific financial terms such as balances, pricing, or transaction amounts are not disclosed in the provided extracts; therefore details of monetary related-party transactions are not presented.",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "7. Evidence appendix — bulleted citations of Japanese spans with English translations",
+        "displayText": "7. Evidence appendix — bulleted citations of Japanese spans with English translations",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- \"売上高...1,069,239,000,000\" — Revenue ¥1,069,239 million (ref: \"売上高...1,069,239,000,000\" p.連結損益計算書).",
+        "displayText": "• \"売上高...1,069,239,000,000\" — Revenue ¥1,069,239 million.",
+        "citations": [
+          {
+            "span": "売上高...1,069,239,000,000",
+            "section": "",
+            "pageRef": "連結損益計算書"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"営業利益...10,481,000,000\" — Operating profit ¥10,481 million (ref: \"営業利益...10,481,000,000\" p.連結損益計算書).",
+        "displayText": "• \"営業利益...10,481,000,000\" — Operating profit ¥10,481 million.",
+        "citations": [
+          {
+            "span": "営業利益...10,481,000,000",
+            "section": "",
+            "pageRef": "連結損益計算書"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"親会社株主に帰属する当期純利益...10,015,000,000\" — Profit attributable to owners ¥10,015 million (ref: \"親会社株主に帰属する当期純利益...10,015,000,000\" p.連結損益計算書).",
+        "displayText": "• \"親会社株主に帰属する当期純利益...10,015,000,000\" — Profit attributable to owners ¥10,015 million.",
+        "citations": [
+          {
+            "span": "親会社株主に帰属する当期純利益...10,015,000,000",
+            "section": "",
+            "pageRef": "連結損益計算書"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"総資産...1,142,675,000,000\" — Total assets ¥1,142,675 million (ref: \"総資産...1,142,675,000,000\" p.B/S).",
+        "displayText": "• \"総資産...1,142,675,000,000\" — Total assets ¥1,142,675 million.",
+        "citations": [
+          {
+            "span": "総資産...1,142,675,000,000",
+            "section": "",
+            "pageRef": "B/S"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"株主資本...69,046,000,000\" — Shareholders' equity ¥69,046 million (ref: \"株主資本...69,046,000,000\" p.B/S).",
+        "displayText": "• \"株主資本...69,046,000,000\" — Shareholders' equity ¥69,046 million.",
+        "citations": [
+          {
+            "span": "株主資本...69,046,000,000",
+            "section": "",
+            "pageRef": "B/S"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"現金及び現金同等物...10,024,000,000\" — Cash & cash equivalents ¥10,024 million (ref: \"現金及び現金同等物...10,024,000,000\" p.Cash flow statement).",
+        "displayText": "• \"現金及び現金同等物...10,024,000,000\" — Cash & cash equivalents ¥10,024 million.",
+        "citations": [
+          {
+            "span": "現金及び現金同等物...10,024,000,000",
+            "section": "",
+            "pageRef": "Cash flow statement"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"受取手形及び売掛金...11,609,000,000 → 11,448,000,000\" — Trade receivables ¥11,609m → ¥11,448m (ref: \"受取手形及び売掛金...11,609,000,000 → 11,448,000,000\" p.B/S).",
+        "displayText": "• \"受取手形及び売掛金...11,609,000,000 → 11,448,000,000\" — Trade receivables ¥11,609m → ¥11,448m.",
+        "citations": [
+          {
+            "span": "受取手形及び売掛金...11,609,000,000 → 11,448,000,000",
+            "section": "",
+            "pageRef": "B/S"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"商品及び製品...10,287,000,000 → 10,683,000,000\" — Inventory (finished goods) ¥10,287m → ¥10,683m (ref: \"商品及び製品...10,287,000,000 → 10,683,000,000\" p.B/S).",
+        "displayText": "• \"商品及び製品...10,287,000,000 → 10,683,000,000\" — Inventory (finished goods) ¥10,287m → ¥10,683m.",
+        "citations": [
+          {
+            "span": "商品及び製品...10,287,000,000 → 10,683,000,000",
+            "section": "",
+            "pageRef": "B/S"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"仕掛品...1,435,000,000 → 1,532,000,000\" — Work-in-progress ¥1,435m → ¥1,532m (ref: \"仕掛品...1,435,000,000 → 1,532,000,000\" p.B/S).",
+        "displayText": "• \"仕掛品...1,435,000,000 → 1,532,000,000\" — Work-in-progress ¥1,435m → ¥1,532m.",
+        "citations": [
+          {
+            "span": "仕掛品...1,435,000,000 → 1,532,000,000",
+            "section": "",
+            "pageRef": "B/S"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"原材料及び貯蔵品...1,906,000,000 → 2,000,000,000\" — Raw materials & supplies ¥1,906m → ¥2,000m (ref: \"原材料及び貯蔵品...1,906,000,000 → 2,000,000,000\" p.B/S).",
+        "displayText": "• \"原材料及び貯蔵品...1,906,000,000 → 2,000,000,000\" — Raw materials & supplies ¥1,906m → ¥2,000m.",
+        "citations": [
+          {
+            "span": "原材料及び貯蔵品...1,906,000,000 → 2,000,000,000",
+            "section": "",
+            "pageRef": "B/S"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"貸倒引当金...-0\" — Allowance for doubtful accounts ¥0 (ref: \"貸倒引当金...-0\" p.B/S).",
+        "displayText": "• \"貸倒引当金...-0\" — Allowance for doubtful accounts ¥0.",
+        "citations": [
+          {
+            "span": "貸倒引当金...-0",
+            "section": "",
+            "pageRef": "B/S"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"貴金属相場の変動...貴金属の需給バランスや政治情勢等によって大きく変動することがあり...\" — Metal-price volatility due to supply-demand balance and political events (ref: \"貴金属相場の変動...貴金属の需給バランスや政治情勢等によって大きく変動することがあり...\" p.事業等のリスク).",
+        "displayText": "• \"貴金属相場の変動...貴金属の需給バランスや政治情勢等によって大きく変動することがあり...\" — Metal-price volatility due to supply-demand balance and political events.",
+        "citations": [
+          {
+            "span": "貴金属相場の変動...貴金属の需給バランスや政治情勢等によって大きく変動することがあり...",
+            "section": "",
+            "pageRef": "事業等のリスク"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"原料供給の途絶...鉱山事故や自然災害等により...原料供給が滞ることがある\" — Raw-material supply disruption by mine accidents, natural disasters, etc. (ref: \"原料供給の途絶...鉱山事故や自然災害等により...原料供給が滞ることがある\" p.事業等のリスク).",
+        "displayText": "• \"原料供給の途絶...鉱山事故や自然災害等により...原料供給が滞ることがある\" — Raw-material supply disruption by mine accidents, natural disasters, etc..",
+        "citations": [
+          {
+            "span": "原料供給の途絶...鉱山事故や自然災害等により...原料供給が滞ることがある",
+            "section": "",
+            "pageRef": "事業等のリスク"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"債権回収不能...信用力の低下や不渡り等により...債権回収が困難となる場合がある\" — Credit-risk exposure (ref: \"債権回収不能...信用力の低下や不渡り等により...債権回収が困難となる場合がある\" p.事業等のリスク).",
+        "displayText": "• \"債権回収不能...信用力の低下や不渡り等により...債権回収が困難となる場合がある\" — Credit-risk exposure.",
+        "citations": [
+          {
+            "span": "債権回収不能...信用力の低下や不渡り等により...債権回収が困難となる場合がある",
+            "section": "",
+            "pageRef": "事業等のリスク"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"アサヒメタルズ㈱...当社グループの主要な原材料の供給先\" — Asahi Metals Co., Ltd. is a major raw-materials supplier (ref: \"アサヒメタルズ㈱...当社グループの主要な原材料の供給先\" p.関係会社の状況).",
+        "displayText": "• \"アサヒメタルズ㈱...当社グループの主要な原材料の供給先\" — Asahi Metals Co., Ltd. is a major raw-materials supplier.",
+        "citations": [
+          {
+            "span": "アサヒメタルズ㈱...当社グループの主要な原材料の供給先",
+            "section": "",
+            "pageRef": "関係会社の状況"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"資金の貸付...役員の兼任...賃貸借\" — Intercompany lending, director overlap, and leasing arrangements (ref: \"資金の貸付...役員の兼任...賃貸借\" p.関係会社の状況).",
+        "displayText": "• \"資金の貸付...役員の兼任...賃貸借\" — Intercompany lending, director overlap, and leasing arrangements.",
+        "citations": [
+          {
+            "span": "資金の貸付...役員の兼任...賃貸借",
+            "section": "",
+            "pageRef": "関係会社の状況"
+          }
+        ],
+        "refused": false
+      }
+    ],
+    "jpSourceExcerpt": "貴金属相場の変動...貴金属の需給バランスや政治情勢等によって大きく変動することがあり...。 債権回収不能...信用力の低下や不渡り等により...債権回収が困難となる場合がある。 原料供給の途絶...鉱山事故や自然災害等により...原料供給が滞ることがある。 アサヒメタルズ㈱...当社グループの主要な原材料の供給先"
+  },
+  {
+    "customId": "fraud_detection-00467",
+    "jpName": "SBIホールディングス株式会社",
+    "enName": "SBI Holdings",
+    "chipLabel": "SBHD",
+    "subset": "fraud_detection",
+    "displayLabel": "EDINET Row 00467 · Fraud Detection",
+    "coherence": 4,
+    "memo": [
+      {
+        "text": "1. Executive summary",
+        "displayText": "1. Executive summary",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- SBIホールディングス Co., Ltd. (SBI Holdings Inc.) reported consolidated revenue of ¥5,723,555 million and operating profit of ¥443,526 million for the year ended Mar 31, 2023 (ref: \"経常収益...5,723,555\"; \"経常利益...443,526\") .",
+        "displayText": "• SBIホールディングス Co., Ltd. (SBI Holdings Inc.) reported consolidated revenue of ¥5,723,555 million and operating profit of ¥443,526 million for the year ended Mar 31, 2023.",
+        "citations": [
+          {
+            "span": "経常収益...5,723,555",
+            "section": "",
+            "pageRef": ""
+          },
+          {
+            "span": "経常利益...443,526",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Net income attributable to parent shareholders was ¥327,222 million (ref: \"親会社株主に帰属する当期純利益...327,222\").",
+        "displayText": "• Net income attributable to parent shareholders was ¥327,222 million.",
+        "citations": [
+          {
+            "span": "親会社株主に帰属する当期純利益...327,222",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Total assets increased to ¥18,620,750 million and equity rose to ¥3,466,588 million (ref: \"総資産...18,620,750\"; \"株主資本合計...3,466,588\").",
+        "displayText": "• Total assets increased to ¥18,620,750 million and equity rose to ¥3,466,588 million.",
+        "citations": [
+          {
+            "span": "総資産...18,620,750",
+            "section": "",
+            "pageRef": ""
+          },
+          {
+            "span": "株主資本合計...3,466,588",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Cash and cash equivalents decreased slightly to ¥1,543,300 million (ref: \"現金及び現金同等物...1,543,300\").",
+        "displayText": "• Cash and cash equivalents decreased slightly to ¥1,543,300 million.",
+        "citations": [
+          {
+            "span": "現金及び現金同等物...1,543,300",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "2. Going-concern assessment",
+        "displayText": "2. Going-concern assessment",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- The filing contains no statement indicating doubt about going concern; management presents ongoing strategic initiatives and financial targets (ref: \"中期経営計画「Vision 2025」を策定し、...2025年３月期までに連結営業収益5,000億円以上を目指す。\").",
+        "displayText": "• The filing contains no statement indicating doubt about going concern; management presents ongoing strategic initiatives and financial targets.",
+        "citations": [
+          {
+            "span": "中期経営計画「Vision 2025」を策定し、...2025年３月期までに連結営業収益5,000億円以上を目指す。",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Therefore: not disclosed any going-concern qualification (ref: absence).",
+        "displayText": "• Therefore: not disclosed any going-concern qualification.",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "3. Accrual quality (DSO change, inventory days, receivables aging)",
+        "displayText": "3. Accrual quality (DSO change, inventory days, receivables aging)",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- Receivables: trade receivables (売掛金) declined from ¥1,630,523 million to ¥1,863,824 million (ref: \"売掛金...1,630,523 → 1,863,824\"), implying an increase in accounts receivable (cash flow movement shows decrease in sales collection).",
+        "displayText": "• Receivables: trade receivables (売掛金) declined from ¥1,630,523 million to ¥1,863,824 million, implying an increase in accounts receivable (cash flow movement shows decrease in sales collection).",
+        "citations": [
+          {
+            "span": "売掛金...1,630,523 → 1,863,824",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- DSO: not directly disclosed; aging schedule not provided (ref: not disclosed).",
+        "displayText": "• DSO: not directly disclosed; aging schedule not provided.",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- Inventory: inventories (棚卸資産) were essentially unchanged at ¥1,005,810 million (ref: \"棚卸資産...1,005,810\").",
+        "displayText": "• Inventory: inventories (棚卸資産) were essentially unchanged at ¥1,005,810 million.",
+        "citations": [
+          {
+            "span": "棚卸資産...1,005,810",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Allowance for doubtful accounts moved from △¥10,148 million to △¥21,837 million (increase), suggesting higher provisioning (ref: \"貸倒引当金...△10,148 → △21,837\").",
+        "displayText": "• Allowance for doubtful accounts moved from △¥10,148 million to △¥21,837 million (increase), suggesting higher provisioning.",
+        "citations": [
+          {
+            "span": "貸倒引当金...△10,148 → △21,837",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Conclusion on accruals: receivables grew materially while allowance increased; detailed aging or explicit DSO metrics not disclosed (ref: not disclosed).",
+        "displayText": "• Conclusion on accruals: receivables grew materially while allowance increased; detailed aging or explicit DSO metrics not disclosed.",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "4. Earnings direction call (up / down / flat) with reasoning",
+        "displayText": "4. Earnings direction call (up / down / flat) with reasoning",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- Call: Up (near-term).",
+        "displayText": "• Call: Up (near-term).",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- Reasoning: Revenue increased by ¥1,207,049 million to ¥5,723,555 million and operating profit improved to ¥443,526 million (ref: \"経常収益...5,723,555\"; \"経常利益...443,526\"). Management targets consolidated revenue of ¥5,000 billion by FY2025 (ref: \"連結営業収益5,000億円以上を目指す。\").",
+        "displayText": "• Reasoning: Revenue increased by ¥1,207,049 million to ¥5,723,555 million and operating profit improved to ¥443,526 million. Management targets consolidated revenue of ¥5,000 billion by FY2025.",
+        "citations": [
+          {
+            "span": "経常収益...5,723,555",
+            "section": "",
+            "pageRef": ""
+          },
+          {
+            "span": "経常利益...443,526",
+            "section": "",
+            "pageRef": ""
+          },
+          {
+            "span": "連結営業収益5,000億円以上を目指す。",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Offsetting factors: interest expense rose modestly (支払利息 up to ¥12,530 million) and investment losses (持分法による投資損失) increased to ¥20,258 million (ref: \"支払利息...12,530\"; \"持分法による投資損失...20,258\").",
+        "displayText": "• Offsetting factors: interest expense rose modestly (支払利息 up to ¥12,530 million) and investment losses (持分法による投資損失) increased to ¥20,258 million.",
+        "citations": [
+          {
+            "span": "支払利息...12,530",
+            "section": "",
+            "pageRef": ""
+          },
+          {
+            "span": "持分法による投資損失...20,258",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Overall, earnings appear to be trending upward but specific guidance for next period is not provided (ref: not disclosed).",
+        "displayText": "• Overall, earnings appear to be trending upward but specific guidance for next period is not provided.",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "5. Top 3 risks cited from 事業等のリスク",
+        "displayText": "5. Top 3 risks cited from 事業等のリスク",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- Risk 1: Market risk (interest-rate, FX, credit, commodity price): changes could affect asset/liability valuation and trading/investment performance (ref: \"市場リスク...金利・為替レート・信用・商品市況等の変動により...影響を及ぼす可能性があります。\").",
+        "displayText": "• Risk 1: Market risk (interest-rate, FX, credit, commodity price): changes could affect asset/liability valuation and trading/investment performance.",
+        "citations": [
+          {
+            "span": "市場リスク...金利・為替レート・信用・商品市況等の変動により...影響を及ぼす可能性があります。",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Risk 2: Liquidity/financial-market disruption: inability to raise funds may impair operations (ref: \"流動性リスク...資金調達が困難になることにより...影響を及ぼす可能性があります。\").",
+        "displayText": "• Risk 2: Liquidity/financial-market disruption: inability to raise funds may impair operations.",
+        "citations": [
+          {
+            "span": "流動性リスク...資金調達が困難になることにより...影響を及ぼす可能性があります。",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Risk 3: Regulatory/legal/regulatory compliance: potential fines, restrictions, or reputational damage from regulatory actions (ref: \"規制リスク...行政処分や訴訟等により...影響を及ぼす可能性があります。\").",
+        "displayText": "• Risk 3: Regulatory/legal/regulatory compliance: potential fines, restrictions, or reputational damage from regulatory actions.",
+        "citations": [
+          {
+            "span": "規制リスク...行政処分や訴訟等により...影響を及ぼす可能性があります。",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "6. Related-party transactions summary (from 関連当事者との取引)",
+        "displayText": "6. Related-party transactions summary (from 関連当事者との取引)",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- Major related companies include SBI新生銀行 (議決権所有割合 46.5%) and SBIインベストメント (同 50.0%), both of which receive services and have intercompany loans (ref: \"関係会社の状況...SBI新生銀行...役員の兼任あり...資金の借入あり\"; \"SBIインベストメント...役員の兼任あり...資金の借入あり\").",
+        "displayText": "• Major related companies include SBI新生銀行 (議決権所有割合 46.5%) and SBIインベストメント (同 50.0%), both of which receive services and have intercompany loans.",
+        "citations": [
+          {
+            "span": "関係会社の状況...SBI新生銀行...役員の兼任あり...資金の借入あり",
+            "section": "",
+            "pageRef": ""
+          },
+          {
+            "span": "SBIインベストメント...役員の兼任あり...資金の借入あり",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Other related parties include several subsidiaries that provide services and hold shares (e.g., SBI証券, SBIリクイディティ, SBIネオモバイル証券) (ref: \"関係会社の状況...SBI証券...役員の兼任あり...資金の借入あり\"; \"SBIリクイディティ...役員の兼任あり...資金の借入あり\"; \"SBIネオモバイル証券...役員の兼任あり...資金の借入あり\").",
+        "displayText": "• Other related parties include several subsidiaries that provide services and hold shares (e.g., SBI証券, SBIリクイディティ, SBIネオモバイル証券).",
+        "citations": [
+          {
+            "span": "関係会社の状況...SBI証券...役員の兼任あり...資金の借入あり",
+            "section": "",
+            "pageRef": ""
+          },
+          {
+            "span": "SBIリクイディティ...役員の兼任あり...資金の借入あり",
+            "section": "",
+            "pageRef": ""
+          },
+          {
+            "span": "SBIネオモバイル証券...役員の兼任あり...資金の借入あり",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Specific amounts of related-party balances or transfers are not separately itemized in the provided extracts (ref: not disclosed).",
+        "displayText": "• Specific amounts of related-party balances or transfers are not separately itemized in the provided extracts.",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "7. Evidence appendix — bulleted citations of Japanese spans with English translations",
+        "displayText": "7. Evidence appendix — bulleted citations of Japanese spans with English translations",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- \"経常収益...5,723,555\" (ref: \"経常収益...5,723,555\").",
+        "displayText": "• \"経常収益...5,723,555\".",
+        "citations": [
+          {
+            "span": "経常収益...5,723,555",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"経常利益...443,526\" (ref: \"経常利益...443,526\").",
+        "displayText": "• \"経常利益...443,526\".",
+        "citations": [
+          {
+            "span": "経常利益...443,526",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"親会社株主に帰属する当期純利益...327,222\" (ref: \"親会社株主に帰属する当期純利益...327,222\").",
+        "displayText": "• \"親会社株主に帰属する当期純利益...327,222\".",
+        "citations": [
+          {
+            "span": "親会社株主に帰属する当期純利益...327,222",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"総資産...18,620,750\" (ref: \"総資産...18,620,750\").",
+        "displayText": "• \"総資産...18,620,750\".",
+        "citations": [
+          {
+            "span": "総資産...18,620,750",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"株主資本合計...3,466,588\" (ref: \"株主資本合計...3,466,588\").",
+        "displayText": "• \"株主資本合計...3,466,588\".",
+        "citations": [
+          {
+            "span": "株主資本合計...3,466,588",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"現金及び現金同等物...1,543,300\" (ref: \"現金及び現金同等物...1,543,300\").",
+        "displayText": "• \"現金及び現金同等物...1,543,300\".",
+        "citations": [
+          {
+            "span": "現金及び現金同等物...1,543,300",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"売掛金...1,630,523 → 1,863,824\" (ref: \"売掛金...1,630,523 → 1,863,824\").",
+        "displayText": "• \"売掛金...1,630,523 → 1,863,824\".",
+        "citations": [
+          {
+            "span": "売掛金...1,630,523 → 1,863,824",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"貸倒引当金...△10,148 → △21,837\" (ref: \"貸倒引当金...△10,148 → △21,837\").",
+        "displayText": "• \"貸倒引当金...△10,148 → △21,837\".",
+        "citations": [
+          {
+            "span": "貸倒引当金...△10,148 → △21,837",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"中期経営計画「Vision 2025」を策定し、...2025年３月期までに連結営業収益5,000億円以上を目指す。\" (ref: \"中期経営計画「Vision 2025」を策定し、...2025年３月期までに連結営業収益5,000億円以上を目指す。\").",
+        "displayText": "• \"中期経営計画「Vision 2025」を策定し、...2025年３月期までに連結営業収益5,000億円以上を目指す。\".",
+        "citations": [
+          {
+            "span": "中期経営計画「Vision 2025」を策定し、...2025年３月期までに連結営業収益5,000億円以上を目指す。",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"市場リスク...金利・為替レート・信用・商品市況等の変動により...影響を及ぼす可能性があります。\" (ref: \"市場リスク...金利・為替レート・信用・商品市況等の変動により...影響を及ぼす可能性があります。\").",
+        "displayText": "• \"市場リスク...金利・為替レート・信用・商品市況等の変動により...影響を及ぼす可能性があります。\".",
+        "citations": [
+          {
+            "span": "市場リスク...金利・為替レート・信用・商品市況等の変動により...影響を及ぼす可能性があります。",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"流動性リスク...資金調達が困難になることにより...影響を及ぼす可能性があります。\" (ref: \"流動性リスク...資金調達が困難になることにより...影響を及ぼす可能性があります。\").",
+        "displayText": "• \"流動性リスク...資金調達が困難になることにより...影響を及ぼす可能性があります。\".",
+        "citations": [
+          {
+            "span": "流動性リスク...資金調達が困難になることにより...影響を及ぼす可能性があります。",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"規制リスク...行政処分や訴訟等により...影響を及ぼす可能性があります。\" (ref: \"規制リスク...行政処分や訴訟等により...影響を及ぼす可能性があります。\").",
+        "displayText": "• \"規制リスク...行政処分や訴訟等により...影響を及ぼす可能性があります。\".",
+        "citations": [
+          {
+            "span": "規制リスク...行政処分や訴訟等により...影響を及ぼす可能性があります。",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"関係会社の状況...SBI新生銀行...役員の兼任あり...資金の借入あり\" (ref: \"関係会社の状況...SBI新生銀行...役員の兼任あり...資金の借入あり\").",
+        "displayText": "• \"関係会社の状況...SBI新生銀行...役員の兼任あり...資金の借入あり\".",
+        "citations": [
+          {
+            "span": "関係会社の状況...SBI新生銀行...役員の兼任あり...資金の借入あり",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"SBIインベストメント...役員の兼任あり...資金の借入あり\" (ref: \"関係会社の状況...SBIインベストメント...役員の兼任あり...資金の借入あり\").",
+        "displayText": "• \"SBIインベストメント...役員の兼任あり...資金の借入あり\".",
+        "citations": [
+          {
+            "span": "関係会社の状況...SBIインベストメント...役員の兼任あり...資金の借入あり",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"SBI証券...役員の兼任あり...資金の借入あり\" (ref: \"関係会社の状況...SBI証券...役員の兼任あり...資金の借入あり\").",
+        "displayText": "• \"SBI証券...役員の兼任あり...資金の借入あり\".",
+        "citations": [
+          {
+            "span": "関係会社の状況...SBI証券...役員の兼任あり...資金の借入あり",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"SBIリクイディティ...役員の兼任あり...資金の借入あり\" (ref: \"関係会社の状況...SBIリクイディティ...役員の兼任あり...資金の借入あり\").",
+        "displayText": "• \"SBIリクイディティ...役員の兼任あり...資金の借入あり\".",
+        "citations": [
+          {
+            "span": "関係会社の状況...SBIリクイディティ...役員の兼任あり...資金の借入あり",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"SBIネオモバイル証券...役員の兼任あり...資金の借入あり\" (ref: \"関係会社の状況...SBIネオモバイル証券...役員の兼任あり...資金の借入あり\").",
+        "displayText": "• \"SBIネオモバイル証券...役員の兼任あり...資金の借入あり\".",
+        "citations": [
+          {
+            "span": "関係会社の状況...SBIネオモバイル証券...役員の兼任あり...資金の借入あり",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "Note: All numerical values are presented as yen millions unless otherwise indicated (ref: numeric units in the table above). Any additional detail requested would require further investigation into the full disclosure.",
+        "displayText": "Note: All numerical values are presented as yen millions unless otherwise indicated. Any additional detail requested would require further investigation into the full disclosure.",
+        "citations": [],
+        "refused": false
+      }
+    ],
+    "jpSourceExcerpt": "中期経営計画「Vision 2025」を策定し、...2025年３月期までに連結営業収益5,000億円以上を目指す。。 市場リスク...金利・為替レート・信用・商品市況等の変動により...影響を及ぼす可能性があります。。 流動性リスク...資金調達が困難になることにより...影響を及ぼす可能性があります。。 関係会社の状況...SBIインベストメント...役員の兼任あり...資金の借入あり"
+  },
+  {
+    "customId": "fraud_detection-00580",
+    "jpName": "株式会社リソー教育",
+    "enName": "Riso Education",
+    "chipLabel": "リソ",
+    "subset": "fraud_detection",
+    "displayLabel": "EDINET Row 00580 · Fraud Detection",
+    "coherence": 3,
+    "memo": [
+      {
+        "text": "1. Executive summary",
+        "displayText": "1. Executive summary",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- Riso Education Co., Ltd. (株式会社リソー教育, 証券コード 47140) reported consolidated revenue of ¥12,364,635 thousand and operating profit of ¥1,015,462 thousand for the year ended Feb 28, 2021 (ref: \"売上高...12,364,635千円\" p.―; \"営業利益...1,015,462千円\" p.―).",
+        "displayText": "• Riso Education Co., Ltd. (株式会社リソー教育, 証券コード 47140) reported consolidated revenue of ¥12,364,635 thousand and operating profit of ¥1,015,462 thousand for the year ended Feb 28, 2021.",
+        "citations": [
+          {
+            "span": "売上高...12,364,635千円",
+            "section": "",
+            "pageRef": "―"
+          },
+          {
+            "span": "営業利益...1,015,462千円",
+            "section": "",
+            "pageRef": "―"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Net income attributable to parent was ¥591,856 thousand (parent net income), up from ¥481,375 thousand prior year (ref: \"親会社株主に帰属する当期純利益...591,856千円\" p.―).",
+        "displayText": "• Net income attributable to parent was ¥591,856 thousand (parent net income), up from ¥481,375 thousand prior year.",
+        "citations": [
+          {
+            "span": "親会社株主に帰属する当期純利益...591,856千円",
+            "section": "",
+            "pageRef": "―"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Balance sheet shows total assets of ¥12,916,052 thousand and shareholders’ equity of ¥7,436,563 thousand at period-end (ref: \"総資産...12,916,052千円\" p.―; \"株主資本...7,436,563千円\" p.―).",
+        "displayText": "• Balance sheet shows total assets of ¥12,916,052 thousand and shareholders’ equity of ¥7,436,563 thousand at period-end.",
+        "citations": [
+          {
+            "span": "総資産...12,916,052千円",
+            "section": "",
+            "pageRef": "―"
+          },
+          {
+            "span": "株主資本...7,436,563千円",
+            "section": "",
+            "pageRef": "―"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Cash flow highlights: operating cash flow improved to ¥1,045,762 thousand while investing cash outflow increased to ¥1,022,597 thousand due mainly to acquisitions (ref: \"営業キャッシュフロー...1,045,762千円\" p.―; \"投資キャッシュフロー...△1,022,597千円\" p.―).",
+        "displayText": "• Cash flow highlights: operating cash flow improved to ¥1,045,762 thousand while investing cash outflow increased to ¥1,022,597 thousand due mainly to acquisitions.",
+        "citations": [
+          {
+            "span": "営業キャッシュフロー...1,045,762千円",
+            "section": "",
+            "pageRef": "―"
+          },
+          {
+            "span": "投資キャッシュフロー...△1,022,597千円",
+            "section": "",
+            "pageRef": "―"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "2. Going-concern assessment",
+        "displayText": "2. Going-concern assessment",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- Management states no going-concern qualification or explicit going-concern doubt in provided text; therefore not disclosed any going-concern issues (ref: entire filing contains no explicit going-concern note) (not disclosed).",
+        "displayText": "• Management states no going-concern qualification or explicit going-concern doubt in provided text; therefore not disclosed any going-concern issues (not disclosed).",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "3. Accrual quality",
+        "displayText": "3. Accrual quality",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- DSO / Receivables: Accounts receivable (売掛金) decreased slightly from ¥1,715,925 thousand to ¥1,664,760 thousand (ref: \"売掛金...1,664,760千円\" p.― vs prior-year \"1,715,925千円\" p.―). Change indicates modest collection progress but absolute level remains large relative to sales (~13.5% of sales) (ref: \"売上高...12,364,635千円\" p.―).",
+        "displayText": "• DSO / Receivables: Accounts receivable (売掛金) decreased slightly from ¥1,715,925 thousand to ¥1,664,760 thousand. Change indicates modest collection progress but absolute level remains large relative to sales (~13.5% of sales).",
+        "citations": [
+          {
+            "span": "売掛金...1,664,760千円",
+            "section": "",
+            "pageRef": ""
+          },
+          {
+            "span": "1,715,925千円",
+            "section": "",
+            "pageRef": "―"
+          },
+          {
+            "span": "売上高...12,364,635千円",
+            "section": "",
+            "pageRef": "―"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Inventory days: Inventories (商品及び製品 + 原材料及び貯蔵品) rose from combined totals of ¥1,014,302 thousand to ¥1,074,479 thousand (ref: \"商品及び製品...1,014,302千円\" p.―; \"原材料及び貯蔵品...70,177千円\" p.―). This suggests higher working capital tied to growth (ref: \"棚卸資産...1,084,479千円\" p.―).",
+        "displayText": "• Inventory days: Inventories (商品及び製品 + 原材料及び貯蔵品) rose from combined totals of ¥1,014,302 thousand to ¥1,074,479 thousand. This suggests higher working capital tied to growth.",
+        "citations": [
+          {
+            "span": "商品及び製品...1,014,302千円",
+            "section": "",
+            "pageRef": "―"
+          },
+          {
+            "span": "原材料及び貯蔵品...70,177千円",
+            "section": "",
+            "pageRef": "―"
+          },
+          {
+            "span": "棚卸資産...1,084,479千円",
+            "section": "",
+            "pageRef": "―"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Receivables aging detail: Not disclosed (not disclosed).",
+        "displayText": "• Receivables aging detail: Not disclosed (not disclosed).",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- Allowance for doubtful accounts: allowance decreased from -¥1,236 thousand to -¥1,036 thousand (ref: \"貸倒引当金...-1,036千円\" p.―). Small negative balance implies minimal credit risk (ref: same line).",
+        "displayText": "• Allowance for doubtful accounts: allowance decreased from -¥1,236 thousand to -¥1,036 thousand. Small negative balance implies minimal credit risk.",
+        "citations": [
+          {
+            "span": "貸倒引当金...-1,036千円",
+            "section": "",
+            "pageRef": "―"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Overall accruals signal: Operating cash conversion strengthened materially (operating CF positive ¥1,045,762 thousand) despite investment cash outflows (ref: \"営業キャッシュフロー...1,045,762千円\" p.―; \"投資キャッシュフロー...△1,022,597千円\" p.―). However, inventories increased and receivables remained high relative to sales (ref: above lines).",
+        "displayText": "• Overall accruals signal: Operating cash conversion strengthened materially (operating CF positive ¥1,045,762 thousand) despite investment cash outflows. However, inventories increased and receivables remained high relative to sales.",
+        "citations": [
+          {
+            "span": "営業キャッシュフロー...1,045,762千円",
+            "section": "",
+            "pageRef": "―"
+          },
+          {
+            "span": "投資キャッシュフロー...△1,022,597千円",
+            "section": "",
+            "pageRef": "―"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "4. Earnings direction call",
+        "displayText": "4. Earnings direction call",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- Call: Flat-to-up (near term). Reasoning: Revenue grew ~10.1% YoY to ¥12,364,635 thousand and operating profit increased to ¥1,015,462 thousand, indicating continued core operations strength (ref: \"売上高...12,364,635千円\" p.―; \"営業利益...1,015,462千円\" p.―). However, management also reports strategic investments including M&A and expansion plans that could pressure near-term profitability (ref: \"M&Aや新規事業への積極的な取り組み\" p.―). Given these factors, expect earnings to remain broadly stable absent further deterioration in demand or execution on investments (ref: same).",
+        "displayText": "• Call: Flat-to-up (near term). Reasoning: Revenue grew ~10.1% YoY to ¥12,364,635 thousand and operating profit increased to ¥1,015,462 thousand, indicating continued core operations strength. However, management also reports strategic investments including M&A and expansion plans that could pressure near-term profitability. Given these factors, expect earnings to remain broadly stable absent further deterioration in demand or execution on investments.",
+        "citations": [
+          {
+            "span": "売上高...12,364,635千円",
+            "section": "",
+            "pageRef": "―"
+          },
+          {
+            "span": "営業利益...1,015,462千円",
+            "section": "",
+            "pageRef": "―"
+          },
+          {
+            "span": "M&Aや新規事業への積極的な取り組み",
+            "section": "",
+            "pageRef": "―"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "5. Top 3 risks cited from 事業等のリスク",
+        "displayText": "5. Top 3 risks cited from 事業等のリスク",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- Risk 1: Competition and market changes in education services industry (ref: \"少子化の進行や他塾・予備校との競争激化\" p.―).",
+        "displayText": "• Risk 1: Competition and market changes in education services industry.",
+        "citations": [
+          {
+            "span": "少子化の進行や他塾・予備校との競争激化",
+            "section": "",
+            "pageRef": "―"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Risk 2: Dependence on key personnel (ref: \"特定の人物への依存度が高いこと\" p.―).",
+        "displayText": "• Risk 2: Dependence on key personnel.",
+        "citations": [
+          {
+            "span": "特定の人物への依存度が高いこと",
+            "section": "",
+            "pageRef": "―"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Risk 3: Information security incidents (ref: \"個人情報漏洩等の事故発生\" p.―).",
+        "displayText": "• Risk 3: Information security incidents.",
+        "citations": [
+          {
+            "span": "個人情報漏洩等の事故発生",
+            "section": "",
+            "pageRef": "―"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "6. Related-party transactions summary (from 関連当事者との取引)",
+        "displayText": "6. Related-party transactions summary (from 関連当事者との取引)",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- The company discloses related companies and intercompany relationships: TOSHIKAI Co., TOMAS Co., etc. (ref: \"株式会社トシカイ...株式会社ＴＯＭＡＳ...株式会社スクールＴＯＭＡＳ\" p.―).",
+        "displayText": "• The company discloses related companies and intercompany relationships: TOSHIKAI Co., TOMAS Co., etc..",
+        "citations": [
+          {
+            "span": "株式会社トシカイ...株式会社ＴＯＭＡＳ...株式会社スクールＴＯＭＡＳ",
+            "section": "",
+            "pageRef": "―"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Specific transactional amounts with related parties: not disclosed (no detailed related-party transaction table in provided extracts) (not disclosed).",
+        "displayText": "• Specific transactional amounts with related parties: not disclosed (no detailed related-party transaction table in provided extracts) (not disclosed).",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "7. Evidence appendix — bulleted citations of Japanese spans with English translations",
+        "displayText": "7. Evidence appendix — bulleted citations of Japanese spans with English translations",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- \"売上高...12,364,635千円\" (p.―): \"Revenue: ¥12,364,635 thousand.\" (ref: \"売上高...12,364,635千円\" p.―)",
+        "displayText": "• \"売上高...12,364,635千円\" (p.―): \"Revenue: ¥12,364,635 thousand.\"",
+        "citations": [
+          {
+            "span": "売上高...12,364,635千円",
+            "section": "",
+            "pageRef": "―"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"営業利益...1,015,462千円\" (p.―): \"Operating profit: ¥1,015,462 thousand.\" (ref: \"営業利益...1,015,462千円\" p.―)",
+        "displayText": "• \"営業利益...1,015,462千円\" (p.―): \"Operating profit: ¥1,015,462 thousand.\"",
+        "citations": [
+          {
+            "span": "営業利益...1,015,462千円",
+            "section": "",
+            "pageRef": "―"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"親会社株主に帰属する当期純利益...591,856千円\" (p.―): \"Net income attributable to parent: ¥591,856 thousand.\" (ref: \"親会社株主に帰属する当期純利益...591,856千円\" p.―)",
+        "displayText": "• \"親会社株主に帰属する当期純利益...591,856千円\" (p.―): \"Net income attributable to parent: ¥591,856 thousand.\"",
+        "citations": [
+          {
+            "span": "親会社株主に帰属する当期純利益...591,856千円",
+            "section": "",
+            "pageRef": "―"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"総資産...12,916,052千円\" (p.―): \"Total assets: ¥12,916,052 thousand.\" (ref: \"総資産...12,916,052千円\" p.―)",
+        "displayText": "• \"総資産...12,916,052千円\" (p.―): \"Total assets: ¥12,916,052 thousand.\"",
+        "citations": [
+          {
+            "span": "総資産...12,916,052千円",
+            "section": "",
+            "pageRef": "―"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"株主資本...7,436,563千円\" (p.―): \"Shareholders' equity: ¥7,436,563 thousand.\" (ref: \"株主資本...7,436,563千円\" p.―)",
+        "displayText": "• \"株主資本...7,436,563千円\" (p.―): \"Shareholders' equity: ¥7,436,563 thousand.\"",
+        "citations": [
+          {
+            "span": "株主資本...7,436,563千円",
+            "section": "",
+            "pageRef": "―"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"売掛金...1,664,760千円\" (p.―): \"Accounts receivable: ¥1,664,760 thousand.\" (ref: \"売掛金...1,664,760千円\" p.―)",
+        "displayText": "• \"売掛金...1,664,760千円\" (p.―): \"Accounts receivable: ¥1,664,760 thousand.\"",
+        "citations": [
+          {
+            "span": "売掛金...1,664,760千円",
+            "section": "",
+            "pageRef": "―"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"商品及び製品...1,014,302千円\" (p.―): \"Merchandise & finished goods: ¥1,014,302 thousand.\" (ref: \"商品及び製品...1,014,302千円\" p.―)",
+        "displayText": "• \"商品及び製品...1,014,302千円\" (p.―): \"Merchandise & finished goods: ¥1,014,302 thousand.\"",
+        "citations": [
+          {
+            "span": "商品及び製品...1,014,302千円",
+            "section": "",
+            "pageRef": "―"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"原材料及び貯蔵品...70,177千円\" (p.―): \"Raw materials & supplies: ¥70,177 thousand.\" (ref: \"原材料及び貯蔵品...70,177千円\" p.―)",
+        "displayText": "• \"原材料及び貯蔵品...70,177千円\" (p.―): \"Raw materials & supplies: ¥70,177 thousand.\"",
+        "citations": [
+          {
+            "span": "原材料及び貯蔵品...70,177千円",
+            "section": "",
+            "pageRef": "―"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"貸倒引当金...-1,036千円\" (p.―): \"Allowance for doubtful accounts: -¥1,036 thousand.\" (ref: \"貸倒引当金...-1,036千円\" p.―)",
+        "displayText": "• \"貸倒引当金...-1,036千円\" (p.―): \"Allowance for doubtful accounts: -¥1,036 thousand.\"",
+        "citations": [
+          {
+            "span": "貸倒引当金...-1,036千円",
+            "section": "",
+            "pageRef": "―"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"営業キャッシュフロー...1,045,762千円\" (p.―): \"Operating cash flow: ¥1,045,762 thousand.\" (ref: \"営業キャッシュフロー...1,045,762千円\" p.―)",
+        "displayText": "• \"営業キャッシュフロー...1,045,762千円\" (p.―): \"Operating cash flow: ¥1,045,762 thousand.\"",
+        "citations": [
+          {
+            "span": "営業キャッシュフロー...1,045,762千円",
+            "section": "",
+            "pageRef": "―"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"投資キャッシュフロー...△1,022,597千円\" (p.―): \"Investing cash flow: △¥1,022,597 thousand.\" (ref: \"投資キャッシュフロー...△1,022,597千円\" p.―)",
+        "displayText": "• \"投資キャッシュフロー...△1,022,597千円\" (p.―): \"Investing cash flow: △¥1,022,597 thousand.\"",
+        "citations": [
+          {
+            "span": "投資キャッシュフロー...△1,022,597千円",
+            "section": "",
+            "pageRef": "―"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"少子化の進行や他塾・予備校との競争激化\" (p.―): \"Declining birthrate and intensified competition among other cram schools/prep schools.\" (ref: \"少子化の進行や他塾・予備校との競争激化\" p.―)",
+        "displayText": "• \"少子化の進行や他塾・予備校との競争激化\" (p.―): \"Declining birthrate and intensified competition among other cram schools/prep schools.\"",
+        "citations": [
+          {
+            "span": "少子化の進行や他塾・予備校との競争激化",
+            "section": "",
+            "pageRef": "―"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"特定の人物への依存度が高いこと\" (p.―): \"High dependence on specific individuals.\" (ref: \"特定の人物への依存度が高いこと\" p.―)",
+        "displayText": "• \"特定の人物への依存度が高いこと\" (p.―): \"High dependence on specific individuals.\"",
+        "citations": [
+          {
+            "span": "特定の人物への依存度が高いこと",
+            "section": "",
+            "pageRef": "―"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"個人情報漏洩等の事故発生\" (p.―): \"Accident such as leakage of personal information.\" (ref: \"個人情報漏洩等の事故発生\" p.―)",
+        "displayText": "• \"個人情報漏洩等の事故発生\" (p.―): \"Accident such as leakage of personal information.\"",
+        "citations": [
+          {
+            "span": "個人情報漏洩等の事故発生",
+            "section": "",
+            "pageRef": "―"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "Note: All numerical values are presented in thousands of yen per the provided extract. If additional data is required, please specify which items you need and I will update the response accordingly.",
+        "displayText": "Note: All numerical values are presented in thousands of yen per the provided extract. If additional data is required, please specify which items you need and I will update the response accordingly.",
+        "citations": [],
+        "refused": false
+      }
+    ],
+    "jpSourceExcerpt": "親会社株主に帰属する当期純利益...591,856千円。 営業キャッシュフロー...1,045,762千円"
+  },
+  {
+    "customId": "REFUSE.X",
+    "jpName": "当社グループ",
+    "enName": "",
+    "chipLabel": "当社グル",
+    "subset": "industry_prediction_v2",
+    "displayLabel": "EDINET Row REFUSE.X · Industry Prediction",
+    "coherence": 2,
+    "memo": [
+      {
+        "text": "Executive summary",
+        "displayText": "Executive summary",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- Material risk: The company reports that it faces significant competition for qualified staff across all service lines, which could limit its ability to expand or maintain operations (ref: \"有資格者の確保について...同業他社及び医療機関等と雇用関係で継続的に競合しているため、今後有資格者の確保が思うように進まない場合、当社グループの事業の維持、拡大に影響を与える可能性があります.\" p. \"事業等のリスク\").",
+        "displayText": "• Material risk: The company reports that it faces significant competition for qualified staff across all service lines, which could limit its ability to expand or maintain operations.",
+        "citations": [
+          {
+            "span": "有資格者の確保について...同業他社及び医療機関等と雇用関係で継続的に競合しているため、今後有資格者の確保が思うように進まない場合、当社グループの事業の維持、拡大に影響を与える可能性があります.",
+            "section": "",
+            "pageRef": "事業等のリスク"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Revenue mix: The group derives over half of revenue from home care services (訪問介護、訪問入浴介護、居宅介護支援、訪問看護), followed by residential care (認知症対応型共同生活介護（グループホーム）) and short-stay (短期入所生活介護（ショートステイ）) (ref: \"訪問介護、訪問入浴介護、居宅介護支援、訪問看護、認知症対応型共同生活介護（グループホーム）、短期入所生活介護（ショートステイ）\" p. \"事業の内容\").",
+        "displayText": "• Revenue mix: The group derives over half of revenue from home care services (訪問介護、訪問入浴介護、居宅介護支援、訪問看護), followed by residential care (認知症対応型共同生活介護（グループホーム）) and short-stay (短期入所生活介護（ショートステイ）).",
+        "citations": [
+          {
+            "span": "訪問介護、訪問入浴介護、居宅介護支援、訪問看護、認知症対応型共同生活介護（グループホーム）、短期入所生活介護（ショートステイ）",
+            "section": "",
+            "pageRef": "事業の内容"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Profitability: Operating profit declined materially year-on-year to ¥890 million from ¥1,340 million prior year (ref: \"営業利益 ... 前期比△45.0％の890百万円\" p. \"業績等の概要\").",
+        "displayText": "• Profitability: Operating profit declined materially year-on-year to ¥890 million from ¥1,340 million prior year.",
+        "citations": [
+          {
+            "span": "営業利益 ... 前期比△45.0％の890百万円",
+            "section": "",
+            "pageRef": "業績等の概要"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Balance-sheet highlights: Total assets increased modestly to ¥10,229 million while net debt rose to ¥1,711 million (ref: \"総資産 ... 10,229百万円\" and \"負債 ... 1,711百万円\" p. \"財政状態、経営成績及びキャッシュ・フローの状況の分析\").",
+        "displayText": "• Balance-sheet highlights: Total assets increased modestly to ¥10,229 million while net debt rose to ¥1,711 million.",
+        "citations": [
+          {
+            "span": "総資産 ... 10,229百万円",
+            "section": "",
+            "pageRef": ""
+          },
+          {
+            "span": "負債 ... 1,711百万円",
+            "section": "",
+            "pageRef": "財政状態、経営成績及びキャッシュ・フローの状況の分析"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Cash flow: Free cash flow was negative ¥1,003 million driven by working-capital movements (ref: \"営業キャッシュフロー ... △1,003百万円\" p. \"財政状態、経営成績及びキャッシュ・フローの状況の分析\").",
+        "displayText": "• Cash flow: Free cash flow was negative ¥1,003 million driven by working-capital movements.",
+        "citations": [
+          {
+            "span": "営業キャッシュフロー ... △1,003百万円",
+            "section": "",
+            "pageRef": "財政状態、経営成績及びキャッシュ・フローの状況の分析"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "Going-concern assessment",
+        "displayText": "Going-concern assessment",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- Management states no going-concern qualification but notes that COVID-19-related events have affected results and liquidity (ref: \"新型コロナウイルス感染症の影響...当社グループの資金繰りに大きな影響を与えた\" p. \"業績等の概要\").",
+        "displayText": "• Management states no going-concern qualification but notes that COVID-19-related events have affected results and liquidity.",
+        "citations": [
+          {
+            "span": "新型コロナウイルス感染症の影響...当社グループの資金繰りに大きな影響を与えた",
+            "section": "",
+            "pageRef": "業績等の概要"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Liquidity: Short-term borrowings increased to ¥1,000 million and total liabilities rose to ¥1,711 million, indicating reliance on bank financing (ref: \"短期借入金 ... 1,000百万円\" and \"負債 ... 1,711百万円\" p. \"財政状態、経営成績及びキャッシュ・フローの状況の分析\").",
+        "displayText": "• Liquidity: Short-term borrowings increased to ¥1,000 million and total liabilities rose to ¥1,711 million, indicating reliance on bank financing.",
+        "citations": [
+          {
+            "span": "短期借入金 ... 1,000百万円",
+            "section": "",
+            "pageRef": ""
+          },
+          {
+            "span": "負債 ... 1,711百万円",
+            "section": "",
+            "pageRef": "財政状態、経営成績及びキャッシュ・フローの状況の分析"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Conclusion: No explicit going-concern doubt disclosed; however, management acknowledges operational constraints due to staffing shortages and COVID-19 impacts (ref: same citations).",
+        "displayText": "• Conclusion: No explicit going-concern doubt disclosed; however, management acknowledges operational constraints due to staffing shortages and COVID-19 impacts.",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "Accrual quality",
+        "displayText": "Accrual quality",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- DSO / Receivables: Accounts receivable (売掛金) decreased slightly from ¥1,184 million to ¥1,162 million (ref: \"売掛金 ... 1,162百万円\" p. \"P&L\"). Change in trade receivables = -¥22m (ref: \"売上債権の増減額 ... -22百万円\" p. \"CF\"). Inventory days not disclosed.",
+        "displayText": "• DSO / Receivables: Accounts receivable (売掛金) decreased slightly from ¥1,184 million to ¥1,162 million. Change in trade receivables = -¥22m. Inventory days not disclosed.",
+        "citations": [
+          {
+            "span": "売掛金 ... 1,162百万円",
+            "section": "",
+            "pageRef": "P&L"
+          },
+          {
+            "span": "売上債権の増減額 ... -22百万円",
+            "section": "",
+            "pageRef": "CF"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Receivables aging: Not provided in the filing.",
+        "displayText": "• Receivables aging: Not provided in the filing.",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- Allowance for doubtful accounts: Current allowance unchanged at ¥1 million (ref: \"貸倒引当金 ... 1百万円\" p. \"B/S\").",
+        "displayText": "• Allowance for doubtful accounts: Current allowance unchanged at ¥1 million.",
+        "citations": [
+          {
+            "span": "貸倒引当金 ... 1百万円",
+            "section": "",
+            "pageRef": "B/S"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- Working capital movement: Cash outflow from changes in inventories and receivables contributed to negative operating cash flow (ref: \"棚卸資産の増減額 ... -100百万円\", \"売上債権の増減額 ... -22百万円\" p. \"CF\").",
+        "displayText": "• Working capital movement: Cash outflow from changes in inventories and receivables contributed to negative operating cash flow.",
+        "citations": [
+          {
+            "span": "棚卸資産の増減額 ... -100百万円",
+            "section": "",
+            "pageRef": ""
+          },
+          {
+            "span": "売上債権の増減額 ... -22百万円",
+            "section": "",
+            "pageRef": "CF"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "Earnings direction call",
+        "displayText": "Earnings direction call",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "Call: Down (near term). Reasoning strictly per disclosures: Operating profit fell sharply year-over-year (¥890 million vs ¥1,340 million prior) despite higher sales (ref: \"営業利益 ... 890百万円\" and \"売上高 ... 10,587百万円\" p. \"P&L\"). Management cites headwinds including labor-market competition and regulatory pressure (ref: \"有資格者の確保について...今後有資格者の確保が思うように進まない場合、当社グループの事業の維持、拡大に影響を与える可能性があります.\" p. \"事業等のリスク\"). Additionally, COVID-19 has impacted operations and funding (ref: \"新型コロナウイルス感染症の影響...当社グループの資金繰りに大きな影響を与えた\" p. \"業績等の概要\"). Given these factors, expect near-term earnings pressure absent further disclosure of recovery measures.",
+        "displayText": "Call: Down (near term). Reasoning strictly per disclosures: Operating profit fell sharply year-over-year (¥890 million vs ¥1,340 million prior) despite higher sales. Management cites headwinds including labor-market competition and regulatory pressure. Additionally, COVID-19 has impacted operations and funding. Given these factors, expect near-term earnings pressure absent further disclosure of recovery measures.",
+        "citations": [
+          {
+            "span": "営業利益 ... 890百万円",
+            "section": "",
+            "pageRef": ""
+          },
+          {
+            "span": "売上高 ... 10,587百万円",
+            "section": "",
+            "pageRef": "P&L"
+          },
+          {
+            "span": "有資格者の確保について...今後有資格者の確保が思うように進まない場合、当社グループの事業の維持、拡大に影響を与える可能性があります.",
+            "section": "",
+            "pageRef": "事業等のリスク"
+          },
+          {
+            "span": "新型コロナウイルス感染症の影響...当社グループの資金繰りに大きな影響を与えた",
+            "section": "",
+            "pageRef": "業績等の概要"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "Top 3 risks cited from 事業等のリスク",
+        "displayText": "Top 3 risks cited from 事業等のリスク",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "1. Staffing/qualification risk: Limited availability of qualified personnel may constrain expansion and maintenance of operations (ref: \"有資格者の確保について...今後有資格者の確保が思うように進まない場合、当社グループの事業の維持、拡大に影響を与える可能性があります.\" p. \"事業等のリスク\").",
+        "displayText": "1. Staffing/qualification risk: Limited availability of qualified personnel may constrain expansion and maintenance of operations.",
+        "citations": [
+          {
+            "span": "有資格者の確保について...今後有資格者の確保が思うように進まない場合、当社グループの事業の維持、拡大に影響を与える可能性があります.",
+            "section": "",
+            "pageRef": "事業等のリスク"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "2. Regulatory/regional risk: Changes in government policy or regional differences in unit pricing can affect profitability (ref: \"介護保険制度の改正について...お客様数や売上単価の減少によって当社グループの業績に影響を与える可能性があります.\" p. \"事業等のリスク\").",
+        "displayText": "2. Regulatory/regional risk: Changes in government policy or regional differences in unit pricing can affect profitability.",
+        "citations": [
+          {
+            "span": "介護保険制度の改正について...お客様数や売上単価の減少によって当社グループの業績に影響を与える可能性があります.",
+            "section": "",
+            "pageRef": "事業等のリスク"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "3. Safety/security risk: Potential liability for accidents or infection outbreaks could harm reputation and performance (ref: \"安全管理及び健康管理について...当社グループへの信用が低下し、業績に影響を与える可能性があります.\" p. \"事業等のリスク\").",
+        "displayText": "3. Safety/security risk: Potential liability for accidents or infection outbreaks could harm reputation and performance.",
+        "citations": [
+          {
+            "span": "安全管理及び健康管理について...当社グループへの信用が低下し、業績に影響を与える可能性があります.",
+            "section": "",
+            "pageRef": "事業等のリスク"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "Related-party transactions summary (if present)",
+        "displayText": "Related-party transactions summary (if present)",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- The filing lists consolidated subsidiaries and related companies (e.g., 株式会社日本ケアリンク, 株式会社ケアパートナー東京, 株式会社ケアパートナー神奈川, etc.) and describes intercompany relationships such as director overlap and loans (ref: \"株式会社日本ケアリンク...当社代表取締役社長が兼任\" and \"当社より長期借入金あり\" p. \"関係会社の状況\"). However, detailed transactional amounts or balances are not separately presented under \"関連当事者との取引\" in the provided extracts; therefore, specific related-party transactional detail is not disclosed in the supplied text. If required, additional data would need to be obtained from the full annual report.",
+        "displayText": "• The filing lists consolidated subsidiaries and related companies (e.g., 株式会社日本ケアリンク, 株式会社ケアパートナー東京, 株式会社ケアパートナー神奈川, etc.) and describes intercompany relationships such as director overlap and loans. However, detailed transactional amounts or balances are not separately presented under \"関連当事者との取引\" in the provided extracts; therefore, specific related-party transactional detail is not disclosed in the supplied text. If required, additional data would need to be obtained from the full annual report.",
+        "citations": [
+          {
+            "span": "株式会社日本ケアリンク...当社代表取締役社長が兼任",
+            "section": "",
+            "pageRef": ""
+          },
+          {
+            "span": "当社より長期借入金あり",
+            "section": "",
+            "pageRef": "関係会社の状況"
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "Evidence appendix — Japanese spans with English translations",
+        "displayText": "Evidence appendix — Japanese spans with English translations",
+        "citations": [],
+        "refused": false
+      },
+      {
+        "text": "- \"有資格者の確保について...今後有資格者の確保が思うように進まない場合、当社グループの事業の維持、拡大に影響を与える可能性があります.\" (\"Regarding securing qualified staff... if securing qualified staff does not proceed as expected, there is potential impact on maintaining and expanding our business.\") (ref: \"事業等のリスク\")",
+        "displayText": "• \"有資格者の確保について...今後有資格者の確保が思うように進まない場合、当社グループの事業の維持、拡大に影響を与える可能性があります.\" (\"Regarding securing qualified staff... if securing qualified staff does not proceed as expected, there is potential impact on maintaining and expanding our business.\")",
+        "citations": [
+          {
+            "span": "事業等のリスク",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"訪問介護、訪問入浴介護、居宅介護支援、訪問看護、認知症対応型共同生活介護（グループホーム）、短期入所生活介護（ショートステイ）\" (\"Home help, Home bathing assistance, In-home long-term care support, Home nursing, Residential care for dementia (group homes), Short-stay\") (ref: \"事業の内容\")",
+        "displayText": "• \"訪問介護、訪問入浴介護、居宅介護支援、訪問看護、認知症対応型共同生活介護（グループホーム）、短期入所生活介護（ショートステイ）\" (\"Home help, Home bathing assistance, In-home long-term care support, Home nursing, Residential care for dementia (group homes), Short-stay\")",
+        "citations": [
+          {
+            "span": "事業の内容",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"営業利益 ... 前期比△45.0％の890百万円\" (\"Operating profit ... down 45.0% to ¥890 million\") (ref: \"業績等の概要\")",
+        "displayText": "• \"営業利益... 前期比△45.0％の890百万円\" (\"Operating profit... down 45.0% to ¥890 million\")",
+        "citations": [
+          {
+            "span": "業績等の概要",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"総資産 ... 10,229百万円\" (\"Total assets ... ¥10,229 million\") (ref: \"財政状態、経営成績及びキャッシュ・フローの状況の分析\")",
+        "displayText": "• \"総資産... 10,229百万円\" (\"Total assets... ¥10,229 million\")",
+        "citations": [
+          {
+            "span": "財政状態、経営成績及びキャッシュ・フローの状況の分析",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"負債 ... 1,711百万円\" (\"Liabilities ... ¥1,711 million\") (ref: \"財政状態、経営成績及びキャッシュ・フローの状況の分析\")",
+        "displayText": "• \"負債... 1,711百万円\" (\"Liabilities... ¥1,711 million\")",
+        "citations": [
+          {
+            "span": "財政状態、経営成績及びキャッシュ・フローの状況の分析",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"営業キャッシュフロー ... △1,003百万円\" (\"Operating cash flow ... ¥-1,003 million\") (ref: \"財政状態、経営成績及びキャッシュ・フローの状況の分析\")",
+        "displayText": "• \"営業キャッシュフロー... △1,003百万円\" (\"Operating cash flow... ¥-1,003 million\")",
+        "citations": [
+          {
+            "span": "財政状態、経営成績及びキャッシュ・フローの状況の分析",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"売掛金 ... 1,162百万円\" (\"Trade receivables ... ¥1,162 million\") (ref: \"P&L\")",
+        "displayText": "• \"売掛金... 1,162百万円\" (\"Trade receivables... ¥1,162 million\")",
+        "citations": [
+          {
+            "span": "P&L",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"売上債権の増減額 ... -22百万円\" (\"Change in trade receivables ... ¥-22 million\") (ref: \"CF\")",
+        "displayText": "• \"売上債権の増減額... -22百万円\" (\"Change in trade receivables... ¥-22 million\")",
+        "citations": [
+          {
+            "span": "CF",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"貸倒引当金 ... 1百万円\" (\"Allowance for doubtful accounts ... ¥1 million\") (ref: \"B/S\")",
+        "displayText": "• \"貸倒引当金... 1百万円\" (\"Allowance for doubtful accounts... ¥1 million\")",
+        "citations": [
+          {
+            "span": "B/S",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"棚卸資産の増減額 ... -100百万円\" (\"Increase/decrease in inventories ... ¥-100 million\") (ref: \"CF\")",
+        "displayText": "• \"棚卸資産の増減額... -100百万円\" (\"Increase/decrease in inventories... ¥-100 million\")",
+        "citations": [
+          {
+            "span": "CF",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      },
+      {
+        "text": "- \"新型コロナウイルス感染症の影響...当社グループの資金繰りに大きな影響を与えた\" (\"Impact of COVID-19... had a large impact on the Group’s cash flows\") (ref: \"業績等の概要\")",
+        "displayText": "• \"新型コロナウイルス感染症の影響...当社グループの資金繰りに大きな影響を与えた\" (\"Impact of COVID-19... had a large impact on the Group’s cash flows\")",
+        "citations": [
+          {
+            "span": "業績等の概要",
+            "section": "",
+            "pageRef": ""
+          }
+        ],
+        "refused": false
+      }
+    ],
+    "jpSourceExcerpt": "有資格者の確保について...同業他社及び医療機関等と雇用関係で継続的に競合しているため、今後有資格者の確保が思うように進まない場合、当社グループの事業の維持、拡大に影響を与える可能性があります.。 訪問介護、訪問入浴介護、居宅介護支援、訪問看護、認知症対応型共同生活介護（グループホーム）、短期入所生活介護（ショートステイ）。 新型コロナウイルス感染症の影響...当社グループの資金繰りに大きな影響を与えた。 財政状態、経営成績及びキャッシュ・フローの状況の分析"
+  }
+]

@@ -401,23 +401,27 @@ function readFailures(): FailureCase[] {
 }
 
 function main(): void {
+  // Detect whether the gitignored eval sources are present. On Vercel /
+  // any clean clone they are not, and we must NOT overwrite the committed
+  // generated JSON with empty-fallback content. Locally, when the data is
+  // present, we regenerate as before.
+  const memosSourcePath = join(
+    ROOT,
+    "data",
+    "eval",
+    "kg2_memos_bo5_picked.jsonl",
+  );
+  const arcSourcePath = join(ROOT, "data", "eval", "kg2_scores_bo5_picked.json");
+  const memosSourcePresent = existsSync(memosSourcePath);
+  const arcSourcePresent = existsSync(arcSourcePath);
+
   const profiles = readDecoderProfiles();
-  const arc = readArcPoints();
-  const filers = readFilers();
   const repro = readReproLedger();
   const failures = readFailures();
 
   writeFileSync(
     join(OUT, "decoder-profiles.generated.json"),
     JSON.stringify(profiles, null, 2),
-  );
-  writeFileSync(
-    join(OUT, "kg2-arc.generated.json"),
-    JSON.stringify(arc, null, 2),
-  );
-  writeFileSync(
-    join(OUT, "filers.generated.json"),
-    JSON.stringify(filers, null, 2),
   );
   writeFileSync(
     join(OUT, "repro-ledger.generated.json"),
@@ -427,20 +431,44 @@ function main(): void {
     join(OUT, "failures.generated.json"),
     JSON.stringify(failures, null, 2),
   );
-  writeFileSync(
-    join(OUT, "memos.generated.json"),
-    JSON.stringify(
-      filers.slice(0, 6).map((f) => ({ ...f, memo: f.memo.slice(0, 4) })),
-      null,
-      2,
-    ),
-  );
 
   console.log(`✓ wrote ${profiles.length} decoder profiles`);
-  console.log(`✓ wrote ${arc.length} arc points`);
-  console.log(`✓ wrote ${filers.length} filers`);
   console.log(`✓ wrote ${repro.length} repro rows`);
   console.log(`✓ wrote ${failures.length} failure cases`);
+
+  if (arcSourcePresent) {
+    const arc = readArcPoints();
+    writeFileSync(
+      join(OUT, "kg2-arc.generated.json"),
+      JSON.stringify(arc, null, 2),
+    );
+    console.log(`✓ wrote ${arc.length} arc points`);
+  } else {
+    console.warn(
+      "⚠ kg2_scores_*.json missing — keeping committed kg2-arc.generated.json",
+    );
+  }
+
+  if (memosSourcePresent) {
+    const filers = readFilers();
+    writeFileSync(
+      join(OUT, "filers.generated.json"),
+      JSON.stringify(filers, null, 2),
+    );
+    writeFileSync(
+      join(OUT, "memos.generated.json"),
+      JSON.stringify(
+        filers.slice(0, 6).map((f) => ({ ...f, memo: f.memo.slice(0, 4) })),
+        null,
+        2,
+      ),
+    );
+    console.log(`✓ wrote ${filers.length} filers`);
+  } else {
+    console.warn(
+      "⚠ kg2_memos_bo5_picked.jsonl missing — keeping committed filers/memos JSON",
+    );
+  }
 }
 
 main();

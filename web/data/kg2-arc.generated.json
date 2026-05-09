@@ -1,0 +1,47 @@
+[
+  {
+    "stage": "v5",
+    "label": "v5 single",
+    "coherence": 3.56,
+    "citationRate": 1,
+    "config": "T=0.10 · top_p=0.9 · seed=5151",
+    "isShip": false,
+    "preview": ""
+  },
+  {
+    "stage": "bestof_v4v5",
+    "label": "bo-2 mix",
+    "coherence": 3.72,
+    "citationRate": 1,
+    "config": "v4_mixed_warm + v5_seed_a",
+    "isShip": false,
+    "preview": ""
+  },
+  {
+    "stage": "bo3_picked",
+    "label": "bo-3 seeds",
+    "coherence": 3.64,
+    "citationRate": 1,
+    "config": "v5_seed_a/b/c",
+    "isShip": false,
+    "preview": ""
+  },
+  {
+    "stage": "bo5_picked",
+    "label": "bo-5 SHIP ★",
+    "coherence": 3.88,
+    "citationRate": 1,
+    "config": "v4×2 + v5×3 mix",
+    "isShip": true,
+    "preview": ""
+  },
+  {
+    "stage": "bo9_picked",
+    "label": "bo-9",
+    "coherence": 4.04,
+    "citationRate": 1,
+    "config": "bo5 + 4 new profiles",
+    "isShip": false,
+    "preview": ""
+  }
+]
