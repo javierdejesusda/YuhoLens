@@ -30,7 +30,7 @@ function BeatDemo({ kind }: { kind: ProblemBeat["demoKind"] }) {
   return (
     <div className="demo" aria-hidden="true">
       Prolonged yen weakness materially compresses operating margin in the electronic-components segment.
-      <sup>¹</sup>
+      <sup data-cursor-preview="cite:demo:fx">¹</sup>
       <div
         style={{
           marginTop: 10,

@@ -12,6 +12,7 @@ type UseCard = {
   action: string;
   href: string;
   artifact: string;
+  previewKey: string;
 };
 
 const USE_CARDS: UseCard[] = [
@@ -21,6 +22,7 @@ const USE_CARDS: UseCard[] = [
     action: "BF16 weights for the lab",
     href: "https://huggingface.co/javierdejesusda/yuholens-14b",
     artifact: "HUGGINGFACE · BF16 →",
+    previewKey: "hf:yuholens-14b",
   },
   {
     num: "02",
@@ -28,6 +30,7 @@ const USE_CARDS: UseCard[] = [
     action: "GGUF Q4_K_M for the laptop",
     href: "https://huggingface.co/javierdejesusda/yuholens-14b-GGUF",
     artifact: "HUGGINGFACE · GGUF →",
+    previewKey: "hf:yuholens-14b-GGUF",
   },
   {
     num: "03",
@@ -35,6 +38,7 @@ const USE_CARDS: UseCard[] = [
     action: "Full pipeline for the auditor",
     href: "https://github.com/javierdejesusda/YuhoLens",
     artifact: "GITHUB →",
+    previewKey: "gh:YuhoLens",
   },
 ];
 
@@ -83,6 +87,7 @@ export function AccessCta() {
                 href={card.href}
                 target="_blank"
                 rel="noopener noreferrer"
+                data-cursor-preview={card.previewKey}
               >
                 <span className="mono access-card-num">{card.num}</span>
                 <span className="access-card-audience">{card.audience}</span>
@@ -124,6 +129,7 @@ export function AccessCta() {
                 href="https://huggingface.co/javierdejesusda/yuholens-14b"
                 target="_blank"
                 rel="noopener noreferrer"
+                data-cursor-preview="hf:yuholens-14b"
               >
                 Read a sample memo <span className="arr">→</span>
               </a>

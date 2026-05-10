@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "./_ink-bleed.css";
 @import "./_xray.css";
+@import "./_cursor-preview.css";
 
 @theme {
   --color-ink-void: #0E0E10;

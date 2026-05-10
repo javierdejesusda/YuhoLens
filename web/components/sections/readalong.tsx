@@ -34,18 +34,25 @@ export function ReadAlong() {
   const [axisHeight, setAxisHeight] = useState(600);
 
   const pairs = filer
-    ? filer.memo
-        .flatMap((line, i) =>
-          line.citations.map((c, j) => ({
-            pair: i * 10 + j,
-            en: line.text,
-            jp: c.span,
-            page: c.pageRef,
-            section: c.section,
-            refused: line.refused,
-          })),
-        )
-        .slice(0, 5)
+    ? (() => {
+        let globalIdx = 0;
+        return filer.memo
+          .flatMap((line) =>
+            line.citations.map((c) => {
+              const idx = globalIdx;
+              globalIdx += 1;
+              return {
+                pair: idx,
+                en: line.text,
+                jp: c.span,
+                page: c.pageRef,
+                section: c.section,
+                refused: line.refused,
+              };
+            }),
+          )
+          .slice(0, 5);
+      })()
     : [];
 
   useLayoutEffect(() => {
@@ -137,6 +144,7 @@ export function ReadAlong() {
                   data-pair={p.pair}
                   data-gloss-label={glossLabel(p.section, p.page)}
                   data-gloss-aux={truncate(p.en, 96)}
+                  data-cursor-preview={`cite:${filer.customId}:${p.pair}`}
                   onMouseEnter={() => setHovered(p.pair)}
                   onMouseLeave={() => setHovered(null)}
                 >
@@ -191,6 +199,7 @@ export function ReadAlong() {
                   data-pair={p.pair}
                   data-gloss-label={glossLabel(p.section, p.page)}
                   data-gloss-aux={truncate(p.jp, 60)}
+                  data-cursor-preview={`cite:${filer.customId}:${p.pair}`}
                   onMouseEnter={() => setHovered(p.pair)}
                   onMouseLeave={() => setHovered(null)}
                 >

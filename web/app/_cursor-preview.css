@@ -1,0 +1,66 @@
+/*
+ * Layer 2.7 — Cursor preview thumbnail.
+ *
+ * A 200×80 mini-card pinned to the cursor on hover over any element with
+ * `data-cursor-preview="<key>"`. Position is set by `transform` writes from
+ * `custom-cursor.tsx` (no layout thrash). Visibility is toggled by the
+ * `is-active` class on `mouseover` / `mouseout`.
+ */
+
+#cursor-preview {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 9100;
+  width: 200px;
+  min-height: 80px;
+  padding: 10px 12px;
+  background: var(--ink-card);
+  border: 1px solid var(--rule-strong);
+  box-shadow: 0 8px 24px -10px rgba(0, 0, 0, 0.55);
+  opacity: 0;
+  transition: opacity 200ms var(--ease-out);
+  will-change: transform, opacity;
+}
+
+#cursor-preview.is-active { opacity: 1; }
+
+#cursor-preview .cp-eyebrow {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--type-faint);
+  display: block;
+}
+
+#cursor-preview .cp-title {
+  display: block;
+  font-family: var(--f-display);
+  font-size: 13px;
+  line-height: 1.25;
+  color: var(--type-primary);
+  margin-top: 2px;
+  word-break: break-word;
+}
+
+#cursor-preview .cp-meta {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--type-muted);
+  display: block;
+  margin-top: 6px;
+}
+
+@media (pointer: coarse) {
+  #cursor-preview { display: none; }
+}
+
+body.use-system-cursor #cursor-preview { display: none !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  #cursor-preview { transition: none; }
+}

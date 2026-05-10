@@ -94,6 +94,7 @@ export function LdOutput({
                     handle();
                   }
                 }}
+                data-cursor-preview={`cite:${customId}:${globalIdx}`}
                 aria-label={`Citation: ${c.span.slice(0, 32)}`}
               >
                 [{j + 1}]
