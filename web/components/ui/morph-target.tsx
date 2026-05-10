@@ -4,14 +4,14 @@ import { useEffect, useRef, useState } from "react";
 const START_JA = "日本語で。";
 const FINAL_EN = "In English.";
 const CHARSET = "アイウエオカキクケコ日本語英訳価証券報告書益損資産率";
-const DELAY_MS = 1700;
-const DURATION_MS = 1400;
+const DELAY_MS = 2400;
+const DURATION_MS = 2400;
 
-const CADENCE_IDLE_MS = 320;
-const CADENCE_PEAK_MS = 90;
-const CADENCE_FLOOR_MS = 100;
-const FLIP_DURATION_MS = 220;
-const PRESSURE_HOLD_MS = 200;
+const CADENCE_IDLE_MS = 900;
+const CADENCE_PEAK_MS = 240;
+const CADENCE_FLOOR_MS = 260;
+const FLIP_DURATION_MS = 520;
+const PRESSURE_HOLD_MS = 480;
 
 export function cadenceFromPressure(pressure: number): number {
   const p = Math.min(1, Math.max(0, pressure));
@@ -95,9 +95,10 @@ function OneShotMorph({ className }: { className?: string }) {
   }, []);
 
   const widestPair = FINAL_EN.length >= START_JA.length ? FINAL_EN : START_JA;
-  // Outer is inline-block so its baseline is the baseline of its single in-flow
-  // child (the hidden reservation span). The visible morph layer is taken out of
-  // flow and pinned to the same box, so its glyph metrics never shift the line.
+  // Outer is inline-block; the hidden reservation span is the only in-flow child
+  // and owns the box's baseline. The visible morph layer is anchored at top:0
+  // left:0 with the same font and line metrics, so its first text-line baseline
+  // sits at exactly the same y as the hidden span — no glyph swap can shift it.
   return (
     <span
       className={className ?? "accent"}
@@ -106,16 +107,12 @@ function OneShotMorph({ className }: { className?: string }) {
         display: "inline-block",
         verticalAlign: "baseline",
         lineHeight: "inherit",
+        fontFamily: "var(--f-jp)",
+        fontStyle: "normal",
+        whiteSpace: "nowrap",
       }}
     >
-      <span
-        aria-hidden="true"
-        style={{
-          fontFamily: "var(--f-jp)",
-          fontStyle: "normal",
-          visibility: "hidden",
-        }}
-      >
+      <span aria-hidden="true" style={{ visibility: "hidden" }}>
         {widestPair}
       </span>
       <span
@@ -123,12 +120,8 @@ function OneShotMorph({ className }: { className?: string }) {
         className={done ? "" : "jp"}
         style={{
           position: "absolute",
-          inset: 0,
-          display: "flex",
-          alignItems: "baseline",
-          justifyContent: "flex-start",
-          fontFamily: "var(--f-jp)",
-          fontStyle: "normal",
+          top: 0,
+          left: 0,
           willChange: "contents",
         }}
       >
@@ -232,27 +225,19 @@ function CyclingMorph({
         display: "inline-block",
         verticalAlign: "baseline",
         lineHeight: "inherit",
+        fontFamily: "var(--f-jp)",
+        fontStyle: "normal",
+        whiteSpace: "nowrap",
       }}
     >
-      <span
-        aria-hidden="true"
-        style={{
-          fontFamily: "var(--f-jp)",
-          fontStyle: "normal",
-          visibility: "hidden",
-        }}
-      >
+      <span aria-hidden="true" style={{ visibility: "hidden" }}>
         {widestPair}
       </span>
       <span
         style={{
           position: "absolute",
-          inset: 0,
-          display: "flex",
-          alignItems: "baseline",
-          justifyContent: "flex-start",
-          fontFamily: "var(--f-jp)",
-          fontStyle: "normal",
+          top: 0,
+          left: 0,
           willChange: "contents",
         }}
       >
