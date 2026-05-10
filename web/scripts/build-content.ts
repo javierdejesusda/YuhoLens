@@ -286,6 +286,53 @@ function main(): void {
       "⚠ kg2_memos_bo5_picked.jsonl missing — keeping committed filers/memos JSON",
     );
   }
+
+  buildSupKanjiMap();
+}
+
+/**
+ * Emit a kanji-overlay map for the x-ray easter egg. Reads the committed
+ * filers JSON (so it works whether or not the eval source is present) and
+ * keys each citation by `<customId>:<globalIdx>` where `globalIdx` is the
+ * citation's running index within the filer's memo (matches how
+ * `ld-output.tsx` already counts citations into the drawer).
+ */
+function buildSupKanjiMap(): void {
+  const filersPath = join(OUT, "filers.generated.json");
+  if (!existsSync(filersPath)) {
+    console.warn("⚠ filers.generated.json missing — skipping sup-kanji-map");
+    return;
+  }
+  const filers = JSON.parse(readFileSync(filersPath, "utf-8")) as Array<{
+    customId: string;
+    memo: Array<{ citations: Array<{ span: string }> }>;
+  }>;
+  const map: Record<string, string> = {};
+  for (const filer of filers) {
+    let globalIdx = 0;
+    filer.memo.forEach((line, lineIdx) => {
+      line.citations.forEach((cite, citeIdx) => {
+        const span = (cite.span ?? "").trim();
+        if (span) {
+          const glyph = span.slice(0, 12);
+          map[`${filer.customId}:${globalIdx}`] = glyph;
+          // The readalong section stamps parent spans with
+          // `data-pair="<lineIdx * 10 + citeIdx>"`. Mirror that scheme so
+          // the runtime DOM scan can resolve `closest('[data-pair]')`
+          // straight to a glyph for the REFUSE.X filer it renders.
+          if (filer.customId === "REFUSE.X") {
+            map[`pair:${lineIdx * 10 + citeIdx}`] = glyph;
+          }
+        }
+        globalIdx += 1;
+      });
+    });
+  }
+  writeFileSync(
+    join(OUT, "sup-kanji-map.generated.json"),
+    JSON.stringify(map, null, 2),
+  );
+  console.log(`✓ wrote ${Object.keys(map).length} sup-kanji-map entries`);
 }
 
 main();

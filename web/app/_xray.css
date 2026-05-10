@@ -1,0 +1,90 @@
+/* Layer 2.5 — Hanko triple-click reveal + 'yuho' x-ray easter egg.
+   The runtime hook (lib/use-easter-egg.ts) toggles `html.is-xray` and
+   stamps `data-xray-kanji="<glyph>"` onto matching elements; CSS does
+   the rest so the DOM stays clean when the egg is off. */
+
+html.is-xray [data-xray-kanji] {
+  position: relative;
+}
+
+html.is-xray [data-xray-kanji]::before {
+  content: attr(data-xray-kanji);
+  position: absolute;
+  top: -1.4em;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--f-jp);
+  color: var(--vermilion);
+  font-size: 0.7em;
+  line-height: 1;
+  pointer-events: none;
+  opacity: 0.92;
+  white-space: nowrap;
+  text-shadow: 0 0 6px var(--vermilion-soft);
+  z-index: 2;
+}
+
+.xray-indicator {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 9500;
+  padding: 6px 12px;
+  background: var(--ink-card);
+  border: 1px solid var(--vermilion);
+  color: var(--vermilion);
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+/* Hanko triple-click reveal. The wrapper rotates and lifts to expose a
+   sibling build stamp rendered alongside. `.seal-stamp` carries an inline
+   transform from framer-motion's spring animation, so the rotation lives
+   on the surrounding `.hanko-wrap` instead — that span has no other
+   transform competing for the property. */
+.hanko-wrap {
+  display: inline-flex;
+  align-items: center;
+  transition: transform 480ms var(--ease-out);
+  transform-origin: center center;
+}
+
+.hanko-wrap.is-hanko-revealed {
+  transform: rotate(180deg) translateY(12px);
+}
+
+.hanko-build-stamp {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 3px 8px;
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--vermilion);
+  background: var(--ink-card);
+  border: 1px solid var(--rule-strong);
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(-2px) rotate(180deg);
+  transition: opacity 280ms var(--ease-out), transform 280ms var(--ease-out);
+  pointer-events: none;
+}
+
+.hanko-wrap.is-hanko-revealed .hanko-build-stamp {
+  opacity: 1;
+  /* Counter-rotate so the build text reads upright after the wrapper
+     flips. The wrapper translates +12px, so the stamp doesn't need its
+     own translate to clear the seal. */
+  transform: rotate(180deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hanko-wrap,
+  .hanko-build-stamp {
+    transition: none;
+  }
+}

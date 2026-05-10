@@ -12,6 +12,7 @@ import { ScrollProgress } from "@/components/ui/scroll-progress";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { PaperRail } from "@/components/canvas/paper-rail";
 import { LenisProvider } from "@/components/providers/lenis-provider";
+import { EasterEggProvider } from "@/lib/use-easter-egg";
 import "./globals.css";
 
 // Geist — Vercel's open-source sans paired with JetBrains Mono for UI
@@ -125,6 +126,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <CiteGlossLayer />
         <MarginaliaRibbon />
         <ProgressRail />
+        <EasterEggProvider />
         <Script
           id="ld-json"
           type="application/ld+json"
