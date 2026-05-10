@@ -1470,28 +1470,6 @@ export function PaperRail() {
       const spExit = makeSpring(0, 90, 26); // 0 = on-stage, 1 = flown out
       // Texture-change "punch" — squashes scale briefly when the doc swaps.
       const spPunch = makeSpring(1, 240, 22);
-      // Hero-typeset unfold: paper begins each session as a folded
-      // triangle (45° z-axis hinge fold + 30° y-axis fold) and unfolds
-      // to its CENTRE_HERO pose when the typeset moment dispatches
-      // `yuho:paper-unfold` at ~2800 ms. Driven by a single spring
-      // (1 = fully folded, 0 = fully unfolded) added on top of the
-      // pose rotation. Reduced-motion users skip this entirely.
-      // We also accept a `data-paper-unfolded="1"` attribute on the
-      // root <html> as the late-boot fallback: the typeset orchestrator
-      // sets it the first time it dispatches the event, so a deferred
-      // paper-rail boot doesn't get stuck folded if the event fired
-      // before the listener attached.
-      const reducedMotion =
-        typeof window !== "undefined" &&
-        window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-      const alreadyUnfolded =
-        document.documentElement.dataset.paperUnfolded === "1";
-      let heroFolded = !reducedMotion && !alreadyUnfolded;
-      const spFold = makeSpring(heroFolded ? 1 : 0, 80, 28);
-      const onPaperUnfold = () => {
-        heroFolded = false;
-      };
-      window.addEventListener("yuho:paper-unfold", onPaperUnfold);
 
       const sectionEls = Array.from(
         document.querySelectorAll<HTMLElement>("[data-paper-stage]"),
@@ -1801,11 +1779,6 @@ export function PaperRail() {
         spRZ.target(t.rz, dt);
         spS.target(t.s, dt);
         spPunch.target(1, dt);
-        // Drive the fold spring toward 1 (folded) or 0 (unfolded).
-        // Only meaningful while the hero is the active stage; once
-        // the paper drifts off to LEFT_BIG_NEAR / problem the spring
-        // has already settled at 0 and is a no-op.
-        spFold.target(heroFolded ? 1 : 0, dt);
 
         // Fly-out / fly-in: exitAmount is 0 when paper is on stage,
         // 1 when it's fully gone. The transition state machine forces
@@ -1937,26 +1910,12 @@ export function PaperRail() {
           renderInk(currentInkIdx, 0);
         }
 
-        // Fold overlay — adds a 30° y-axis + 45° z-axis hinge on top
-        // of the pose rotation while heroFolded is true. Spring eases
-        // back to 0 once `yuho:paper-unfold` flips the flag, producing
-        // an "open the broadsheet" gesture. Capped via the spring's
-        // own value so out-of-range overshoot doesn't tear the mesh.
-        const foldAmt = Math.max(0, Math.min(1.05, spFold.value));
-        const foldY = foldAmt * (Math.PI / 6); // 30°
-        const foldZ = foldAmt * (Math.PI / 4); // 45°
-        // Scale-down while folded so the triangle reads tighter, then
-        // breathes back to full as it unfolds.
-        const foldScale = 1 - foldAmt * 0.18;
-
         paperGroup.rotation.set(
           spRX.value + mouseY * 0.04,
-          spRY.value + mouseX * 0.06 + exitDirX * exitAmt * 0.85 + foldY,
-          spRZ.value + exitDirX * exitAmt * 0.18 + foldZ,
+          spRY.value + mouseX * 0.06 + exitDirX * exitAmt * 0.85,
+          spRZ.value + exitDirX * exitAmt * 0.18,
         );
-        paperGroup.scale.setScalar(
-          stageScale * (1 - exitAmt * 0.45) * foldScale,
-        );
+        paperGroup.scale.setScalar(stageScale * (1 - exitAmt * 0.45));
 
         camera.position.x = mouseX * 0.3;
         camera.position.y = -mouseY * 0.22;
@@ -2101,7 +2060,6 @@ export function PaperRail() {
         window.removeEventListener("mousemove", onMouse);
         window.removeEventListener("resize", onResize);
         window.removeEventListener("scroll", onScroll);
-        window.removeEventListener("yuho:paper-unfold", onPaperUnfold);
         document.removeEventListener("visibilitychange", onVisibility);
         if (
           motionChangeListener &&

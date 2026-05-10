@@ -1,12 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 
-import { HeroTypeset } from "../hero/hero-typeset";
-
-// Paper drifts to its phase-2 left-anchored pose at the same beat the
-// typeset moment resolves into its resting state (~3.2 s). The paper
-// rAF reads `data-hero-phase` directly, so flipping the attribute is
-// what triggers the slide.
 const PHASE_DELAY_MS = 3200;
 
 const JST_FORMATTER = new Intl.DateTimeFormat("en-US", {
@@ -168,14 +162,25 @@ export function Hero() {
         <EdinetTicker />
       </div>
 
-      {/* Hero typeset moment: the kanji-to-roman crossfade, ink-bleed
-          glyphs, sumi-stroke under "span-cited", and CTA reveal all
-          live in HeroTypeset. The outer .hero-stage grid still owns
-          page-level positioning so the paper-rail anchor math stays
-          intact. */}
-      <div className="hero-stage hero-stage--typeset">
+      <div className="hero-stage" aria-hidden={phase === 1}>
         <div className="hero-stage__copy">
-          <HeroTypeset />
+          <p className="hero-stage__eyebrow">
+            <span className="sq" />
+            <span>Vol. II, Edition 047</span>
+            <span className="hero-stage__sep">·</span>
+            <span className="jp" lang="ja">有価証券報告書、英訳</span>
+          </p>
+          <h2 className="hero-stage__title">
+            <span className="line">Translated with</span>
+            <span className="line"><em>span-cited</em> receipts.</span>
+          </h2>
+          <p className="hero-stage__sub">
+            <span className="jp-loan">Yūhō</span> are Japan&rsquo;s annual securities reports &mdash; the equivalent of US 10-Ks, ~88,000 pages filed each year by listed companies. <strong>YuhoLens</strong> reads them in English with every claim, currency, margin, and segment linked back to a page and span in the source. Open weights, GGUF on AMD silicon.
+          </p>
+          <div className="hero-stage__cta">
+            <a href="#problem" className="hero-stage__btn">Read the case</a>
+            <a href="#access" className="hero-stage__btn is-ghost" data-cursor-preview="hf:yuholens-14b">Try the model</a>
+          </div>
         </div>
       </div>
 

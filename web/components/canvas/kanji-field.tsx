@@ -2,11 +2,6 @@
 import { useEffect, useRef, useState } from "react";
 
 const KANJI = ["朱", "報", "告", "書", "事", "業", "経", "営", "資", "産", "負", "債", "益", "損", "率"];
-// Eight specific kanji that brighten + rotate-upright when the hero
-// typeset moment fires `yuho:freeze-kanji`. They cross-reference the
-// title slots in HeroTypeset (Y U H O · L E N S → 拾 朱 報 告 書 視 鏡 訳).
-const BRIGHT_KANJI = ["拾", "朱", "報", "告", "書", "視", "鏡", "訳"];
-const FREEZE_ROTATE_MS = 600;
 
 export function KanjiField() {
   const ref = useRef<HTMLCanvasElement>(null);
@@ -50,14 +45,8 @@ export function KanjiField() {
       size: number;
       op: number;
       rot: number;
-      bright: boolean;
-      // Original rotation captured at freeze so release can restore the
-      // particle to normal drift without a visible snap.
-      rotFrozen: number;
     };
     let particles: Particle[] = [];
-    let frozen = false;
-    let freezeStart = 0;
 
     const GRID = 80;
     let gridCanvas: HTMLCanvasElement | null = null;
@@ -110,8 +99,6 @@ export function KanjiField() {
         size: 16 + Math.random() * 38,
         op: 0.05 + Math.random() * 0.08,
         rot: (Math.random() - 0.5) * 0.05,
-        bright: false,
-        rotFrozen: 0,
       }));
     };
 
@@ -172,47 +159,19 @@ export function KanjiField() {
       computeIntensity();
       const opMul = 0.55 + 0.45 * intensity;
 
-      // Freeze ramp: 0 → 1 over FREEZE_ROTATE_MS once the freeze event
-      // arrives. Used to interpolate bright-particle rotation back to
-      // upright and to fade the rest of the field down to 30 % opacity.
-      let freezeRamp = 0;
-      if (frozen) {
-        const elapsed = performance.now() - freezeStart;
-        freezeRamp = Math.min(1, Math.max(0, elapsed / FREEZE_ROTATE_MS));
-      }
-
       ctx.textBaseline = "alphabetic";
       for (const p of particles) {
-        if (!frozen) {
-          p.y -= p.vy;
-          if (p.y < -p.size) {
-            p.y = h + p.size;
-            p.x = Math.random() * w;
-            p.ch = KANJI[Math.floor(Math.random() * KANJI.length)];
-          }
-        }
-        // Rotation: bright particles ease toward 0; everything else
-        // holds its rotFrozen value while frozen, normal rot otherwise.
-        let drawRot = p.rot;
-        let drawOp = p.op * opMul;
-        if (frozen) {
-          if (p.bright) {
-            drawRot = p.rotFrozen * (1 - freezeRamp);
-            // 100 % opacity for the eight focus glyphs.
-            drawOp = 1.0;
-          } else {
-            drawRot = p.rotFrozen;
-            // Other particles fade to 30 % of normal.
-            drawOp = p.op * opMul * 0.30;
-          }
+        p.y -= p.vy;
+        if (p.y < -p.size) {
+          p.y = h + p.size;
+          p.x = Math.random() * w;
+          p.ch = KANJI[Math.floor(Math.random() * KANJI.length)];
         }
         ctx.save();
         ctx.translate(p.x, p.y);
-        ctx.rotate(drawRot);
-        ctx.font = `${p.bright && frozen ? 600 : 400} ${p.size}px 'Noto Serif JP', serif`;
-        ctx.fillStyle = p.bright && frozen
-          ? `rgba(232,80,58,${drawOp})`
-          : `rgba(244,234,211,${drawOp})`;
+        ctx.rotate(p.rot);
+        ctx.font = `400 ${p.size}px 'Noto Serif JP', serif`;
+        ctx.fillStyle = `rgba(244,234,211,${p.op * opMul})`;
         ctx.fillText(p.ch, 0, 0);
         ctx.restore();
       }
@@ -231,46 +190,6 @@ export function KanjiField() {
     obs.observe(canvas);
     raf = requestAnimationFrame(tick);
 
-    // Hero typeset hooks: Layer 1's intro orchestrator dispatches
-    // `yuho:freeze-kanji` at first paint and `yuho:release-kanji`
-    // ~3.4 s later when the typeset moment resolves. While frozen we
-    // pick 8 random particle indices (one per BRIGHT_KANJI glyph),
-    // overwrite their `ch`, brighten them to 100 % vermilion, and dim
-    // the rest of the field to 30 % opacity.
-    const onFreeze = () => {
-      if (frozen || particles.length === 0) return;
-      frozen = true;
-      freezeStart = performance.now();
-      const indices = new Set<number>();
-      const want = Math.min(BRIGHT_KANJI.length, particles.length);
-      while (indices.size < want) {
-        indices.add(Math.floor(Math.random() * particles.length));
-      }
-      let k = 0;
-      for (const idx of indices) {
-        const p = particles[idx];
-        p.bright = true;
-        p.ch = BRIGHT_KANJI[k++];
-        // Bigger, easier-to-read kanji during the freeze.
-        p.size = Math.max(p.size, 56);
-        p.rotFrozen = p.rot;
-      }
-      for (const p of particles) {
-        if (!p.bright) p.rotFrozen = p.rot;
-      }
-    };
-    const onRelease = () => {
-      if (!frozen) return;
-      frozen = false;
-      for (const p of particles) {
-        p.bright = false;
-        // Snap rot back to its drift value — already there, since we
-        // never overwrote p.rot during freeze.
-      }
-    };
-    window.addEventListener("yuho:freeze-kanji", onFreeze);
-    window.addEventListener("yuho:release-kanji", onRelease);
-
     const onMotionChange = (ev: MediaQueryListEvent) => {
       if (ev.matches) {
         active = false;
@@ -288,8 +207,6 @@ export function KanjiField() {
       ro.disconnect();
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", resize);
-      window.removeEventListener("yuho:freeze-kanji", onFreeze);
-      window.removeEventListener("yuho:release-kanji", onRelease);
       if (typeof motionMedia.removeEventListener === "function") {
         motionMedia.removeEventListener("change", onMotionChange);
       }
