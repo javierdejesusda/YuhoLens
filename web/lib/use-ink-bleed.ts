@@ -2,7 +2,7 @@
 import { useEffect } from "react";
 
 /**
- * Layer 2.3 — Ink-bleed accent on hover.
+ * Layer 2.3 Ink-bleed accent on hover.
  *
  * Scans for `.accent`, `.btn-primary`, `.access-card-link` and attaches a
  * hover handler that reads pointer entry coordinates and writes them as

@@ -30,7 +30,7 @@ export const ACCENT_KANJI: Record<string, string> = {
 
 /**
  * Normalise an accent span's text content for lookup against ACCENT_KANJI.
- * Lower-cases, trims, and strips a single trailing comma — periods are kept
+ * Lower-cases, trims, and strips a single trailing comma. Periods are kept
  * because some keys (e.g. "192 gb hbm3.") encode them deliberately.
  */
 export function lookupAccentKanji(raw: string): string | undefined {

@@ -175,7 +175,7 @@ export function Hero() {
             <span className="line"><em>span-cited</em> receipts.</span>
           </h2>
           <p className="hero-stage__sub">
-            <span className="jp-loan">Yūhō</span> are Japan&rsquo;s annual securities reports &mdash; the equivalent of US 10-Ks, ~88,000 pages filed each year by listed companies. <strong>YuhoLens</strong> reads them in English with every claim, currency, margin, and segment linked back to a page and span in the source. Open weights, GGUF on AMD silicon.
+            <span className="jp-loan">Yūhō</span> are Japan&rsquo;s annual securities reports: the equivalent of US 10-Ks, ~88,000 pages filed each year by listed companies. <strong>YuhoLens</strong> reads them in English with every claim, currency, margin, and segment linked back to a page and span in the source. Open weights, GGUF on AMD silicon.
           </p>
           <div className="hero-stage__cta">
             <a href="#problem" className="hero-stage__btn">Read the case</a>
