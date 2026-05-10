@@ -82,11 +82,11 @@ function fitVerdict(size: number): FitVerdict {
   const gpuFits = size <= GPU_VRAM_GIB;
   let message: string;
   if (laptopFits) {
-    message = "8 GB ✓ · RTX 4070 LAPTOP";
+    message = "8 GB TIER ✓ · LAPTOP-CLASS";
   } else if (gpuFits) {
-    message = "16 GB ✓ · RTX 4080 / 4090";
+    message = "16 GB TIER ✓ · DESKTOP-CLASS";
   } else {
-    message = "16 GB ✗ · NEEDS 24 GB+";
+    message = "NEEDS 24 GB+ TIER";
   }
   return { laptopFits, gpuFits, message };
 }
@@ -401,7 +401,7 @@ export function HardwareFit() {
             <p className="hw-throughput" aria-label="Throughput on consumer hardware">
               <span className="hw-throughput-num">10.06 tok/s</span>
               <span className="hw-throughput-rest">
-                {" on RTX 4070 Laptop (Q3_K_M)"}
+                {" on an 8 GB consumer laptop (Q3_K_M)"}
               </span>
             </p>
           </div>

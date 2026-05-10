@@ -1,15 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-
-const SECTIONS = [
-  { id: "hero", label: "Hero" },
-  { id: "problem", label: "Problem" },
-  { id: "how", label: "How" },
-  { id: "readalong", label: "Read-along" },
-  { id: "repro", label: "Repro" },
-  { id: "hardware", label: "Hardware" },
-  { id: "access", label: "Access" },
-];
+import { SECTIONS } from "@/lib/sections";
 
 export function ProgressRail() {
   const [active, setActive] = useState("hero");

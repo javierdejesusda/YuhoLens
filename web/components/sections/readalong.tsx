@@ -110,7 +110,7 @@ export function ReadAlong() {
     <section className="readalong-section is-paper-anchor-left" id="readalong" data-paper-stage="readalong" data-paper-hide>
       <Reveal>
         <div className="section-tag">
-          <span className="num">§ 02 · 8</span>
+          <span className="num">§ 02 · 5</span>
           <span>Read along</span>
           <span className="ja">対訳</span>
           <span className="rule" />
@@ -204,7 +204,7 @@ export function ReadAlong() {
                   onMouseLeave={() => setHovered(null)}
                 >
                   {p.refused ? (
-                    <span className="mono" style={{ color: "var(--vermilion)", marginRight: 8 }}>
+                    <span className="mono evidence-insufficient__tag" style={{ marginRight: 8 }}>
                       [evidence insufficient]
                     </span>
                   ) : null}

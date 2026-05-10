@@ -12,15 +12,8 @@ type StageKey =
   | "problem"
   | "how"
   | "repro"
-  | "demo"
   | "hardware"
-  | "dag"
   | "readalong"
-  | "kg2"
-  | "reports"
-  | "failures"
-  | "manifest"
-  | "faq"
   | "access";
 
 type PaperSide = "right" | "left" | "centre";
@@ -79,15 +72,6 @@ const STAGES: Record<StageKey, StagePose> = {
   repro: { ...PARK_RIGHT, side: "right", texture: "rail", inkProgram: 3 },
   hardware: { ...PARK_RIGHT, side: "right", texture: "rail", inkProgram: 3 },
   access: { ...PARK_RIGHT, side: "right", texture: "footer", inkProgram: 5 },
-  // Legacy stages — kept so type stays in sync with old data-paper-stage
-  // attributes if they linger; all park on the right and are fade-hidden.
-  demo: { ...PARK_RIGHT, side: "right", texture: "rail", inkProgram: 3 },
-  dag: { ...PARK_RIGHT, side: "right", texture: "how", inkProgram: 2 },
-  kg2: { ...PARK_RIGHT, side: "right", texture: "rail", inkProgram: 3 },
-  reports: { ...PARK_RIGHT, side: "right", texture: "rail", inkProgram: 3 },
-  failures: { ...PARK_RIGHT, side: "right", texture: "problem", inkProgram: 1 },
-  manifest: { ...PARK_RIGHT, side: "right", texture: "manifest", inkProgram: 4 },
-  faq: { ...PARK_RIGHT, side: "right", texture: "manifest", inkProgram: 4 },
 };
 
 const cachedTextures: Partial<Record<TextureKey, THREE.Texture>> = {};

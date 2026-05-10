@@ -181,7 +181,7 @@ export function KanjiField() {
     const obs = new IntersectionObserver(([e]) => {
       if (e.isIntersecting && !active) {
         active = true;
-        raf = requestAnimationFrame(tick);
+        if (!document.hidden) raf = requestAnimationFrame(tick);
       } else if (!e.isIntersecting && active) {
         active = false;
         cancelAnimationFrame(raf);
@@ -189,6 +189,23 @@ export function KanjiField() {
     });
     obs.observe(canvas);
     raf = requestAnimationFrame(tick);
+
+    // Pause the rAF loop while the tab is hidden. The IntersectionObserver
+    // above never fires "out" because the canvas is fixed (always
+    // intersecting), so without this, particles keep advancing on a
+    // backgrounded tab and burn CPU for no visible benefit.
+    const onVisibility = () => {
+      if (document.hidden) {
+        if (active) {
+          cancelAnimationFrame(raf);
+          active = false;
+        }
+      } else if (!active) {
+        active = true;
+        raf = requestAnimationFrame(tick);
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibility);
 
     const onMotionChange = (ev: MediaQueryListEvent) => {
       if (ev.matches) {
@@ -207,6 +224,7 @@ export function KanjiField() {
       ro.disconnect();
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", resize);
+      document.removeEventListener("visibilitychange", onVisibility);
       if (typeof motionMedia.removeEventListener === "function") {
         motionMedia.removeEventListener("change", onMotionChange);
       }

@@ -20,6 +20,45 @@ function applyTheme(theme: Theme): void {
   }
 }
 
+function SunIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <circle cx="8" cy="8" r="3" />
+      <path d="M8 1.5v1.5M8 13v1.5M2.8 2.8l1.1 1.1M12.1 12.1l1.1 1.1M1.5 8h1.5M13 8h1.5M2.8 13.2l1.1-1.1M12.1 3.9l1.1-1.1" />
+    </svg>
+  );
+}
+
+function MoonIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path d="M13.5 9.5A5.5 5.5 0 1 1 6.5 2.5a4.5 4.5 0 0 0 7 7Z" />
+    </svg>
+  );
+}
+
 export function ThemeToggle() {
   const [theme, setTheme] = useState<Theme>("dark");
   const [mounted, setMounted] = useState(false);
@@ -42,38 +81,18 @@ export function ThemeToggle() {
     }
   };
 
-  const label = theme === "dark" ? "Light" : "Dark";
-  const icon = theme === "dark" ? "☼" : "☾";
+  const label = theme === "dark" ? "light" : "dark";
 
   return (
     <button
       type="button"
       onClick={toggle}
-      aria-label={`Switch to ${label.toLowerCase()} mode`}
+      aria-label={`Switch to ${label} mode`}
       aria-pressed={theme === "light"}
       className="theme-toggle"
-      style={{
-        position: "fixed",
-        top: 84,
-        right: 24,
-        zIndex: 100,
-        width: 36,
-        height: 36,
-        display: "inline-flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "transparent",
-        border: "1px solid var(--rule-strong)",
-        color: "var(--type-muted)",
-        fontFamily: "var(--f-mono)",
-        fontSize: 14,
-        lineHeight: 1,
-        cursor: "none",
-        opacity: mounted ? 1 : 0,
-        transition: "opacity 200ms ease, color 200ms ease, border-color 200ms ease",
-      }}
+      style={{ opacity: mounted ? 1 : 0 }}
     >
-      <span aria-hidden="true">{icon}</span>
+      {theme === "dark" ? <SunIcon /> : <MoonIcon />}
     </button>
   );
 }

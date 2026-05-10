@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Arrow } from "@/components/ui/arrow";
 
 export default function NotFound() {
   return (
@@ -53,9 +54,7 @@ export default function NotFound() {
         style={{ marginTop: 24 }}
       >
         Back to YuhoLens
-        <span className="arr" aria-hidden="true">
-          →
-        </span>
+        <Arrow className="arr" />
       </Link>
     </main>
   );

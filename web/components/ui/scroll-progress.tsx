@@ -1,16 +1,7 @@
 "use client";
 import { useEffect, useRef } from "react";
 import { useScrollState } from "@/lib/use-scroll-state";
-
-const STAGES = [
-  "hero",
-  "problem",
-  "how",
-  "readalong",
-  "repro",
-  "hardware",
-  "access",
-];
+import { SECTIONS } from "@/lib/sections";
 
 export function ScrollProgress() {
   const ref = useRef<HTMLDivElement>(null);
@@ -32,12 +23,12 @@ export function ScrollProgress() {
     <>
       <div id="progress" ref={ref} aria-hidden="true" />
       <div className="ledger-binding-rail" ref={railRef} aria-hidden="true">
-        {STAGES.map((stage, i) => (
+        {SECTIONS.map((stage, i) => (
           <span
-            key={stage}
+            key={stage.id}
             className="ledger-binding-rail__tick"
-            style={{ top: `${(i / (STAGES.length - 1)) * 100}%` }}
-            data-stage={stage}
+            style={{ top: `${(i / (SECTIONS.length - 1)) * 100}%` }}
+            data-stage={stage.id}
           />
         ))}
       </div>

@@ -89,17 +89,7 @@ export function ReproducibilityLedger() {
               <span className="k">{r.key}</span>
               <span className="v">
                 {r.value}
-                <span
-                  className="mono repro-script-path"
-                  style={{
-                    display: "block",
-                    marginTop: 4,
-                    color: "var(--type-muted)",
-                    fontSize: 10,
-                  }}
-                >
-                  {r.scriptPath}
-                </span>
+                <span className="mono repro-script-path">{r.scriptPath}</span>
               </span>
               <span className="tag">{r.tag}</span>
             </button>

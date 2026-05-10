@@ -3,6 +3,7 @@ import { PROBLEM_BEATS, type ProblemBeat } from "@/data/manual";
 import { Reveal } from "@/components/ui/reveal";
 import { MorphTarget } from "@/components/ui/morph-target";
 import { MetricTicker } from "@/components/ui/metric-ticker";
+import { Arrow } from "@/components/ui/arrow";
 
 const JA_BLOCK =
   "当社グループの事業等のリスクとして、急激な為替変動は営業利益率に重大な影響を及ぼす可能性がある。当連結会計年度における売上収益は前期比3.4%減となり、純利益は前期と比較して17億円の減少となった。なお、自己資本比率は…";
@@ -31,25 +32,10 @@ function BeatDemo({ kind }: { kind: ProblemBeat["demoKind"] }) {
     <div className="demo" aria-hidden="true">
       Prolonged yen weakness materially compresses operating margin in the electronic-components segment.
       <sup data-cursor-preview="cite:demo:fx">¹</sup>
-      <div
-        style={{
-          marginTop: 10,
-          padding: "8px 10px",
-          borderLeft: "2px solid var(--vermilion)",
-          background: "rgba(232,80,58,0.08)",
-          fontFamily: "var(--f-mono)",
-          fontSize: "10.5px",
-          color: "var(--type-muted)",
-          fontStyle: "normal",
-          lineHeight: 1.5,
-        }}
-      >
-        <span style={{ color: "var(--vermilion)", letterSpacing: "0.18em" }}>[evidence insufficient]</span>
-        <br />
-        <span style={{ color: "var(--type-faint)" }}>
-         , claim about FY25 guidance was
-          <br />
-          not span-grounded; refused.
+      <div className="evidence-insufficient">
+        <span className="evidence-insufficient__tag">[evidence insufficient]</span>
+        <span className="evidence-insufficient__body">
+          claim about FY25 guidance was not span-grounded; refused.
         </span>
       </div>
       <div className="ja-orig">
@@ -103,7 +89,7 @@ export function Problem() {
       <Reveal delay={2}>
         <div className="problem-ctas">
           <a className="btn-primary" href="#access">
-            Read a sample memo <span className="arr">→</span>
+            Read a sample memo <Arrow className="arr" />
           </a>
           <a className="btn-secondary" href="#repro">
             How it was built

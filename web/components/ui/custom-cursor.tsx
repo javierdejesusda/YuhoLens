@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef } from "react";
-import { lookupPreview } from "@/lib/cursor-previews";
+import { lookupPreview, lookupPreviewAsync, warmCitePreviews } from "@/lib/cursor-previews";
 
 const LINK_SELECTOR = "a, button, input, [role=button], .ld-chip, .ldd-btn";
 const CARD_SELECTOR = ".report-card, .step-card, .doc-card, .arc-pt";
@@ -124,22 +124,38 @@ export function CustomCursor() {
       label.textContent = "朱";
     };
 
-    const showPreview = (key: string) => {
-      const data = lookupPreview(key);
-      if (!data) {
-        hidePreview();
-        return;
-      }
+    let activePreviewKey: string | null = null;
+    const renderPreview = (key: string, data: import("@/lib/cursor-previews").Preview) => {
       previewEyebrow.textContent = data.eyebrow ?? "";
       previewEyebrow.style.display = data.eyebrow ? "" : "none";
       previewTitle.textContent = data.title;
       previewMeta.textContent = data.meta;
       previewActive = true;
+      activePreviewKey = key;
       preview.classList.add("is-active");
+    };
+    const showPreview = (key: string) => {
+      const data = lookupPreview(key);
+      if (data) {
+        renderPreview(key, data);
+        return;
+      }
+      // First cite-target: warm and resolve once the index lands.
+      if (key.startsWith("cite:")) {
+        warmCitePreviews();
+        lookupPreviewAsync(key).then((late) => {
+          if (!late) return;
+          if (activePreviewKey !== key) return;
+          renderPreview(key, late);
+        });
+        return;
+      }
+      hidePreview();
     };
     const hidePreview = () => {
       if (!previewActive) return;
       previewActive = false;
+      activePreviewKey = null;
       preview.classList.remove("is-active");
     };
 

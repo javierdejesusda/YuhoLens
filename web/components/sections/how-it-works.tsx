@@ -49,10 +49,14 @@ function FetchDemo() {
     <div className="demo-fetch" ref={ref}>
       <div className="counter">
         <span className="label">PAGE</span>
-        <b>{String(Math.round((pct / 100) * 312)).padStart(3, "0")}</b>
+        <b style={{ fontVariantNumeric: "tabular-nums" }}>
+          {String(Math.round((pct / 100) * 312)).padStart(3, "0")}
+        </b>
       </div>
       <div className="bar" style={{ ["--w" as never]: `${pct}%` }} />
-      <div className="label">DOWNLOADING · EDINET · ROW {pct}%</div>
+      <div className="label" style={{ fontVariantNumeric: "tabular-nums" }}>
+        DOWNLOADING · EDINET · ROW {pct}%
+      </div>
     </div>
   );
 }

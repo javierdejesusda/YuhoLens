@@ -3,6 +3,7 @@ import { useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Reveal } from "@/components/ui/reveal";
 import { SealStamp } from "@/components/ui/seal-stamp";
+import { Arrow } from "@/components/ui/arrow";
 
 const PULSE_SCALE = 70 / 54;
 
@@ -131,7 +132,7 @@ export function AccessCta() {
                 rel="noopener noreferrer"
                 data-cursor-preview="hf:yuholens-14b"
               >
-                Read a sample memo <span className="arr">→</span>
+                Read a sample memo <Arrow className="arr" />
               </a>
             </span>
           </div>

@@ -1,4 +1,3 @@
-import filersData from "@/data/filers.generated.json";
 import type { Filer } from "@/lib/types";
 
 export interface Preview {
@@ -37,10 +36,19 @@ const STATIC_PREVIEWS: Record<string, Preview> = {
   },
 };
 
-const filers = filersData as Filer[];
-const filersByCustomId = new Map<string, Filer>(
-  filers.map((f) => [f.customId, f]),
-);
+let filersByCustomId: Map<string, Filer> | null = null;
+let filersLoading: Promise<Map<string, Filer>> | null = null;
+
+async function loadFilersIndex(): Promise<Map<string, Filer>> {
+  if (filersByCustomId) return filersByCustomId;
+  if (filersLoading) return filersLoading;
+  filersLoading = import("@/data/filers.generated.json").then((mod) => {
+    const filers = (mod.default ?? mod) as Filer[];
+    filersByCustomId = new Map<string, Filer>(filers.map((f) => [f.customId, f]));
+    return filersByCustomId;
+  });
+  return filersLoading;
+}
 
 function truncate(s: string, n: number): string {
   if (!s) return "";
@@ -57,7 +65,8 @@ function metaForCitation(section: string, pageRef: string): string {
   return parts.join(" · ");
 }
 
-function lookupCitePreview(rest: string): Preview | null {
+function lookupCitePreviewSync(rest: string): Preview | null {
+  if (!filersByCustomId) return null;
   const lastColon = rest.lastIndexOf(":");
   if (lastColon < 0) return null;
   const customId = rest.slice(0, lastColon);
@@ -87,7 +96,26 @@ export function lookupPreview(key: string): Preview | null {
   const direct = STATIC_PREVIEWS[key];
   if (direct) return direct;
   if (key.startsWith("cite:")) {
-    return lookupCitePreview(key.slice(5));
+    return lookupCitePreviewSync(key.slice(5));
   }
   return null;
+}
+
+// Optional: callers that want the cite preview can await this. Returns
+// null if the key is unrecognised after the index has loaded.
+export async function lookupPreviewAsync(key: string): Promise<Preview | null> {
+  if (!key) return null;
+  const direct = STATIC_PREVIEWS[key];
+  if (direct) return direct;
+  if (key.startsWith("cite:")) {
+    await loadFilersIndex();
+    return lookupCitePreviewSync(key.slice(5));
+  }
+  return null;
+}
+
+// Eagerly warm the filers index (called on first cite-target hover so
+// subsequent previews are synchronous).
+export function warmCitePreviews(): void {
+  void loadFilersIndex();
 }

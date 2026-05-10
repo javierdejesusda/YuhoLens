@@ -1,51 +1,43 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useScrollState } from "@/lib/use-scroll-state";
-
-const LINKS = [
-  { href: "#problem", label: "Problem" },
-  { href: "#how", label: "How it works" },
-  { href: "#readalong", label: "Read along" },
-  { href: "#hardware", label: "Hardware" },
-];
+import { TOPBAR_LINKS } from "@/lib/sections";
 
 export function TopBar() {
   const { y } = useScrollState();
-  const [innerH, setInnerH] = useState(
-    typeof window !== "undefined" ? window.innerHeight : 0,
-  );
-  const [preloaderTick, setPreloaderTick] = useState(0);
+  const [innerH, setInnerH] = useState(0);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const onResize = () => setInnerH(window.innerHeight);
     onResize();
     window.addEventListener("resize", onResize, { passive: true });
-    const onPreloaderDone = () => setPreloaderTick((t) => t + 1);
-    document.body.addEventListener("yuho:preloader-done", onPreloaderDone);
     return () => {
       window.removeEventListener("resize", onResize);
-      document.body.removeEventListener("yuho:preloader-done", onPreloaderDone);
     };
   }, []);
 
-  // preloaderTick is read so the listener-driven re-render counts as used.
-  void preloaderTick;
-  // Earlier fade-in: the previous 0.7vh threshold felt like a delay —
-  // by the time the topbar appeared the user had already scrolled past
-  // the hero. 0.18vh corresponds to ~160 px on a 900-tall viewport, so
-  // the topbar materialises just as the user has committed to scrolling.
+  // Close drawer on hash change so anchor jumps don't leave it open.
+  useEffect(() => {
+    const close = () => setMenuOpen(false);
+    window.addEventListener("hashchange", close);
+    return () => window.removeEventListener("hashchange", close);
+  }, []);
+
+  // Earlier fade-in: 0.18vh corresponds to ~160 px on a 900-tall viewport,
+  // so the topbar materialises just as the user has committed to scrolling.
   const visible = innerH > 0 ? y > innerH * 0.18 : false;
 
   return (
     <nav
-      className={"topbar" + (visible ? " is-visible" : "")}
+      className={"topbar" + (visible ? " is-visible" : "") + (menuOpen ? " is-menu-open" : "")}
       aria-label="Primary"
     >
       <a href="#hero" className="brand">
         YUHO<span className="dot">·</span>LENS
       </a>
       <ul>
-        {LINKS.map((l) => (
+        {TOPBAR_LINKS.map((l) => (
           <li key={l.href}>
             <a href={l.href}>{l.label}</a>
           </li>
@@ -54,6 +46,39 @@ export function TopBar() {
       <a href="#access" className="cta" data-magnet="hanko">
         Get the weights
       </a>
+      <button
+        type="button"
+        className="topbar__burger"
+        aria-label={menuOpen ? "Close menu" : "Open menu"}
+        aria-expanded={menuOpen}
+        aria-controls="topbar-mobile-menu"
+        onClick={() => setMenuOpen((v) => !v)}
+      >
+        <span aria-hidden="true" />
+        <span aria-hidden="true" />
+      </button>
+      <div
+        id="topbar-mobile-menu"
+        className="topbar__drawer"
+        role="dialog"
+        aria-label="Menu"
+        aria-hidden={!menuOpen}
+      >
+        <ul>
+          {TOPBAR_LINKS.map((l) => (
+            <li key={l.href}>
+              <a href={l.href} onClick={() => setMenuOpen(false)}>
+                {l.label}
+              </a>
+            </li>
+          ))}
+          <li>
+            <a className="topbar__drawer-cta" href="#access" onClick={() => setMenuOpen(false)}>
+              Get the weights
+            </a>
+          </li>
+        </ul>
+      </div>
     </nav>
   );
 }

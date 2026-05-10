@@ -1,29 +1,14 @@
 "use client";
 import { useEffect, useState } from "react";
+import { SECTIONS, type SectionMeta } from "@/lib/sections";
 
-type SectionMeta = { id: string; num: string; ja: string };
-
-// Section ids and § labels mirror the in-section `.section-tag` `.num` and
-// `.ja` text. Keep these in sync with the corresponding section component.
-// Hero / Access intentionally omitted — they bookend the document and don't
-// carry a §-numbered chapter label, so the ribbon hides over those zones.
-const SECTIONS: SectionMeta[] = [
-  { id: "problem", num: "§ 01", ja: "読まれない" },
-  { id: "how", num: "§ 02", ja: "仕組み" },
-  { id: "readalong", num: "§ 02 · 5", ja: "対訳" },
-  { id: "repro", num: "§ 03", ja: "明細" },
-  { id: "hardware", num: "§ 04", ja: "物理" },
-];
+const MARGINALIA_SECTIONS = SECTIONS.filter((s) => s.inMarginalia);
 
 // Editorial running header. Sits in the top-right gutter just below the
 // topbar, fades in 1.5 s after page-load (same delay as ProgressRail) so
 // it never competes with the hero. Reads which section the reader is in
 // by picking the chapter whose vertical centre is closest to the
-// viewport's centre — `intersectionRatio` favours shorter sections (their
-// area-fraction inside any band is higher), so we recompute on each
-// observer fire from `getBoundingClientRect`. The ribbon stays null when
-// no observed section straddles the viewport centre — i.e. while the
-// user is reading the hero or the access bookends, the ribbon hides.
+// viewport's centre.
 export function MarginaliaRibbon() {
   const [active, setActive] = useState<SectionMeta | null>(null);
   const [visible, setVisible] = useState(false);
@@ -37,13 +22,10 @@ export function MarginaliaRibbon() {
     const recompute = () => {
       const viewportCenter = window.innerHeight / 2;
       let best: { meta: SectionMeta; dist: number } | null = null;
-      for (const s of SECTIONS) {
+      for (const s of MARGINALIA_SECTIONS) {
         const el = document.getElementById(s.id);
         if (!el) continue;
         const r = el.getBoundingClientRect();
-        // Section must straddle the centre line — its top above and its
-        // bottom below the viewport midpoint. Otherwise we're between
-        // chapters or outside them entirely (hero / access).
         if (r.top > viewportCenter || r.bottom < viewportCenter) continue;
         const sectionCenter = r.top + r.height / 2;
         const dist = Math.abs(sectionCenter - viewportCenter);
@@ -53,18 +35,13 @@ export function MarginaliaRibbon() {
     };
 
     const obs = new IntersectionObserver(recompute, {
-      // A thin centre band — only fires when sections cross the viewport
-      // midpoint. Combined with the recompute walk above, this gives one
-      // active section at a time without favouring shorter ones.
       rootMargin: "-50% 0px -49.99% 0px",
       threshold: 0,
     });
-    SECTIONS.forEach((s) => {
+    MARGINALIA_SECTIONS.forEach((s) => {
       const el = document.getElementById(s.id);
       if (el) obs.observe(el);
     });
-    // Run once on mount so first paint isn't blank if the observer's
-    // first fire is delayed.
     recompute();
     return () => obs.disconnect();
   }, []);

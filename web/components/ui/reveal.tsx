@@ -47,6 +47,12 @@ export function Reveal({ children, delay = 0, className }: RevealProps) {
     // prefers-reduced-motion + a dropped frame), reveal the content anyway
     // so it can never be permanently hidden by the observer not firing.
     const fallback = window.setTimeout(() => {
+      if (process.env.NODE_ENV !== "production") {
+        // Surface stuck observers in dev so future regressions don't hide
+        // behind the silent fallback.
+        // eslint-disable-next-line no-console
+        console.warn("[Reveal] IntersectionObserver timeout, force-revealing", el);
+      }
       setInstant(true);
       setVisible(true);
     }, 2500);

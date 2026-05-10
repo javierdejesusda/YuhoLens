@@ -36,7 +36,6 @@ function ScriptSnippet({ pageRef }: { pageRef: string }) {
     <section
       className="repro-snippet repro-snippet__root"
       aria-label="First 8 lines of source script"
-      style={{ marginTop: 24 }}
     >
       <header className="mono repro-snippet__header">
         FIRST 8 LINES · {preview.lang.toUpperCase()}
@@ -46,46 +45,6 @@ function ScriptSnippet({ pageRef }: { pageRef: string }) {
         // Trusted: HTML produced at build time from this repo's own source.
         dangerouslySetInnerHTML={{ __html: preview.html }}
       />
-      <style>{`
-        .repro-snippet__root {
-          font-family: var(--font-mono, ui-monospace, SFMono-Regular, monospace);
-        }
-        .repro-snippet__header {
-          color: var(--type-faint, var(--color-type-muted, #888));
-          font-size: 10px;
-          letter-spacing: 0.08em;
-          margin-bottom: 8px;
-        }
-        .repro-snippet__body pre {
-          margin: 0;
-          padding: 12px 14px;
-          border-radius: 2px;
-          overflow-x: auto;
-          background: #0c0d10;
-          border: 1px solid var(--color-rule-strong, #2a2a2a);
-          counter-reset: repro-snippet-line;
-        }
-        .repro-snippet__body code {
-          font-family: inherit;
-          font-size: 11px;
-          line-height: 1.55;
-          color: var(--type-primary, #e6e6e6);
-        }
-        .repro-snippet__body .line {
-          display: block;
-          counter-increment: repro-snippet-line;
-        }
-        .repro-snippet__body .line::before {
-          content: counter(repro-snippet-line, decimal-leading-zero);
-          display: inline-block;
-          width: 2.25em;
-          margin-right: 0.9em;
-          text-align: right;
-          color: var(--type-faint, #5a5a5a);
-          opacity: 0.8;
-          user-select: none;
-        }
-      `}</style>
     </section>
   );
 }
@@ -206,8 +165,8 @@ export function CiteDrawerProvider({ children }: { children: React.ReactNode }) 
                 position: "fixed",
                 inset: 0,
                 background: "rgba(0,0,0,0.4)",
-                zIndex: 998,
-              }}
+                zIndex: "var(--z-overlay)",
+              } as React.CSSProperties}
             />
             <motion.aside
               key="drawer"
@@ -231,10 +190,10 @@ export function CiteDrawerProvider({ children }: { children: React.ReactNode }) 
                 background: "var(--color-ink-mid)",
                 borderLeft: "1px solid var(--color-rule-strong)",
                 padding: 32,
-                zIndex: 999,
+                zIndex: "calc(var(--z-overlay) + 1)",
                 overflowY: "auto",
                 outline: "none",
-              }}
+              } as React.CSSProperties}
             >
               <button
                 ref={closeBtnRef}

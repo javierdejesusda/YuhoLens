@@ -23,6 +23,7 @@ const config: NextConfig = {
   reactStrictMode: true,
   env: {
     NEXT_PUBLIC_BUILD_COMMIT: buildCommit,
+    NEXT_PUBLIC_BUILD_DATE: new Date().toISOString(),
   },
 };
 
