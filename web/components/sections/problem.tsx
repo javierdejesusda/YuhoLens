@@ -1,8 +1,13 @@
+"use client";
 import { PROBLEM_BEATS, type ProblemBeat } from "@/data/manual";
 import { Reveal } from "@/components/ui/reveal";
+import { MorphTarget } from "@/components/ui/morph-target";
+import { MetricTicker } from "@/components/ui/metric-ticker";
 
 const JA_BLOCK =
   "当社グループの事業等のリスクとして、急激な為替変動は営業利益率に重大な影響を及ぼす可能性がある。当連結会計年度における売上収益は前期比3.4%減となり、純利益は前期と比較して17億円の減少となった。なお、自己資本比率は…";
+
+const RECEIPTS_PAIR = ["receipts", "領収書"] as const;
 
 function BeatDemo({ kind }: { kind: ProblemBeat["demoKind"] }) {
   if (kind === "wall") {
@@ -67,13 +72,18 @@ export function Problem() {
       </Reveal>
       <Reveal>
         <h2 className="section-title">
-          Eighty-eight thousand pages, <span className="accent">mostly unread.</span>
+          Every Japanese annual report. <span className="accent">Read in English.</span> With{" "}
+          <MorphTarget pairs={RECEIPTS_PAIR} className="accent" />.
         </h2>
       </Reveal>
       <Reveal>
         <p className="section-lede">
-          Japan publishes some of the world&rsquo;s most rigorous financial disclosures. Almost no one outside Japan reads them.
+          Japan publishes 88,000 pages of rigorous financial disclosure each year. Almost no one outside Japan reads them.
         </p>
+      </Reveal>
+
+      <Reveal delay={1}>
+        <MetricTicker />
       </Reveal>
 
       <div className="beats">
@@ -89,6 +99,17 @@ export function Problem() {
           </Reveal>
         ))}
       </div>
+
+      <Reveal delay={2}>
+        <div className="problem-ctas">
+          <a className="btn-primary" href="#access">
+            Read a sample memo <span className="arr">→</span>
+          </a>
+          <a className="btn-secondary" href="#repro">
+            How it was built
+          </a>
+        </div>
+      </Reveal>
     </section>
   );
 }

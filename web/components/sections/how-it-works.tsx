@@ -2,10 +2,6 @@
 import { useEffect, useRef, useState } from "react";
 import { HOW_STEPS, type HowStep } from "@/data/manual";
 import { Reveal } from "@/components/ui/reveal";
-import { MorphTarget } from "@/components/ui/morph-target";
-import { useInkPressure } from "@/lib/use-ink-pressure";
-
-const MEMO_PAIR = ["memo", "覚書"] as const;
 
 function TypingDemo() {
   const [text, setText] = useState("");
@@ -90,8 +86,6 @@ function CiteDemo() {
       sups.forEach((s) => s.classList.remove("show"));
       words.forEach((w, i) => schedule(() => w.classList.add("is-on"), i * 110));
       const supBase = words.length * 110 + 200;
-      // Show one tooltip at a time so the popovers never stack on top of
-      // each other or visually leak into the surrounding card content.
       sups.forEach((s, i) => {
         const start = supBase + i * 1500;
         schedule(() => s.classList.add("show"), start);
@@ -128,26 +122,26 @@ function StepDemo({ kind }: { kind: HowStep["demoKind"] }) {
 }
 
 export function HowItWorks() {
-  const pressure = useInkPressure();
   return (
-    <section className="how is-paper-anchor-left" id="how" data-paper-stage="how">
+    <section className="how is-paper-anchor-right" id="how" data-paper-stage="how">
       <Reveal>
         <div className="section-tag">
           <span className="num">§ 02</span>
-          <span>The mechanism</span>
+          <span>How it works</span>
           <span className="ja">仕組み</span>
           <span className="rule" />
         </div>
       </Reveal>
       <Reveal>
         <h2 className="section-title">
-          Three steps. <span className="accent">Fourteen billion parameters.</span> One{" "}
-          <MorphTarget pairs={MEMO_PAIR} pressure={pressure} className="accent" />.
+          A four-stage pipeline. <span className="accent">Span-grounded.</span> Refuses when uncertain.
         </h2>
       </Reveal>
       <Reveal>
         <p className="section-lede">
-          A four-agent LangGraph pipeline running on a single AMD Instinct MI300X. Span-cited or refused — never confidently wrong.
+          Section-split → translate-with-context → citation-grounder → judge. Every claim ties to a verbatim
+          Japanese span; sentences without grounding are replaced with{" "}
+          <em>[evidence insufficient]</em>.
         </p>
       </Reveal>
 
@@ -165,6 +159,12 @@ export function HowItWorks() {
           </Reveal>
         ))}
       </div>
+
+      <Reveal delay={2}>
+        <p className="how-exit-caption" aria-hidden="true">
+          — end of pass · paper out
+        </p>
+      </Reveal>
     </section>
   );
 }

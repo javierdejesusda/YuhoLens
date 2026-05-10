@@ -18,6 +18,30 @@ const QUANTS: Quant[] = [
   { id: "Q8_0", label: "Q8_0", size: 14.03, blurb: "Reference quant · 16 GB VRAM" },
 ];
 
+type FactCard = {
+  num: string;
+  headline: string;
+  caption: string;
+};
+
+const FACTS: FactCard[] = [
+  {
+    num: "192 GB",
+    headline: "HBM3 in one accelerator",
+    caption: "Largest single-GPU memory in production. An 80 GB H100 cannot fit this run.",
+  },
+  {
+    num: "ROCm 7.0",
+    headline: "Full-stack open",
+    caption: "Same toolchain in dev and prod. PyTorch, FlashAttention, vLLM — all upstream.",
+  },
+  {
+    num: "5.3 TB/s",
+    headline: "HBM3 bandwidth",
+    caption: "Why long-context Japanese filings stream through SFT without OOM at seq_len 8 192.",
+  },
+];
+
 const PAPER_RGB: [number, number, number] = [244, 234, 211];
 const VERMILION_RGB: [number, number, number] = [232, 80, 58];
 const MIN_SIZE = QUANTS[0].size;
@@ -168,29 +192,56 @@ export function HardwareFit() {
 
   return (
     <section
-      className="hw-section is-paper-anchor-left"
+      className="hw-section is-paper-anchor-center"
       id="hardware"
       data-paper-stage="hardware"
+      data-paper-hide
     >
       <Reveal>
         <div className="section-tag">
-          <span className="num">§ 02 · 6</span>
-          <span>Hardware fit</span>
-          <span className="ja">適合</span>
+          <span className="num">§ 04</span>
+          <span>Hardware</span>
+          <span className="ja">物理</span>
           <span className="rule" />
         </div>
       </Reveal>
 
-      <div className="hw-grid">
-        <Reveal>
-          <div>
-            <h2 className="section-title">
-              7.18 → 14.03 GiB <span className="accent">on a laptop.</span>
-            </h2>
-            <p className="section-lede">
-              Five GGUF quantizations ship with the model — from a 7.18 GiB Q3_K_M that fits an
-              8 GB-VRAM laptop to a 14.03 GiB Q8_0 reference quant. Click a bar for size delta
-              against the Q4_K_M baseline.
+      <Reveal>
+        <div className="hw-intro">
+          <h2 className="section-title">
+            Trained on AMD Instinct MI300X.{" "}
+            <span className="accent">192 GB HBM3. ROCm 7.0.</span>
+          </h2>
+          <p className="section-lede">
+            Full-parameter SFT of a 14B model at sequence length 8,192 needs ~140 GB peak VRAM.
+            The MI300X has 192 GB of HBM3 in a single accelerator — an 80 GB H100 cannot fit this
+            run. We trained on a single MI300X for 23 days at ~$3.50/hour, then exported six GGUF
+            quantizations so the same model fits on consumer 8 GB laptops.
+          </p>
+        </div>
+      </Reveal>
+
+      <Reveal delay={1}>
+        <div className="hw-facts" role="list" aria-label="MI300X hardware facts">
+          {FACTS.map((fact) => (
+            <article className="hw-fact" role="listitem" key={fact.num}>
+              <div className="hw-fact-num">{fact.num}</div>
+              <div className="hw-fact-headline">{fact.headline}</div>
+              <p className="hw-fact-caption">{fact.caption}</p>
+            </article>
+          ))}
+        </div>
+      </Reveal>
+
+      <Reveal delay={2}>
+        <div className="hw-quants-block">
+          <div className="hw-quants-head">
+            <h3 className="hw-quants-title">
+              Same weights, six sizes — <span className="accent">7.18 → 14.03 GiB</span>
+            </h3>
+            <p className="hw-quants-sub">
+              Five GGUF quantizations ship with the model. Click any bar for size delta against
+              the Q4_K_M baseline.
             </p>
             <p className="hw-throughput" aria-label="Throughput on consumer hardware">
               <span className="hw-throughput-num">10.06 tok/s</span>
@@ -199,22 +250,26 @@ export function HardwareFit() {
               </span>
             </p>
           </div>
-        </Reveal>
 
-        <div className="hw-bars" ref={barsRef}>
-          {QUANTS.map((q, i) => (
-            <QuantBar
-              key={q.id}
-              quant={q}
-              index={i}
-              isOpen={openId === q.id}
-              onToggle={() => setOpenId((cur) => (cur === q.id ? null : q.id))}
-              inView={inView}
-              prefersReducedMotion={!!prefersReducedMotion}
-            />
-          ))}
+          <div className="hw-bars" ref={barsRef}>
+            {QUANTS.map((q, i) => (
+              <QuantBar
+                key={q.id}
+                quant={q}
+                index={i}
+                isOpen={openId === q.id}
+                onToggle={() => setOpenId((cur) => (cur === q.id ? null : q.id))}
+                inView={inView}
+                prefersReducedMotion={!!prefersReducedMotion}
+              />
+            ))}
+          </div>
+
+          <p className="hw-closing">
+            Train on MI300X. Run on a Macbook. <span className="accent">Same weights.</span>
+          </p>
         </div>
-      </div>
+      </Reveal>
     </section>
   );
 }

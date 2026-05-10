@@ -5,16 +5,9 @@ const SECTIONS = [
   { id: "hero", label: "Hero" },
   { id: "problem", label: "Problem" },
   { id: "how", label: "How" },
-  { id: "repro", label: "Repro" },
-  { id: "demo", label: "Demo" },
-  { id: "hardware", label: "Hardware" },
-  { id: "dag", label: "DAG" },
   { id: "readalong", label: "Read-along" },
-  { id: "kg2", label: "KG-2" },
-  { id: "reports", label: "Reports" },
-  { id: "failures", label: "Failures" },
-  { id: "manifest", label: "Manifest" },
-  { id: "faq", label: "FAQ" },
+  { id: "repro", label: "Repro" },
+  { id: "hardware", label: "Hardware" },
   { id: "access", label: "Access" },
 ];
 

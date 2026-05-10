@@ -40,44 +40,54 @@ type StagePose = {
 
 type TextureKey = "hero" | "problem" | "how" | "rail" | "manifest" | "footer";
 
-// Bigger / more present poses — user complained the LEFT pose was too
-// small. Both LEFT and RIGHT are bumped to s ≈ 1.20 for symmetry so the
-// paper has equal weight on either side as the alternation cycles. The
-// x offsets are pushed past the half-viewport edge (~±2.4) so the paper
-// rides outside the content reading column instead of bleeding into it.
+// Hero now centres the paper for a single full-bleed cinematic moment.
+// CENTRE_HERO sits the paper right in the middle of the viewport with
+// a slightly larger scale so it carries the whole frame without any
+// flanking copy. After hero, the cycle reverts to LEFT/RIGHT.
+// Phase 1 paper centred. The cover overlay (brand + tagline) sits ON
+// the paper magazine-cover style, with a cream halo to keep it
+// readable over the Japanese filing texture.
+const CENTRE_HERO   = { x:  0.00, y: 0.00, z: 0.20,  rx: -0.04, ry:  0.00, rz: -0.02, s: 1.18 } as const;
 const LEFT_BIG_NEAR = { x: -2.55, y: 0.05, z: 0.10,  rx: -0.05, ry:  0.26, rz: -0.04, s: 1.18 } as const;
-const LEFT_BIG_MID  = { x: -2.40, y: 0.10, z: -0.05, rx: -0.05, ry:  0.22, rz: -0.04, s: 1.14 } as const;
 const RIGHT_BIG_NEAR = { x: 2.55, y: 0.05, z: 0.10,  rx: -0.05, ry: -0.26, rz: 0.04, s: 1.18 } as const;
-const RIGHT_BIG_MID  = { x: 2.40, y: 0.10, z: -0.05, rx: -0.05, ry: -0.22, rz: 0.04, s: 1.14 } as const;
-const RIGHT_DEEP = { x: 2.20, y: 0.18, z: -0.22, rx: -0.07, ry: -0.20, rz: 0.04, s: 0.96 } as const;
-// Manifest, faq, access used to dock the paper at x≈0 (CENTRE_FAR /
-// MANIFEST_CLOSE) which crashed straight into centred headlines and the
-// tenets list. They now ride the side opposite their content gutter so
-// the paper-anchor-{left,right} CSS pulls headlines to the empty half
-// while the paper itself stays in the matching half.
-const MANIFEST_DOCK = { x: 2.30, y: -0.20, z: -0.30, rx: -0.04, ry: -0.20, rz: 0.05, s: 1.02 } as const;
-const FAQ_DOCK = { x: -2.30, y: 0.05, z: -0.20, rx: -0.04, ry: 0.20, rz: -0.05, s: 1.02 } as const;
-const ACCESS_DOCK = { x: 2.45, y: -0.30, z: -0.45, rx: -0.06, ry: -0.18, rz: 0.06, s: 0.92 } as const;
+// Hide-zone parking poses: paper will already be faded by data-paper-hide,
+// these just keep the underlying spring values from snapping if the user
+// scrolls back up and the hide section becomes briefly active.
+const PARK_RIGHT = { x: 2.55, y: 0.10, z: 0.0, rx: -0.05, ry: -0.22, rz: 0.04, s: 1.10 } as const;
 
-// Side alternation: hero=RIGHT, problem=LEFT, how=LEFT, repro=RIGHT,
-// demo=RIGHT (hide), hardware=LEFT (hide), dag=RIGHT, readalong=LEFT,
-// kg2=RIGHT (deep), failures=LEFT. Flips between visible stages trigger
-// the fly-out state machine in the loop.
+// Side flow: hero=CENTRE, problem=LEFT, how=RIGHT, then the paper exits
+// and stays gone for everything after readalong. The opposite-side flip
+// between problem and how triggers the fly-out cycle; the transition
+// from how → readalong (a data-paper-hide section) lets the natural
+// fade-out + exit-transform path send the paper off-screen for good.
+// Hero phase 2: same texture, but the paper auto-slides to the LEFT and
+// the camera pulls back to the editorial Z=11 plane. Triggered by the
+// Hero component flipping data-hero-phase="2" on its section element a
+// few seconds after first paint.
+const HERO_PHASE_2: StagePose = {
+  ...LEFT_BIG_NEAR,
+  side: "left",
+  texture: "hero",
+  inkProgram: 0,
+};
+
 const STAGES: Record<StageKey, StagePose> = {
-  hero: { ...RIGHT_BIG_NEAR, side: "right", texture: "hero", inkProgram: 0 },
+  hero: { ...CENTRE_HERO, side: "centre", texture: "hero", inkProgram: 0 },
   problem: { ...LEFT_BIG_NEAR, side: "left", texture: "problem", inkProgram: 1 },
-  how: { ...LEFT_BIG_MID, side: "left", texture: "how", inkProgram: 2 },
-  repro: { ...RIGHT_BIG_MID, side: "right", texture: "rail", inkProgram: 3 },
-  demo: { ...RIGHT_BIG_NEAR, side: "right", texture: "rail", inkProgram: 3 },
-  hardware: { ...LEFT_BIG_NEAR, side: "left", texture: "rail", inkProgram: 3 },
-  dag: { ...RIGHT_BIG_MID, side: "right", texture: "how", inkProgram: 2 },
-  readalong: { ...LEFT_BIG_MID, side: "left", texture: "problem", inkProgram: 1 },
-  kg2: { ...RIGHT_DEEP, side: "right", texture: "rail", inkProgram: 3 },
-  reports: { ...RIGHT_BIG_MID, side: "right", texture: "rail", inkProgram: 3 },
-  failures: { ...LEFT_BIG_NEAR, side: "left", texture: "problem", inkProgram: 1 },
-  manifest: { ...MANIFEST_DOCK, side: "right", texture: "manifest", inkProgram: 4 },
-  faq: { ...FAQ_DOCK, side: "left", texture: "manifest", inkProgram: 4 },
-  access: { ...ACCESS_DOCK, side: "right", texture: "footer", inkProgram: 5 },
+  how: { ...RIGHT_BIG_NEAR, side: "right", texture: "how", inkProgram: 2 },
+  readalong: { ...PARK_RIGHT, side: "right", texture: "how", inkProgram: 2 },
+  repro: { ...PARK_RIGHT, side: "right", texture: "rail", inkProgram: 3 },
+  hardware: { ...PARK_RIGHT, side: "right", texture: "rail", inkProgram: 3 },
+  access: { ...PARK_RIGHT, side: "right", texture: "footer", inkProgram: 5 },
+  // Legacy stages — kept so type stays in sync with old data-paper-stage
+  // attributes if they linger; all park on the right and are fade-hidden.
+  demo: { ...PARK_RIGHT, side: "right", texture: "rail", inkProgram: 3 },
+  dag: { ...PARK_RIGHT, side: "right", texture: "how", inkProgram: 2 },
+  kg2: { ...PARK_RIGHT, side: "right", texture: "rail", inkProgram: 3 },
+  reports: { ...PARK_RIGHT, side: "right", texture: "rail", inkProgram: 3 },
+  failures: { ...PARK_RIGHT, side: "right", texture: "problem", inkProgram: 1 },
+  manifest: { ...PARK_RIGHT, side: "right", texture: "manifest", inkProgram: 4 },
+  faq: { ...PARK_RIGHT, side: "right", texture: "manifest", inkProgram: 4 },
 };
 
 const cachedTextures: Partial<Record<TextureKey, THREE.Texture>> = {};
@@ -171,50 +181,146 @@ function paperStamp(g: CanvasRenderingContext2D, x: number, y: number, glyph: st
 
 const buildHero = (g: CanvasRenderingContext2D) => {
   paperBase(g);
+  // Memo header: filing identifier in Japanese on the left, filing
+  // identifier in English/EDINET on the right — like the running header
+  // of an actual yūhō page.
   paperHeader(g, "有価証券報告書 · 第120期", "EDINET 00271 · p.23 / 142");
-  g.fillStyle = "#15161A";
-  g.font = "700 44px 'Noto Serif JP', serif";
+
+  // Brand title block — sits at the top of the page like a memo
+  // masthead: red 朱 sigil, "YuhoLens" wordmark, and a Japanese subtitle
+  // identifying what this memo is about.
+  const brandY = 200;
+  g.fillStyle = "#E8503A";
+  g.font = "700 96px 'Noto Serif JP', serif";
   g.textAlign = "left";
   g.textBaseline = "alphabetic";
-  g.fillText("事業等のリスク", 70, 180);
-  g.font = "400 26px 'Noto Serif JP', serif";
+  g.fillText("朱", 70, brandY);
+
+  g.fillStyle = "#15161A";
+  g.font = "500 72px 'Playfair Display', serif";
+  g.fillText("YuhoLens", 184, brandY - 4);
+
+  // Japanese subtitle pinned to the right of the masthead — gives the
+  // memo its actual subject ("Japanese filings · annotated").
+  g.fillStyle = "#3A3833";
+  g.font = "500 32px 'Noto Serif JP', serif";
+  g.textAlign = "right";
+  g.fillText("日本の有価証券報告書 · 註釈付", TEX_W - 70, brandY - 30);
+  g.fillStyle = "#7A6D55";
+  g.font = "italic 400 24px 'Playfair Display', serif";
+  g.fillText("Japanese filings, annotated.", TEX_W - 70, brandY);
+
+  // Heavy rule under the masthead — separates the title block from the
+  // body of the memo.
+  g.strokeStyle = "rgba(14,14,16,0.55)";
+  g.lineWidth = 1.6;
+  g.beginPath();
+  g.moveTo(70, brandY + 36);
+  g.lineTo(TEX_W - 70, brandY + 36);
+  g.stroke();
+
+  // Section heading — like the start of a new chapter inside the filing.
+  g.fillStyle = "#15161A";
+  g.font = "700 38px 'Noto Serif JP', serif";
+  g.textAlign = "left";
+  g.textBaseline = "alphabetic";
+  g.fillText("第二　事業等のリスク", 70, brandY + 92);
+  g.fillStyle = "#7A6D55";
+  g.font = "italic 400 22px 'Playfair Display', serif";
+  g.textAlign = "right";
+  g.fillText("II.  Risks affecting the business", TEX_W - 70, brandY + 92);
+
+  // Dense Japanese body — three paragraphs of filing prose with English
+  // marginalia/glosses on the right. Reads like a real yūhō page.
   g.textBaseline = "top";
-  const lines = [
-    "為替相場の変動は当社グループの営業利益率に重大",
-    "な影響を及ぼす可能性があり、特に急激な円安は電子",
-    "部品セグメントにおいて原材料コストを押し上げる",
-    "要因となる。当社は為替予約等のヘッジ取引を実施",
-    "しているものの、長期的な相場変動を完全に相殺",
-    "することは困難である。",
+  g.textAlign = "left";
+  g.fillStyle = "#15161A";
+  g.font = "400 24px 'Noto Serif JP', serif";
+
+  // Paragraph 1: currency-risk preamble.
+  const para1: string[] = [
+    "（１）為替相場の変動について",
+    "  当社グループは海外売上高比率が高く、為替相場の変",
+    "  動が連結業績に及ぼす影響は大きい。特に米ドル及び",
+    "  ユーロに対する円安進行は、輸入原材料コストの上昇",
+    "  を通じて電子部品セグメントの営業利益率に重大な影",
+    "  響を及ぼす可能性がある。当社は為替予約等のヘッジ",
+    "  取引を実施しているものの、長期的な相場変動を完全",
+    "  に相殺することは困難である。",
   ];
-  let y = 230;
-  for (const l of lines) {
+  let y = brandY + 142;
+  for (const l of para1) {
     g.fillText(l, 70, y);
-    y += 42;
+    y += 34;
   }
+  // Highlight on the operative span (currency-risk → margin compression).
   g.fillStyle = "rgba(232,80,58,0.22)";
-  g.fillRect(70, 273, TEX_W - 200, 38);
-  g.fillStyle = "rgba(232,80,58,0.18)";
-  g.fillRect(70, 357, 380, 38);
-  y += 30;
+  g.fillRect(70, brandY + 282, TEX_W - 220, 36);
+  g.fillStyle = "#15161A";
+  g.font = "400 24px 'Noto Serif JP', serif";
+
+  // Paragraph 2: financial impact statement.
+  y += 14;
+  const para2: string[] = [
+    "（２）当連結会計年度の業績への影響",
+    "  当連結会計年度における売上収益は前期比3.4%減と",
+    "  なり、営業利益は17億円減少した。自己資本比率は",
+    "  46.2%（前期末比 ▲1.8pt）に低下している。",
+  ];
+  for (const l of para2) {
+    g.fillText(l, 70, y);
+    y += 34;
+  }
+
+  // Paragraph 3: hedging caveat.
+  y += 14;
+  const para3: string[] = [
+    "（３）ヘッジ方針の限界",
+    "  当社は通常１２ヶ月以内の為替予約契約を主としてお",
+    "  り、構造的・長期的な円安傾向には対応していない。",
+  ];
+  for (const l of para3) {
+    g.fillText(l, 70, y);
+    y += 34;
+  }
+
+  // English marginalia — stacked at the foot of the body, italic
+  // Playfair like an editor's gloss in the margin of an annotated text.
+  y += 28;
+  g.strokeStyle = "rgba(14,14,16,0.3)";
+  g.lineWidth = 1;
+  g.beginPath();
+  g.moveTo(70, y);
+  g.lineTo(TEX_W - 70, y);
+  g.stroke();
+  y += 18;
   g.fillStyle = "#5C594F";
   g.font = "italic 400 22px 'Playfair Display', serif";
-  for (const l of [
+  g.fillText(
     "Prolonged yen weakness materially compresses",
+    70,
+    y,
+  );
+  y += 28;
+  g.fillText(
     "operating margin in the electronic-components segment.¹",
-  ]) {
-    g.fillText(l, 70, y);
-    y += 30;
-  }
-  y += 14;
-  for (const l of ["Hedging via forwards cannot fully offset long-cycle", "currency drift.²"]) {
-    g.fillText(l, 70, y);
-    y += 30;
-  }
+    70,
+    y,
+  );
+  y += 22;
+  g.fillText("Hedging via forwards cannot fully offset long-cycle", 70, y);
+  y += 28;
+  g.fillText("currency drift.²", 70, y);
+
+  // Citation receipts — vermilion mono labels stamped at the foot,
+  // showing the page+span every claim is grounded in.
   g.fillStyle = "#E8503A";
   g.font = "500 18px 'JetBrains Mono', monospace";
-  g.fillText("[1] 営業利益率 — p.23 §2.1", 70, y + 30);
-  g.fillText("[2] 為替予約 — p.24 §2.1", 70, y + 60);
+  g.fillText("[1] 営業利益率 — p.23 §2.1", 70, y + 36);
+  g.fillText("[2] 為替予約 — p.24 §2.1", 70, y + 64);
+
+  // Vermilion 朱 hanko at the lower right — signs the page like a
+  // chop on a real filing.
   paperStamp(g, TEX_W - 180, TEX_H - 220, "朱");
   paperFooter(g, "YUHOLENS · ingest", "span-cited · ✓");
 };
@@ -1338,7 +1444,15 @@ export function PaperRail() {
           }
         }
 
-        const t = STAGES[activeStage];
+        // Hero phase override: when the Hero component flips
+        // data-hero-phase="2" on its section, the paper auto-slides from
+        // CENTRE_HERO to a LEFT pose without any user scroll. We branch
+        // on the live attribute so React state and the rAF loop stay in
+        // sync without an extra event listener.
+        const inHeroPhase2 =
+          activeStage === "hero" &&
+          heroEl?.dataset.heroPhase === "2";
+        const t = inHeroPhase2 ? HERO_PHASE_2 : STAGES[activeStage];
 
         spX.target(t.x, dt);
         spY.target(t.y, dt);
@@ -1375,14 +1489,12 @@ export function PaperRail() {
         const punch = spPunch.value;
         const stageScale = t.s * scrollZoom * punch;
 
-        // Camera dolly: hero / kg2 / manifest pull the camera in close
-        // (Z=8.0 — dramatic) while interstitial stages sit wider (Z=11)
-        // so the paper has room to fly out without clipping.
-        const dramatic =
-          activeStage === "hero" ||
-          activeStage === "kg2" ||
-          activeStage === "manifest";
-        const camTarget = dramatic ? 8.0 : 11.0;
+        // Camera dolly: hero pulls the camera in close (Z=7.6 — the
+        // single cinematic moment, paper centred and large) while the
+        // problem and how stages sit wider (Z=11) to leave room for
+        // copy on the opposite side and the fly-out arc.
+        const dramatic = activeStage === "hero" && !inHeroPhase2;
+        const camTarget = dramatic ? 7.6 : 11.0;
         spCamZ.target(camTarget, dt);
 
         const exitDirX = exitSide === "left" ? -1 : 1;

@@ -1,13 +1,30 @@
-import { MetricTicker } from "@/components/ui/metric-ticker";
-import { MorphTarget } from "@/components/ui/morph-target";
+"use client";
+import { useEffect, useState } from "react";
+
+const PHASE_DELAY_MS = 3200;
 
 export function Hero() {
+  const [phase, setPhase] = useState<1 | 2>(1);
+
+  useEffect(() => {
+    const reduced =
+      typeof window !== "undefined" &&
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) {
+      setPhase(2);
+      return;
+    }
+    const t = window.setTimeout(() => setPhase(2), PHASE_DELAY_MS);
+    return () => window.clearTimeout(t);
+  }, []);
+
   return (
     <section
-      className="hero is-paper-anchor-right"
+      className="hero is-paper-anchor-center"
       id="hero"
       aria-label="Hero"
       data-paper-stage="hero"
+      data-hero-phase={phase}
     >
       <div className="corner c-tl">
         <span className="dash">—</span> 朱 / SHU · A LENS ON JAPANESE FILINGS
@@ -19,47 +36,29 @@ export function Hero() {
         <span style={{ color: "var(--vermilion)" }}>●</span>
       </div>
 
-      <div className="hero-grid pa-full">
-        <div className="hero-copy">
-          <div className="hero-eyebrow paper-orbit">
+      {/* Phase 1: paper carries the entire title — brand + tagline are
+          printed on the document texture itself (see buildHero in
+          paper-rail). No HTML overlay needed; the four corners frame
+          the cover like masthead chrome. */}
+
+      <div className="hero-stage" aria-hidden={phase === 1}>
+        <div className="hero-stage__copy">
+          <p className="hero-stage__eyebrow">
             <span className="sq" />
             <span>Vol. II — Edition 047</span>
-            <span className="jp" lang="ja">有価証券報告書、英訳。</span>
-          </div>
-          <h1 className="hero-title">
-            <span className="line"><span className="inner">Every Japanese</span></span>
-            <span className="line"><span className="inner">annual report.</span></span>
-            <span className="line"><span className="inner"><MorphTarget /></span></span>
-          </h1>
-          <p className="hero-sub">
-            A reading lens for the 88,000 pages of <span className="jp-loan">yūhō</span> filed each year — translated with context, cited to the verbatim source span, refused when uncertain.
+            <span className="hero-stage__sep">·</span>
+            <span className="jp" lang="ja">有価証券報告書、英訳</span>
           </p>
-
-          <MetricTicker />
-
-          <div className="hero-cta-row">
-            <a href="#demo" className="btn-primary">
-              Read a sample memo <span className="arr">→</span>
-            </a>
-            <a href="#repro" className="btn-secondary">
-              How it was built
-            </a>
-          </div>
-
-          <p className="hero-microcopy">
-            <span className="hero-microcopy__dot" aria-hidden="true">·</span>
-            MIT-licensed weights
-            <span className="hero-microcopy__sep" aria-hidden="true">·</span>
-            KG-2 PASS
-            <span className="hero-microcopy__sep" aria-hidden="true">·</span>
-            MI300X-trained
+          <h2 className="hero-stage__title">
+            <span className="line">Translated with</span>
+            <span className="line"><em>span-cited</em> receipts.</span>
+          </h2>
+          <p className="hero-stage__sub">
+            Every claim — currency, margin, segment — links back to a page and span in the original <span className="jp-loan">yūhō</span>. Open weights, GGUF on AMD silicon.
           </p>
-
-          <div className="hero-meta">
-            <span><b>1,910</b> EDINET-Bench rows</span>
-            <span>BF16 SFT + best-of-5</span>
-            <span>Open weights · MIT</span>
-            <span>ROCm 7.0 · MI300X</span>
+          <div className="hero-stage__cta">
+            <a href="#problem" className="hero-stage__btn">Read the case</a>
+            <a href="#access" className="hero-stage__btn is-ghost">Try the model</a>
           </div>
         </div>
       </div>

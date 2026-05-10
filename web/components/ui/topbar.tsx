@@ -5,8 +5,8 @@ import { useScrollState } from "@/lib/use-scroll-state";
 const LINKS = [
   { href: "#problem", label: "Problem" },
   { href: "#how", label: "How it works" },
-  { href: "#reports", label: "Reports" },
-  { href: "#manifest", label: "Manifest" },
+  { href: "#readalong", label: "Read along" },
+  { href: "#hardware", label: "Hardware" },
 ];
 
 export function TopBar() {

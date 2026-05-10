@@ -2,8 +2,12 @@
 import { useEffect, useRef, useState } from "react";
 
 const LETTERS = ["Y", "U", "H", "O", "L", "E", "N", "S"];
-const HOLD_MS = 600;
-const REDUCED_HOLD_MS = 200;
+// Letters animate in over ~700 ms, the JA→EN crossfade fires at 1300 ms
+// and takes 400 ms (ends at 1700 ms). HOLD_MS holds the loader past the
+// crossfade so the user actually sees the English translation settle
+// before the paper slides in.
+const HOLD_MS = 2400;
+const REDUCED_HOLD_MS = 400;
 
 export function Preloader() {
   const rootRef = useRef<HTMLDivElement>(null);

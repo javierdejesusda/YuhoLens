@@ -6,16 +6,9 @@ const STAGES = [
   "hero",
   "problem",
   "how",
-  "repro",
-  "demo",
-  "hardware",
-  "dag",
   "readalong",
-  "kg2",
-  "reports",
-  "failures",
-  "manifest",
-  "faq",
+  "repro",
+  "hardware",
   "access",
 ];
 

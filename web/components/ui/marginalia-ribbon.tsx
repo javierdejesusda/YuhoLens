@@ -10,16 +10,9 @@ type SectionMeta = { id: string; num: string; ja: string };
 const SECTIONS: SectionMeta[] = [
   { id: "problem", num: "§ 01", ja: "読まれない" },
   { id: "how", num: "§ 02", ja: "仕組み" },
-  { id: "repro", num: "§ 02 · 3", ja: "明細" },
-  { id: "demo", num: "§ 02 · 5", ja: "実演" },
-  { id: "hardware", num: "§ 02 · 6", ja: "適合" },
-  { id: "dag", num: "§ 02 · 7", ja: "骨格" },
-  { id: "readalong", num: "§ 02 · 8", ja: "対訳" },
-  { id: "kg2", num: "§ 02 · 9", ja: "実証" },
-  { id: "reports", num: "§ 03", ja: "本棚" },
-  { id: "failures", num: "§ 03 · 5", ja: "節度" },
-  { id: "manifest", num: "§ 04", ja: "節度" },
-  { id: "faq", num: "§ 04 · 5", ja: "余白" },
+  { id: "readalong", num: "§ 02 · 5", ja: "対訳" },
+  { id: "repro", num: "§ 03", ja: "明細" },
+  { id: "hardware", num: "§ 04", ja: "物理" },
 ];
 
 // Editorial running header. Sits in the top-right gutter just below the

@@ -8,13 +8,7 @@ import { resolve, join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseMemoLines } from "../lib/extract-memos";
 import { parseJpName, shortenJpName } from "../lib/parse-jp-name";
-import type {
-  DecoderProfile,
-  Filer,
-  ArcPoint,
-  ReproRow,
-  FailureCase,
-} from "../lib/types";
+import type { DecoderProfile, Filer } from "../lib/types";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -50,49 +44,6 @@ function readDecoderProfiles(): DecoderProfile[] {
     uiLabel: `P-${i + 1}`,
     isDefault: i === 2,
   }));
-}
-
-function readArcPoints(): ArcPoint[] {
-  const FALLBACK_COHERENCE: Record<string, number> = {
-    "v5 single": 3.56,
-    "bo-2 mix": 3.72,
-    "bo-3 seeds": 3.64,
-    "bo-5 SHIP ★": 3.88,
-    "bo-9": 4.04,
-  };
-  const stages: Array<[string, string, string, boolean]> = [
-    ["kg2_scores_v5.json", "v5 single", "T=0.10 · top_p=0.9 · seed=5151", false],
-    ["kg2_scores_bestof_v4v5.json", "bo-2 mix", "v4_mixed_warm + v5_seed_a", false],
-    ["kg2_scores_bo3_picked.json", "bo-3 seeds", "v5_seed_a/b/c", false],
-    ["kg2_scores_bo5_picked.json", "bo-5 SHIP ★", "v4×2 + v5×3 mix", true],
-    ["kg2_scores_bo9_picked.json", "bo-9", "bo5 + 4 new profiles", false],
-  ];
-  return stages.map(([file, label, config, isShip]) => {
-    const path = join(ROOT, "data", "eval", file);
-    const stage = file.replace("kg2_scores_", "").replace(".json", "");
-    if (!existsSync(path)) {
-      console.warn(`⚠ missing ${file} — using fallback coherence`);
-      return {
-        stage,
-        label,
-        coherence: FALLBACK_COHERENCE[label] ?? 3.5,
-        citationRate: 1.0,
-        config,
-        isShip,
-        preview: "",
-      };
-    }
-    const raw = JSON.parse(readFileSync(path, "utf-8"));
-    return {
-      stage,
-      label,
-      coherence: Number(raw.coherence ?? FALLBACK_COHERENCE[label] ?? 3.5),
-      citationRate: Number(raw.citation ?? raw.citation_rate ?? 1.0),
-      config,
-      isShip,
-      preview: typeof raw.preview === "string" ? raw.preview : "",
-    };
-  });
 }
 
 const JP_CHAR_RE = /[぀-ヿ㐀-䶿一-鿿]/g;
@@ -293,113 +244,6 @@ function readFilers(): Filer[] {
   return [...baseTop5.map((m) => toFiler(m)), toFiler(refusalMemo, "REFUSE.X")];
 }
 
-function readReproLedger(): ReproRow[] {
-  return [
-    {
-      key: "Hardware",
-      value: "1× AMD Instinct MI300X — 192 GB HBM3 — ROCm 7.0",
-      tag: "AMD",
-      scriptPath: "configs/sft.yaml",
-      isTotal: false,
-    },
-    {
-      key: "Base model",
-      value:
-        "pfnet/nekomata-14b-pfn-qfin (Qwen 1, 14B, JP-finance pretrained)",
-      tag: "PFN",
-      scriptPath: "src/yuholens/training/sft.py",
-      isTotal: false,
-    },
-    {
-      key: "Fine-tune",
-      value:
-        "Full-parameter SFT · seq 8192 · 2 epochs · lr 1e-5 · paged_adamw_8bit",
-      tag: "SFT",
-      scriptPath: "src/yuholens/training/sft.py",
-      isTotal: false,
-    },
-    {
-      key: "Dataset",
-      value:
-        "1,910 rows from SakanaAI/EDINET-Bench (865 fraud + 549 earnings + 496 industry)",
-      tag: "EDINET",
-      scriptPath: "src/yuholens/training/teacher.py",
-      isTotal: false,
-    },
-    {
-      key: "Inference",
-      value: "4-agent LangGraph · best-of-5 mixed decoder · gpt-5-mini judge",
-      tag: "BO-5",
-      scriptPath: "src/yuholens/agents/graph.py",
-      isTotal: false,
-    },
-    {
-      key: "Eval",
-      value: "KG-2 PASS · coherence 3.88 · citation 1.000 · coverage 0.994",
-      tag: "KG-2",
-      scriptPath: "src/yuholens/eval/run_kg2.py",
-      isTotal: false,
-    },
-    {
-      key: "All-in cost",
-      value: "~$80 · 23 days · open weights",
-      tag: "MIT",
-      scriptPath: "docs/blog_post.md",
-      isTotal: true,
-    },
-  ];
-}
-
-function readFailures(): FailureCase[] {
-  return [
-    {
-      num: "Case 01",
-      type: "Hallucinated number",
-      caughtBy: "Caught by Grounder",
-      headline: [
-        { text: "A claim with " },
-        { text: "no Japanese span", em: true },
-        { text: " gets refused." },
-      ],
-      claim:
-        "Pass-2 drafted a sentence asserting a revenue figure that no Pass-1 span backed. The Citation-Grounder replaces the sentence with [evidence insufficient].",
-      outputBlock:
-        'draft  → "FY25 revenue is forecast at ¥12.4 trillion."\nground → [evidence insufficient]',
-      customId: "fraud_detection-00467",
-    },
-    {
-      num: "Case 02",
-      type: "Ambiguous span",
-      caughtBy: "Resolved by Critic",
-      headline: [
-        { text: "Two candidates disagree — the " },
-        { text: "judge picks the tighter span", em: true },
-        { text: "." },
-      ],
-      claim:
-        "Two of five decoder profiles cited adjacent Japanese spans that overlap. The bo-5 judge selected the candidate whose citations matched a unique Pass-1 span.",
-      outputBlock:
-        "v4_mixed_warm  → score 3 (overlap)\nv5_seed_a      → score 4 ★ (unique span)",
-      customId: "fraud_detection-00580",
-    },
-    {
-      num: "Case 03",
-      type: "Contradictory signal",
-      caughtBy: "Logged · escalated",
-      headline: [
-        { text: "OCF up while DSO stretches — " },
-        { text: "flagged, not muted", em: true },
-        { text: "." },
-      ],
-      claim:
-        "Pass-1 detected a positive operating-cash-flow swing alongside DSO drift. The memo surfaces the tension as a risk note rather than smoothing it away.",
-      outputBlock:
-        "OCF      +2.1B (positive)\nDSO      +6 days  (negative)\nRisk note  ★ kept",
-      customId: "industry_prediction_v2-00119",
-    },
-  ];
-}
-
 function main(): void {
   // Detect whether the gitignored eval sources are present. On Vercel /
   // any clean clone they are not, and we must NOT overwrite the committed
@@ -411,43 +255,16 @@ function main(): void {
     "eval",
     "kg2_memos_bo5_picked.jsonl",
   );
-  const arcSourcePath = join(ROOT, "data", "eval", "kg2_scores_bo5_picked.json");
   const memosSourcePresent = existsSync(memosSourcePath);
-  const arcSourcePresent = existsSync(arcSourcePath);
 
   const profiles = readDecoderProfiles();
-  const repro = readReproLedger();
-  const failures = readFailures();
 
   writeFileSync(
     join(OUT, "decoder-profiles.generated.json"),
     JSON.stringify(profiles, null, 2),
   );
-  writeFileSync(
-    join(OUT, "repro-ledger.generated.json"),
-    JSON.stringify(repro, null, 2),
-  );
-  writeFileSync(
-    join(OUT, "failures.generated.json"),
-    JSON.stringify(failures, null, 2),
-  );
 
   console.log(`✓ wrote ${profiles.length} decoder profiles`);
-  console.log(`✓ wrote ${repro.length} repro rows`);
-  console.log(`✓ wrote ${failures.length} failure cases`);
-
-  if (arcSourcePresent) {
-    const arc = readArcPoints();
-    writeFileSync(
-      join(OUT, "kg2-arc.generated.json"),
-      JSON.stringify(arc, null, 2),
-    );
-    console.log(`✓ wrote ${arc.length} arc points`);
-  } else {
-    console.warn(
-      "⚠ kg2_scores_*.json missing — keeping committed kg2-arc.generated.json",
-    );
-  }
 
   if (memosSourcePresent) {
     const filers = readFilers();

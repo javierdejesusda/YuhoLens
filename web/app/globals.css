@@ -69,6 +69,7 @@
   --type-primary: var(--color-type-primary);
   --type-muted: var(--color-type-muted);
   --type-faint: var(--color-type-faint);
+  --type-base: var(--color-type-primary);
   --rule: var(--color-rule);
   --rule-strong: var(--color-rule-strong);
   --glass: var(--color-glass);
@@ -978,17 +979,34 @@ html.has-paper section[data-paper-hide] .section-lede {
 }
 html.has-paper section:not([data-paper-hide]).is-paper-anchor-right .section-title,
 html.has-paper section:not([data-paper-hide]).is-paper-anchor-right .pa-intro {
-  max-width: 16ch;
+  /* Default for paper-anchor-right titles. Per-section overrides
+     (e.g. .how) widen this further when the title is long. */
+  max-width: 20ch;
 }
 html.has-paper section:not([data-paper-hide]).is-paper-anchor-right .section-lede {
-  max-width: 42ch;
+  max-width: 46ch;
 }
 html.has-paper section:not([data-paper-hide]).is-paper-anchor-left .section-title,
 html.has-paper section:not([data-paper-hide]).is-paper-anchor-left .pa-intro {
-  max-width: 16ch;
+  max-width: 20ch;
 }
 html.has-paper section:not([data-paper-hide]).is-paper-anchor-left .section-lede {
-  max-width: 42ch;
+  max-width: 46ch;
+}
+/* Long-title overrides for the two narrative sections. The new
+   problem/how titles run 8–12 words; 16–20ch forced awkward 4–5
+   line wraps in the half-viewport reading column. */
+html.has-paper .problem .section-title { max-width: 22ch; }
+html.has-paper .problem .section-lede { max-width: 46ch; }
+html.has-paper .how .section-title { max-width: 26ch; }
+html.has-paper .how .section-lede { max-width: 48ch; }
+/* Inside a paper-anchored half-viewport column the 5-cell metric
+   ticker can crowd at 1280–1366; allow it to wrap rather than push
+   long labels (e.g. "Total compute") into ellipsis. */
+html.has-paper .is-paper-anchor-left .metric-ticker,
+html.has-paper .is-paper-anchor-right .metric-ticker {
+  flex-wrap: wrap;
+  row-gap: 6px;
 }
 html.has-paper section:not([data-paper-hide]).is-paper-anchor-center .section-title,
 html.has-paper section:not([data-paper-hide]).is-paper-anchor-center .pa-intro {
@@ -1106,11 +1124,15 @@ section[data-paper-stage] {
   z-index: 2;
   isolation: isolate;
 }
-section[data-paper-stage]:not([data-paper-stage="hero"]) {
+section[data-paper-stage]:not([data-paper-stage="hero"]):not([data-paper-hide]) {
   padding-block: clamp(110px, 13vh, 168px) !important;
   padding-inline: clamp(32px, 6vw, 96px) !important;
   max-width: 1360px;
   margin-inline: auto;
+}
+/* Paper-hidden sections handle their own width — no forced shrink. */
+section[data-paper-stage][data-paper-hide] {
+  padding-block: clamp(96px, 12vh, 144px);
 }
 
 /* When a section is marked data-paper-hide, the paper fades out and
@@ -1219,18 +1241,24 @@ section[data-paper-hide] {
 @media (min-width: 820px) {
   section[data-paper-stage]:not([data-paper-hide]).is-paper-anchor-right
     > *:not(.corner):not(.scroll-hint):not(.hero-grid) {
-    max-width: 54%;
+    /* Loosened from 54% so longer titles + the metric-ticker breathe in
+       the half opposite the paper. min-width keeps the column from
+       collapsing on ~1280–1360 viewports where the paper occupies
+       roughly half the screen; the px cap prevents sprawl on 4K. */
+    max-width: clamp(36rem, 58%, 720px);
+    min-width: min(36rem, 100%);
     margin-right: auto;
     margin-left: 0;
   }
   section[data-paper-stage]:not([data-paper-hide]).is-paper-anchor-left
     > *:not(.corner):not(.scroll-hint):not(.hero-grid) {
-    max-width: 54%;
+    max-width: clamp(36rem, 58%, 720px);
+    min-width: min(36rem, 100%);
     margin-left: auto;
     margin-right: 0;
   }
   section[data-paper-stage]:not([data-paper-hide]).is-paper-anchor-center
-    > *:not(.corner):not(.scroll-hint):not(.hero-grid) {
+    > *:not(.corner):not(.scroll-hint):not(.hero-grid):not(.hero-stage) {
     max-width: 68%;
     margin-inline: auto;
   }
@@ -1252,9 +1280,19 @@ section[data-paper-hide] {
   section[data-paper-stage]:not([data-paper-hide]).is-paper-anchor-left .beats .beat:last-child {
     border-bottom: none;
   }
+  /* Stack the 3 step-cards in a single column when paper occupies the
+     other half. A 2-up grid in a ~540 px reading column squeezes each
+     card to ~260 px and orphans the third on its own row; full-width
+     cards read cleaner against the floating paper and let the
+     demo-areas (typing, fetch, cite) breathe. */
   section[data-paper-stage]:not([data-paper-hide]).is-paper-anchor-right .how-grid,
   section[data-paper-stage]:not([data-paper-hide]).is-paper-anchor-left .how-grid {
-    grid-template-columns: 1fr 1fr !important;
+    grid-template-columns: 1fr !important;
+    gap: 18px;
+  }
+  section[data-paper-stage]:not([data-paper-hide]).is-paper-anchor-right .how-grid .step-card,
+  section[data-paper-stage]:not([data-paper-hide]).is-paper-anchor-left .how-grid .step-card {
+    min-height: 0;
   }
 }
 
@@ -1270,6 +1308,103 @@ section[data-paper-hide] {
   width: 100%;
   overflow: hidden;
   background: transparent;
+}
+/* Hero intro: the paper-rail JS sets --paper-intro on the root from 1
+   down to 0 over ~1500 ms. The hero copy stays tucked away while the
+   paper is filling the viewport, then fades + lifts into place as the
+   paper recedes to its right-anchored hero pose. --paper-intro-brand
+   drives the centred wordmark that punctuates the close-up. */
+.hero .hero-copy {
+  opacity: calc(1 - var(--paper-intro, 0));
+  transform: translateY(calc(var(--paper-intro, 0) * 14px));
+  transition: opacity 220ms var(--ease-out), transform 220ms var(--ease-out);
+  will-change: opacity, transform;
+}
+/* Hero intro mask — a cream "paper" sheet that covers the entire
+   viewport from first paint until the canvas snap. Without this the
+   user briefly sees the dark page background before the WebGL canvas
+   boots, which reads as an empty-page flash. The mask is positioned
+   fixed so it covers the whole screen, sits below the brand overlay
+   (z-index 3, brand is 4) and fades out as --paper-intro releases. */
+.hero-intro-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at center, #F7EDD7 0%, #E8DEC4 100%);
+  opacity: var(--paper-intro, 0);
+}
+/* Hide the custom cursor (a fixed dot at viewport centre on first
+   paint, before mousemove fires) while the intro mask is up — it
+   reads as a stray glyph stuck on the kanji. Releases the moment the
+   snap drops --paper-intro to 0. */
+:where(html) #cursor,
+:where(html) #cursor-dot {
+  opacity: calc(1 - var(--paper-intro, 0));
+}
+.hero-intro-name {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  z-index: 4;
+  pointer-events: none;
+  opacity: var(--paper-intro-brand, 0);
+}
+.hero-intro-name__stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  /* Ride the paper into its hero pose. We track --paper-x / --paper-y
+     (the live screen-space position of the paper, set every frame by
+     the rail loop) so the logo lands ON the paper's center, not at
+     some hard-coded offset. The hero pose normalises --paper-x to ~1
+     which maps to ~28vw to the right of viewport centre. The scale
+     shrinks the stack toward the same proportion the paper occupies
+     in its resting pose. */
+  transform:
+    translateX(calc(var(--paper-x, 0) * 27vw))
+    translateY(calc(var(--paper-y, 0) * 8vh))
+    scale(calc(0.42 + var(--paper-intro-brand, 0) * 0.58));
+  transform-origin: center;
+}
+.hero-intro-name__kanji {
+  display: block;
+  font-family: var(--f-jp);
+  font-size: clamp(7rem, 14vw, 12rem);
+  font-weight: 700;
+  line-height: 0.85;
+  color: var(--vermilion);
+  text-align: center;
+  letter-spacing: -0.02em;
+  text-shadow: 0 6px 30px rgba(232, 80, 58, 0.22);
+}
+.hero-intro-name__wordmark {
+  display: block;
+  font-family: var(--f-display);
+  font-size: clamp(1.4rem, 2.4vw, 2.2rem);
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  /* Reads against the cream paper. */
+  color: #1A1A1F;
+  margin-top: 6px;
+  text-align: center;
+}
+.hero-intro-name__tagline {
+  display: block;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: rgba(26, 26, 31, 0.55);
+  margin-top: 8px;
+  text-align: center;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero .hero-copy { opacity: 1; transform: none; transition: none; }
+  .hero-intro-name { display: none; }
 }
 .hero canvas {
   position: absolute; inset: 0;
@@ -1631,17 +1766,20 @@ h1.hero-title .accent::after {
 .problem .beat .demo {
   margin-top: auto;
   position: relative;
-  border: 1px solid var(--rule);
+  border: 1px solid var(--rule-strong);
   background: var(--ink-deep);
   padding: 18px 16px;
   font-family: var(--f-jp);
-  font-size: 11.5px; line-height: 1.7;
-  color: var(--paper-aged);
+  font-size: 12px; line-height: 1.75;
+  /* Bumped from --paper-aged so the demo body sits at full document
+     contrast (cream on dark) instead of fading into the card. The user
+     was reading the previous tone as "white that needs hover to read". */
+  color: var(--type-primary);
   min-height: 140px;
   overflow: hidden;
   transition: border-color 280ms var(--ease-out);
 }
-.problem .beat:hover .demo { border-color: var(--rule-strong); }
+.problem .beat:hover .demo { border-color: var(--vermilion); }
 .problem .beat .demo::before {
   content: ""; position: absolute; inset: 0;
   background-image: repeating-linear-gradient(0deg, rgba(240, 236, 227, 0.04) 0 1px, transparent 1px 4px);
@@ -1652,19 +1790,53 @@ h1.hero-title .accent::after {
   color: var(--type-faint); text-transform: uppercase;
   position: absolute; top: 14px; right: 16px;
 }
-.problem .beat-1 .demo { filter: blur(1.4px); }
+/* Beat 1 — "the wall": Japanese filing wall stays slightly defocused as
+   the metaphor (this is the unreadable mass), but the blur is softened
+   from 1.4 → 0.7px and the text colour brightened so the user can still
+   trace shapes. Hovering lifts the blur entirely and surfaces the prose. */
+.problem .beat-1 .demo {
+  filter: blur(0.7px);
+  color: var(--paper-aged);
+  transition: filter 320ms var(--ease-out), color 320ms var(--ease-out);
+}
+.problem .beat-1:hover .demo {
+  filter: blur(0);
+  color: var(--type-primary);
+}
 .problem .beat-1 .demo::after {
   content: ""; position: absolute; inset: 0;
-  background: linear-gradient(to bottom, transparent, rgba(14, 14, 16, 0.5));
+  background: linear-gradient(to bottom, transparent 60%, rgba(14, 14, 16, 0.35));
+  pointer-events: none;
 }
 .problem .beat-2 .demo {
   display: grid; grid-template-columns: 1fr 1fr; gap: 0; padding: 0;
-  font-size: 11px; line-height: 1.6;
+  font-size: 11.5px; line-height: 1.6;
 }
-.problem .beat-2 .demo .ja, .problem .beat-2 .demo .mt { padding: 14px; }
-.problem .beat-2 .demo .ja { font-family: var(--f-jp); border-right: 1px dashed var(--rule); }
-.problem .beat-2 .demo .mt { font-family: var(--f-body); font-style: normal; color: var(--type-faint); font-size: 11.5px; line-height: 1.5; }
-.problem .beat-2 .demo .mt strike { color: var(--ink-faint); text-decoration-color: var(--vermilion); }
+.problem .beat-2 .demo .ja,
+.problem .beat-2 .demo .mt { padding: 14px; }
+.problem .beat-2 .demo .ja {
+  font-family: var(--f-jp);
+  color: var(--type-primary);
+  border-right: 1px dashed var(--rule-strong);
+}
+.problem .beat-2 .demo .mt {
+  font-family: var(--f-body);
+  font-style: normal;
+  color: var(--type-primary);
+  font-size: 12px;
+  line-height: 1.55;
+}
+/* The fake-MT bug words are struck through in vermilion but stay
+   readable — we just dim them ~30%, keep the line-through, and tag the
+   strike colour with the brand red so the "wrong word" reads as an
+   editorial markup rather than redacted text. */
+.problem .beat-2 .demo .mt s,
+.problem .beat-2 .demo .mt strike {
+  color: var(--paper-aged);
+  text-decoration: line-through;
+  text-decoration-color: var(--vermilion);
+  text-decoration-thickness: 2px;
+}
 .problem .beat-3 .demo {
   background: linear-gradient(180deg, var(--ink-deep), #1a1b1f);
   font-family: var(--f-body); font-style: normal;
@@ -1672,8 +1844,8 @@ h1.hero-title .accent::after {
 }
 .problem .beat-3 .demo .ja-orig {
   font-family: var(--f-jp); font-style: normal;
-  font-size: 10.5px; color: var(--type-muted);
-  border-top: 1px dashed var(--rule); padding-top: 10px; margin-top: 10px;
+  font-size: 11px; color: var(--paper-aged);
+  border-top: 1px dashed var(--rule-strong); padding-top: 10px; margin-top: 10px;
 }
 .problem .beat-3 .demo sup {
   font-family: var(--f-mono); font-size: 9px;
@@ -1804,6 +1976,8 @@ h1.hero-title .accent::after {
 /* ── Repro ledger ─────────────────────────────────────────────── */
 .repro-section {
   padding: clamp(96px, 12vh, 144px) clamp(32px, 6vw, 96px);
+  max-width: 1280px;
+  margin: 0 auto;
   position: relative; z-index: 3;
   background: transparent;
 }
@@ -4001,4 +4175,530 @@ footer.foot .foot-watermark {
 }
 @media (pointer: coarse) {
   .cite-gloss-tip { display: none; }
+}
+
+/* ==========================================================================
+   Hackathon redesign — May 2026
+   New flow: Hero (paper centre) → Problem (paper left, copy right) → How
+   (paper right, copy left, paper exits) → ReadAlong (kept) → Repro / Hardware
+   / Access (paper hidden, full-width text-rich layouts).
+   ========================================================================== */
+
+/* Hero: two-phase cinematic.
+   Phase 1 — paper centred. The brand mark (朱 / YuhoLens + tagline) is
+              printed onto the paper texture itself (see buildHero in
+              paper-rail.tsx) so the title is the document.
+   Phase 2 — paper auto-slides LEFT (handled by paper-rail HERO_PHASE_2),
+              and a supporting copy block crossfades onto the right
+              column with the actionable subtitle + CTAs.
+   Both phases share the section, switched via [data-hero-phase]. */
+.hero.is-paper-anchor-center {
+  display: block;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* ── Phase 2: Stage (paper LEFT, copy RIGHT) ─────────────────── */
+.hero-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  display: grid;
+  /* Left half stays clear for the paper; right half gets the copy. */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  align-items: center;
+  padding: clamp(96px, 12vh, 130px) clamp(32px, 5vw, 80px) clamp(80px, 10vh, 110px);
+  opacity: 0;
+  transform: translateX(20px);
+  transition:
+    opacity 520ms var(--ease-out),
+    transform 720ms var(--ease-out);
+}
+.hero[data-hero-phase="2"] .hero-stage {
+  opacity: 1;
+  transform: translateX(0);
+  /* Wait for the cover to start clearing + paper to begin its glide. */
+  transition-delay: 380ms;
+  pointer-events: auto;
+}
+.hero-stage__copy {
+  grid-column: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  max-width: 56ch;
+}
+.hero-stage__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--type-muted);
+  margin: 0;
+}
+.hero-stage__eyebrow .sq {
+  width: 6px;
+  height: 6px;
+  background: var(--vermilion);
+  display: inline-block;
+  transform: translateY(-0.5px);
+}
+.hero-stage__eyebrow .jp {
+  font-family: var(--f-jp);
+  letter-spacing: 0.08em;
+  text-transform: none;
+  color: var(--vermilion);
+}
+.hero-stage__sep {
+  color: var(--type-faint);
+  opacity: 0.55;
+}
+.hero-stage__title {
+  font-family: var(--f-display);
+  font-weight: 500;
+  font-size: clamp(2.4rem, 5.6vw, 5.4rem);
+  line-height: 0.96;
+  letter-spacing: -0.045em;
+  color: var(--type-primary);
+  margin: 0;
+  text-wrap: balance;
+  font-feature-settings: "kern", "liga", "calt", "ss01", "ss02";
+}
+.hero-stage__title .line {
+  display: block;
+  /* Stagger lines: phase-2 transition pulls them in after the wrapper. */
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 540ms var(--ease-out),
+    transform 720ms var(--ease-out);
+}
+.hero-stage__title .line:nth-child(1) { transition-delay: 540ms; }
+.hero-stage__title .line:nth-child(2) { transition-delay: 660ms; }
+.hero[data-hero-phase="2"] .hero-stage__title .line {
+  opacity: 1;
+  transform: translateY(0);
+}
+.hero-stage__title em {
+  font-style: italic;
+  color: var(--vermilion);
+}
+.hero-stage__sub {
+  font-family: var(--f-body);
+  font-size: clamp(14.5px, 1.15vw, 17px);
+  line-height: 1.55;
+  color: var(--type-muted);
+  letter-spacing: 0.003em;
+  margin: 0;
+  max-width: 52ch;
+}
+.hero-stage__sub .jp-loan {
+  font-style: italic;
+  color: var(--type-base);
+}
+.hero-stage__cta {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+.hero-stage__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 42px;
+  padding: 0 22px;
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: #f7edd7;
+  background: var(--type-primary);
+  border: 1px solid var(--type-primary);
+  border-radius: 999px;
+  transition:
+    transform 220ms var(--ease-out),
+    background 220ms var(--ease-out),
+    color 220ms var(--ease-out);
+  white-space: nowrap;
+}
+.hero-stage__btn:hover {
+  transform: translateY(-1px);
+  background: var(--vermilion);
+  border-color: var(--vermilion);
+}
+.hero-stage__btn.is-ghost {
+  color: var(--type-primary);
+  background: transparent;
+  border-color: var(--rule);
+}
+.hero-stage__btn.is-ghost:hover {
+  color: var(--vermilion);
+  border-color: var(--vermilion);
+  background: transparent;
+}
+
+/* Scroll hint behaviour: muted in phase 1 (paper still presenting),
+   visible in phase 2 (we're inviting the user to continue). The base
+   scroll-hint rule has its own fadeUp animation; we suppress it in
+   phase 1 so the dot can appear with the right-column copy instead. */
+.hero[data-hero-phase="1"] .scroll-hint {
+  animation: none;
+  opacity: 0;
+  transform: translateX(-50%) translateY(8px);
+  transition: opacity 320ms var(--ease-out), transform 480ms var(--ease-out);
+}
+.hero[data-hero-phase="2"] .scroll-hint {
+  animation: none;
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  transition: opacity 520ms 820ms var(--ease-out), transform 720ms 820ms var(--ease-out);
+}
+
+@media (max-width: 1100px) {
+  .hero-cover { padding: clamp(86px, 12vh, 130px) 28px clamp(72px, 9vh, 110px); }
+  .hero-stage {
+    /* Single column on tablets: the paper anchor disappears at <820px,
+       so above that we keep the copy on the right but a touch tighter. */
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    padding: 110px 28px 88px;
+  }
+  .hero-stage__copy { gap: 18px; }
+}
+@media (max-width: 819px) {
+  /* Below the paper-anchor breakpoint the rail hides; both phases stack
+     into a single centred column so the cover still reads as a title
+     card and phase-2 copy still functions if it kicks in. */
+  .hero-stage {
+    grid-template-columns: 1fr;
+    padding: 110px 24px 80px;
+  }
+  .hero-stage__copy {
+    grid-column: 1;
+    margin-inline: auto;
+    text-align: left;
+  }
+  .hero-cover__brand { gap: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-cover,
+  .hero-stage,
+  .hero-stage__title .line,
+  .hero .scroll-hint {
+    transition: none !important;
+    transform: none !important;
+  }
+  .hero[data-hero-phase="1"] .hero-cover { opacity: 1; }
+  .hero[data-hero-phase="2"] .hero-cover { opacity: 0; }
+  .hero[data-hero-phase="2"] .hero-stage { opacity: 1; }
+  .hero[data-hero-phase="2"] .hero-stage__title .line { opacity: 1; }
+}
+
+/* Problem: paper LEFT, copy RIGHT. The MetricTicker + 3 beats + closing
+   CTAs already render through their existing classes — we just need a
+   tidy CTA row at the bottom. */
+.problem-ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 18px;
+  margin-top: clamp(36px, 4.5vh, 56px);
+  align-items: center;
+  /* Prevent overflow when the column is narrowed by the paper-anchor
+     restraint above. Each CTA stays on its own line if needed. */
+  max-width: 100%;
+}
+.problem-ctas > a { flex: 0 1 auto; }
+
+/* How-it-works: paper RIGHT, copy LEFT. The trailing caption telegraphs
+   the paper exit so the empty space below isn't surprising. */
+.how-exit-caption {
+  margin-top: clamp(40px, 5vh, 64px);
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+  text-align: right;
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--type-faint);
+}
+
+/* Reproducibility ledger — "what's open" strip below the table. Each
+   item is a numbered claim about what we've published. */
+.repro-open-strip {
+  margin-top: 48px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  border-top: 1px solid var(--rule);
+  padding-top: 28px;
+}
+.repro-open-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-right: 16px;
+  border-right: 1px solid var(--rule);
+}
+.repro-open-item:last-child { border-right: none; }
+.repro-open-num {
+  font-size: 10.5px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--vermilion);
+}
+.repro-open-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.repro-open-label {
+  font-family: var(--f-display);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--type-base);
+  line-height: 1.25;
+  letter-spacing: -0.005em;
+}
+.repro-open-sub {
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--type-faint);
+}
+@media (max-width: 980px) {
+  .repro-open-strip { grid-template-columns: repeat(2, 1fr); }
+  .repro-open-item:nth-child(2) { border-right: none; }
+}
+@media (max-width: 560px) {
+  .repro-open-strip { grid-template-columns: 1fr; }
+  .repro-open-item { border-right: none; border-bottom: 1px solid var(--rule); padding-bottom: 12px; }
+  .repro-open-item:last-child { border-bottom: none; }
+}
+
+/* Hardware section — promoted to AMD-judges section. Wide, full-bleed
+   layout (paper hidden) with a 3-card facts grid above the existing
+   GGUF QuantBars. */
+.hw-section {
+  position: relative;
+  padding: 96px 7vw 120px;
+  max-width: 1240px;
+  margin: 0 auto;
+}
+.hw-intro {
+  margin-top: 12px;
+  margin-bottom: 56px;
+  max-width: 70ch;
+}
+.hw-intro .section-title { max-width: 26ch; }
+.hw-intro .section-lede { max-width: 64ch; }
+.hw-facts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  margin: 0 0 64px;
+  border-top: 1px solid var(--rule-strong);
+  border-bottom: 1px solid var(--rule);
+}
+.hw-fact {
+  padding: 28px 28px 32px;
+  border-right: 1px solid var(--rule);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 168px;
+  position: relative;
+  transition: background 240ms var(--ease-out);
+}
+.hw-fact::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0;
+  height: 1px; width: 0;
+  background: var(--vermilion);
+  transition: width 360ms var(--ease-out);
+}
+.hw-fact:hover {
+  background: rgba(232, 80, 58, 0.035);
+}
+.hw-fact:hover::before {
+  width: 32px;
+}
+.hw-fact:last-child { border-right: none; }
+@media (prefers-reduced-motion: reduce) {
+  .hw-fact,
+  .hw-fact::before { transition: none; }
+}
+.hw-fact-num {
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--vermilion);
+}
+.hw-fact-headline {
+  font-family: var(--f-display);
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.012em;
+  color: var(--type-base);
+  line-height: 1.18;
+}
+.hw-fact-caption {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--type-muted);
+}
+.hw-quants-block {
+  margin-top: 8px;
+}
+.hw-quants-head {
+  margin-bottom: 28px;
+}
+.hw-quants-title {
+  font-family: var(--f-display);
+  font-size: 24px;
+  font-weight: 500;
+  letter-spacing: -0.012em;
+  color: var(--type-base);
+  margin: 0 0 6px;
+}
+.hw-quants-sub {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--type-muted);
+  max-width: 64ch;
+  margin: 0;
+}
+.hw-closing {
+  margin-top: 40px;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--type-muted);
+  text-align: right;
+  border-top: 1px dashed var(--rule);
+  padding-top: 18px;
+}
+@media (max-width: 980px) {
+  .hw-section { padding: 72px 5vw 96px; }
+  .hw-facts { grid-template-columns: 1fr; }
+  .hw-fact { border-right: none; border-bottom: 1px solid var(--rule); }
+  .hw-fact:last-child { border-bottom: none; }
+  .hw-fact-headline { font-size: 19px; }
+}
+
+/* Access CTA — closing section. Adds a 3-column "how to use it" grid
+   above the existing pulse-seal CTA + colophon. The .footer-cta shell
+   handles the outer composition; we add inner structure. */
+.section-tag.access-tag {
+  margin-bottom: 18px;
+  justify-content: center;
+}
+.access-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  margin: 44px auto 36px;
+  max-width: 980px;
+  border-top: 1px solid var(--rule-strong);
+  border-bottom: 1px solid var(--rule);
+}
+.access-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 26px 26px 28px;
+  border-right: 1px solid var(--rule);
+  text-decoration: none;
+  color: inherit;
+  text-align: left;
+  position: relative;
+  isolation: isolate;
+  transition:
+    background 220ms var(--ease-out),
+    box-shadow 240ms var(--ease-out);
+}
+.access-card::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0;
+  height: 2px; width: 0;
+  background: var(--vermilion);
+  transition: width 320ms var(--ease-out);
+  z-index: 1;
+}
+.access-card:last-child { border-right: none; }
+.access-card:hover,
+.access-card:focus-visible {
+  background: rgba(232, 80, 58, 0.05);
+  outline: none;
+}
+.access-card:hover::before,
+.access-card:focus-visible::before {
+  width: 100%;
+}
+.access-card:focus-visible {
+  box-shadow: inset 0 0 0 1px var(--vermilion);
+}
+.access-card-num {
+  font-size: 10.5px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--vermilion);
+}
+.access-card-audience {
+  font-family: var(--f-display);
+  font-size: 19px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--type-base);
+  line-height: 1.2;
+}
+.access-card-action {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--type-muted);
+  margin-bottom: 6px;
+}
+.access-card-link {
+  font-size: 10.5px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--vermilion);
+  margin-top: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: letter-spacing 280ms var(--ease-out), color 200ms var(--ease-out);
+}
+.access-card:hover .access-card-link,
+.access-card:focus-visible .access-card-link {
+  letter-spacing: 0.3em;
+  color: var(--vermilion-glow);
+}
+@media (prefers-reduced-motion: reduce) {
+  .access-card,
+  .access-card::before,
+  .access-card-link { transition: none; }
+}
+.access-colophon {
+  margin-top: 28px;
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--type-faint);
+  text-align: center;
+}
+@media (max-width: 880px) {
+  .access-grid { grid-template-columns: 1fr; }
+  .access-card { border-right: none; border-bottom: 1px solid var(--rule); }
+  .access-card:last-child { border-bottom: none; }
 }
