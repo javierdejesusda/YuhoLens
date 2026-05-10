@@ -1346,6 +1346,10 @@ export function PaperRail() {
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(28, W / H, 0.1, 100);
       camera.position.set(0, 0, 8.6);
+      // Hoisted projection constant: tan(fov/2) lets us convert camera-Z
+      // into the world-space half-height of the visible frustum at any
+      // depth, used in the loop to map cursor NDC to paper-local UV.
+      const tanHalfFov = Math.tan((camera.fov * Math.PI) / 360);
 
       const paperGroup = new THREE.Group();
       scene.add(paperGroup);
@@ -1467,7 +1471,11 @@ export function PaperRail() {
 
       const verlet = makeVerlet();
 
-      const keyLight = new THREE.DirectionalLight(0xfff8e8, 1.4);
+      // Lighting: ambient was 0.7, which flooded the scene and crushed
+      // the self-shading on the bend layer (cursor bump, catenary sag,
+      // edge curl all looked flat). Lower ambient + slightly higher key
+      // restores normal-driven contrast so the geometry actually reads.
+      const keyLight = new THREE.DirectionalLight(0xfff8e8, 1.55);
       keyLight.position.set(-2, 2.5, 5);
       scene.add(keyLight);
       const fillLight = new THREE.DirectionalLight(0xffd9b8, 0.55);
@@ -1476,7 +1484,7 @@ export function PaperRail() {
       const rimLight = new THREE.DirectionalLight(0xe8503a, 0.25);
       rimLight.position.set(0, 0, -3);
       scene.add(rimLight);
-      const ambient = new THREE.AmbientLight(0xffffff, 0.7);
+      const ambient = new THREE.AmbientLight(0xffffff, 0.45);
       scene.add(ambient);
 
       const DUST_COUNT = 280;
@@ -2012,21 +2020,54 @@ export function PaperRail() {
         const waveTime = waveStart > 0 ? (now - waveStart) / 600 : 1;
         const wave = waveTime < 1 ? waveTime : 0;
 
-        // Raw cursor UV in paper-screen space. Used as the spring target
-        // for the trailing bump position.
-        const cursorRawU = Math.max(0, Math.min(1, mouseRawX * 0.5 + 0.5));
-        const cursorRawV = Math.max(0, Math.min(1, -mouseRawY * 0.5 + 0.5));
+        // Paper-relative cursor UV. Convert paper world-space centre and
+        // half-extents into NDC using the camera's frustum, then map the
+        // cursor's NDC offset from the paper centre into 0..1 UV space.
+        // Pre-existing code mapped the *whole viewport* to UV, which fired
+        // edge effects on offset stages (problem/how) where the paper
+        // doesn't fill the centre.
+        const halfHWorld = spCamZ.value * tanHalfFov;
+        const halfWWorld = halfHWorld * camera.aspect;
+        const paperRadiusNDCx = (PAPER_W * 0.5 * stageScale) / halfWWorld;
+        const paperRadiusNDCy = (PAPER_H * 0.5 * stageScale) / halfHWorld;
+        const paperCentreNDCx = spX.value / halfWWorld;
+        const paperCentreNDCy = spY.value / halfHWorld;
+        const cursorOffNDCx = mouseRawX - paperCentreNDCx;
+        const cursorOffNDCy = mouseRawY - paperCentreNDCy;
+        const cursorRawU = Math.max(
+          0,
+          Math.min(1, cursorOffNDCx / (2 * paperRadiusNDCx) + 0.5),
+        );
+        const cursorRawV = Math.max(
+          0,
+          Math.min(1, -cursorOffNDCy / (2 * paperRadiusNDCy) + 0.5),
+        );
         // Cursor velocity in NDC. mouseX/Y are the lowpass-filtered cursor
         // (pre-existing); the diff vs raw gives an instantaneous velocity
         // estimate without needing per-frame state.
         const cursorVelX = mouseRawX - mouseX;
         const cursorVelY = mouseRawY - mouseY;
-        // Hover lift: when the cursor is roughly over the paper's
-        // viewport region, add a tiny persistent positive bias. Kept
-        // small (0.004) so it reads as the paper noticing the cursor,
-        // not lifting toward it.
-        const overU = Math.max(0, 1 - Math.max(0, Math.abs(mouseRawX) - 0.35) * 5);
-        const overV = Math.max(0, 1 - Math.max(0, Math.abs(mouseRawY) - 0.5) * 5);
+        // Hover gate: 1 inside the paper's actual NDC bounds, falling to
+        // 0 over a 50%-of-half-extent feathered band past each edge. Now
+        // tracks the paper's real screen position regardless of stage.
+        const fadeU = paperRadiusNDCx * 0.5;
+        const fadeV = paperRadiusNDCy * 0.5;
+        const overU = Math.max(
+          0,
+          Math.min(
+            1,
+            1
+              - Math.max(0, Math.abs(cursorOffNDCx) - paperRadiusNDCx) / fadeU,
+          ),
+        );
+        const overV = Math.max(
+          0,
+          Math.min(
+            1,
+            1
+              - Math.max(0, Math.abs(cursorOffNDCy) - paperRadiusNDCy) / fadeV,
+          ),
+        );
         const hoverLift = overU * overV * 0.004;
         // Press input: signed by horizontal motion (so swipes have
         // direction), magnitude boosted by total speed (so vertical
