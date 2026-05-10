@@ -95,23 +95,25 @@ function OneShotMorph({ className }: { className?: string }) {
   }, []);
 
   const widestPair = FINAL_EN.length >= START_JA.length ? FINAL_EN : START_JA;
+  // Outer is inline-block so its baseline is the baseline of its single in-flow
+  // child (the hidden reservation span). The visible morph layer is taken out of
+  // flow and pinned to the same box, so its glyph metrics never shift the line.
   return (
     <span
       className={className ?? "accent"}
       style={{
-        display: "inline-grid",
+        position: "relative",
+        display: "inline-block",
         verticalAlign: "baseline",
         lineHeight: "inherit",
-        gridTemplateColumns: "max-content",
       }}
     >
       <span
         aria-hidden="true"
         style={{
-          gridArea: "1 / 1",
-          visibility: "hidden",
           fontFamily: "var(--f-jp)",
           fontStyle: "normal",
+          visibility: "hidden",
         }}
       >
         {widestPair}
@@ -120,10 +122,14 @@ function OneShotMorph({ className }: { className?: string }) {
         ref={ref}
         className={done ? "" : "jp"}
         style={{
-          gridArea: "1 / 1",
+          position: "absolute",
+          inset: 0,
+          display: "flex",
+          alignItems: "baseline",
+          justifyContent: "flex-start",
+          fontFamily: "var(--f-jp)",
           fontStyle: "normal",
           willChange: "contents",
-          ...(done ? null : { fontFamily: "var(--f-jp)" }),
         }}
       >
         {FINAL_EN}
@@ -222,26 +228,29 @@ function CyclingMorph({
       className={className ?? "accent"}
       data-phase={phase}
       style={{
-        display: "inline-grid",
+        position: "relative",
+        display: "inline-block",
         verticalAlign: "baseline",
         lineHeight: "inherit",
-        gridTemplateColumns: "max-content",
       }}
     >
       <span
         aria-hidden="true"
         style={{
-          gridArea: "1 / 1",
-          visibility: "hidden",
           fontFamily: "var(--f-jp)",
           fontStyle: "normal",
+          visibility: "hidden",
         }}
       >
         {widestPair}
       </span>
       <span
         style={{
-          gridArea: "1 / 1",
+          position: "absolute",
+          inset: 0,
+          display: "flex",
+          alignItems: "baseline",
+          justifyContent: "flex-start",
           fontFamily: "var(--f-jp)",
           fontStyle: "normal",
           willChange: "contents",
