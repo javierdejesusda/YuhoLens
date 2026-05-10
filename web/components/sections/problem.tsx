@@ -47,13 +47,13 @@ function BeatDemo({ kind }: { kind: ProblemBeat["demoKind"] }) {
         <span style={{ color: "var(--vermilion)", letterSpacing: "0.18em" }}>[evidence insufficient]</span>
         <br />
         <span style={{ color: "var(--type-faint)" }}>
-          — claim about FY25 guidance was
+         , claim about FY25 guidance was
           <br />
           not span-grounded; refused.
         </span>
       </div>
       <div className="ja-orig">
-        「急激な為替変動は営業利益率に重大な影響を及ぼす可能性がある」 — p.23 §2.1
+        「急激な為替変動は営業利益率に重大な影響を及ぼす可能性がある」, p.23 §2.1
       </div>
     </div>
   );

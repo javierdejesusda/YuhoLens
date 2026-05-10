@@ -11,7 +11,7 @@ type Quant = {
 };
 
 const QUANTS: Quant[] = [
-  { id: "Q3_K_M", label: "Q3_K_M", size: 7.18, blurb: "Smallest fit — 8 GB VRAM laptops" },
+  { id: "Q3_K_M", label: "Q3_K_M", size: 7.18, blurb: "Smallest fit, 8 GB VRAM laptops" },
   { id: "Q4_K_M", label: "Q4_K_M", size: 8.81, blurb: "Default · best size/quality trade" },
   { id: "Q5_K_M", label: "Q5_K_M", size: 9.94, blurb: "Tighter rounding · ~12 GB VRAM" },
   { id: "Q6_K", label: "Q6_K", size: 11.46, blurb: "Near-lossless · 12–16 GB VRAM" },
@@ -33,7 +33,7 @@ const FACTS: FactCard[] = [
   {
     num: "ROCm 7.0",
     headline: "Full-stack open",
-    caption: "Same toolchain in dev and prod. PyTorch, FlashAttention, vLLM — all upstream.",
+    caption: "Same toolchain in dev and prod. PyTorch, FlashAttention, vLLM, all upstream.",
   },
   {
     num: "5.3 TB/s",
@@ -214,7 +214,7 @@ export function HardwareFit() {
           </h2>
           <p className="section-lede">
             Full-parameter SFT of a 14B model at sequence length 8,192 needs ~140 GB peak VRAM.
-            The MI300X has 192 GB of HBM3 in a single accelerator — an 80 GB H100 cannot fit this
+            The MI300X has 192 GB of HBM3 in a single accelerator, an 80 GB H100 cannot fit this
             run. We trained on a single MI300X for 23 days at ~$3.50/hour, then exported six GGUF
             quantizations so the same model fits on consumer 8 GB laptops.
           </p>
@@ -237,7 +237,7 @@ export function HardwareFit() {
         <div className="hw-quants-block">
           <div className="hw-quants-head">
             <h3 className="hw-quants-title">
-              Same weights, six sizes — <span className="accent">7.18 → 14.03 GiB</span>
+              Same weights, six sizes, <span className="accent">7.18 → 14.03 GiB</span>
             </h3>
             <p className="hw-quants-sub">
               Five GGUF quantizations ship with the model. Click any bar for size delta against

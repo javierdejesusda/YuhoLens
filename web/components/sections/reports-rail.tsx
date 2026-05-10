@@ -18,7 +18,7 @@ export function ReportsRail() {
   // nothing, fires once per keyboard step. Names follow the brand
   // pattern: "Report 2 of 6 — Nippon Steel".
   const announcement = focusedCard
-    ? `Report ${(focusedIdx ?? 0) + 1} of ${cards.length} — ${focusedCard.enName || focusedCard.jpName}`
+    ? `Report ${(focusedIdx ?? 0) + 1} of ${cards.length}, ${focusedCard.enName || focusedCard.jpName}`
     : "";
 
   return (
@@ -39,7 +39,7 @@ export function ReportsRail() {
         </div>
         <Reveal>
           <h2 className="section-title">
-            The shelf — <span className="accent">span&#8209;cited memos</span> from real EDINET rows.
+            The shelf, <span className="accent">span&#8209;cited memos</span> from real EDINET rows.
           </h2>
         </Reveal>
       </div>
@@ -48,7 +48,7 @@ export function ReportsRail() {
         className="rail-track"
         role="region"
         tabIndex={0}
-        aria-label="Sample memos — horizontal scroll, use arrow keys"
+        aria-label="Sample memos, horizontal scroll, use arrow keys"
       >
         {cards.map((m, i) => {
           const isHovered = hovered === m.customId;
@@ -57,7 +57,7 @@ export function ReportsRail() {
               className="report-card"
               key={m.customId}
               tabIndex={0}
-              aria-label={`Report ${i + 1} of ${cards.length} — ${m.enName || m.jpName}`}
+              aria-label={`Report ${i + 1} of ${cards.length}, ${m.enName || m.jpName}`}
               onMouseEnter={() => setHovered(m.customId)}
               onMouseLeave={() => setHovered((h) => (h === m.customId ? null : h))}
               onFocus={() => {
@@ -88,7 +88,7 @@ export function ReportsRail() {
                 {(m.memo[1]?.text.length ?? 0) > 160 ? "…" : ""}
               </p>
               <div className="ja-source jp">
-                {m.jpSourceExcerpt?.slice(0, 80) ?? "—"}…
+                {m.jpSourceExcerpt?.slice(0, 80) ?? ", "}…
               </div>
               <div className="read-more">
                 <span>Read full memo</span>

@@ -118,7 +118,7 @@ export function ReadAlong() {
         <p className="section-lede">
           Hover any span to see its mate.{" "}
           <MorphTarget pairs={REFUSED_PAIR} pressure={pressure} className="accent" />{" "}
-          claims show inline — the source didn&rsquo;t support them, so we don&rsquo;t.
+          claims show inline, the source didn&rsquo;t support them, so we don&rsquo;t.
         </p>
       </Reveal>
 

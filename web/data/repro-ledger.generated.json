@@ -1,7 +1,7 @@
 [
   {
     "key": "Hardware",
-    "value": "1× AMD Instinct MI300X — 192 GB HBM3 — ROCm 7.0",
+    "value": "1× AMD Instinct MI300X, 192 GB HBM3, ROCm 7.0",
     "tag": "AMD",
     "scriptPath": "configs/sft.yaml",
     "isTotal": false

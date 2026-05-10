@@ -58,7 +58,7 @@ export function ReproducibilityLedger() {
             <span className="accent">public repo.</span>
           </h2>
           <p className="section-lede">
-            The whole pipeline — corpus build, SFT, ORPO, KG-2 eval, GGUF export — reproduces in
+            The whole pipeline, corpus build, SFT, ORPO, KG-2 eval, GGUF export, reproduces in
             one MI300X-day. ~$80 of compute. No private data, no held-out tricks; click any row to
             open the script that produced it.
           </p>

@@ -316,8 +316,8 @@ const buildHero = (g: CanvasRenderingContext2D) => {
   // showing the page+span every claim is grounded in.
   g.fillStyle = "#E8503A";
   g.font = "500 18px 'JetBrains Mono', monospace";
-  g.fillText("[1] 営業利益率 — p.23 §2.1", 70, y + 36);
-  g.fillText("[2] 為替予約 — p.24 §2.1", 70, y + 64);
+  g.fillText("[1] 営業利益率, p.23 §2.1", 70, y + 36);
+  g.fillText("[2] 為替予約, p.24 §2.1", 70, y + 64);
 
   // Vermilion 朱 hanko at the lower right — signs the page like a
   // chop on a real filing.
@@ -398,7 +398,7 @@ const buildProblem = (g: CanvasRenderingContext2D) => {
   g.fillStyle = "#7A6D55";
   g.font = "italic 400 20px 'Playfair Display', serif";
   g.textAlign = "right";
-  g.fillText("supplementary — hedging cap", TEX_W - 70, ny);
+  g.fillText("supplementary, hedging cap", TEX_W - 70, ny);
 
   ny += 38;
   g.fillStyle = "#15161A";
@@ -449,7 +449,7 @@ const buildProblem = (g: CanvasRenderingContext2D) => {
   const tn: string[] = [
     "Where the filing hedges, we cite. Where the",
     "filing admits, we underline. We do not paraphrase",
-    "the operative span — it stays in 日本語, beside",
+    "the operative span, it stays in 日本語, beside",
     "the gloss, so the reader can read both at once.",
   ];
   for (const l of tn) {
@@ -459,8 +459,8 @@ const buildProblem = (g: CanvasRenderingContext2D) => {
 
   g.fillStyle = "#E8503A";
   g.font = "500 18px 'JetBrains Mono', monospace";
-  g.fillText("[*] span p.23 §2.1 — operative", 70, ny + 16);
-  g.fillText("[†] span p.24 §2.1 — hedging cap", 70, ny + 42);
+  g.fillText("[*] span p.23 §2.1, operative", 70, ny + 16);
+  g.fillText("[†] span p.24 §2.1, hedging cap", 70, ny + 42);
 
   paperStamp(g, TEX_W - 180, TEX_H - 220, "訂");
   paperFooter(g, "translator · marginalia", "untranslated · ✕");
@@ -572,10 +572,10 @@ const buildHow = (g: CanvasRenderingContext2D) => {
   g.textAlign = "right";
   let glossY = tableY + 46;
   const gloss: string[] = [
-    "split — sentence-level",
-    "translate — span-faithful",
-    "cite — page + line aligned",
-    "judge — abstain on doubt",
+    "split, sentence-level",
+    "translate, span-faithful",
+    "cite, page + line aligned",
+    "judge, abstain on doubt",
   ];
   for (const l of gloss) {
     g.fillText(l, TEX_W - 80, glossY);
@@ -585,9 +585,9 @@ const buildHow = (g: CanvasRenderingContext2D) => {
   g.fillStyle = "#E8503A";
   g.font = "500 18px 'JetBrains Mono', monospace";
   g.textAlign = "left";
-  g.fillText("[1] kg2_memos_bo5_picked.jsonl — n=5", 70, TEX_H - 158);
+  g.fillText("[1] kg2_memos_bo5_picked.jsonl, n=5", 70, TEX_H - 158);
   g.fillText("[2] eval/citation_presence_rate.py", 70, TEX_H - 132);
-  g.fillText("[3] orpo/v3.2 — margin -0.015", 70, TEX_H - 106);
+  g.fillText("[3] orpo/v3.2, margin -0.015", 70, TEX_H - 106);
 
   paperStamp(g, TEX_W - 180, TEX_H - 260, "判");
   paperFooter(g, "pipeline · rev 0.4", "span-cited · ✓");
@@ -698,8 +698,8 @@ const buildRail = (g: CanvasRenderingContext2D) => {
   g.textAlign = "left";
   g.fillText("source · EDINET · audited · ¥ 連結 · in millions", 70, TEX_H - 158);
   g.fillStyle = "#E8503A";
-  g.fillText("[1] §3.2 — peak FY23", 70, TEX_H - 132);
-  g.fillText("[2] §3.4 — segment table", 70, TEX_H - 106);
+  g.fillText("[1] §3.2, peak FY23", 70, TEX_H - 132);
+  g.fillText("[2] §3.4, segment table", 70, TEX_H - 106);
 
   paperStamp(g, TEX_W - 180, TEX_H - 240, "財");
   paperFooter(g, "figures · §3.2", "cited · ✓");
@@ -735,10 +735,10 @@ const buildManifest = (g: CanvasRenderingContext2D) => {
   g.fillStyle = "#5C594F";
   g.font = "italic 400 22px 'Playfair Display', serif";
   const en = [
-    "— Source first, never replaced.",
-    "— Every output is span-cited.",
-    "— No inference. Only quotation.",
-    "— Reader's time is sacred.",
+    "Source first, never replaced.",
+    "Every output is span-cited.",
+    "No inference. Only quotation.",
+    "Reader's time is sacred.",
   ];
   y = 430;
   for (const l of en) {
@@ -783,7 +783,7 @@ const buildManifest = (g: CanvasRenderingContext2D) => {
   g.font = "500 18px 'JetBrains Mono', monospace";
   g.fillText("[1] kg2_memos_bo5_picked.jsonl", 70, ny);
   g.fillText("[2] eval/citation_presence_rate.py", 70, ny + 26);
-  g.fillText("[3] orpo/v3.2 — frozen-judge", 70, ny + 52);
+  g.fillText("[3] orpo/v3.2, frozen-judge", 70, ny + 52);
 
   paperStamp(g, TEX_W - 180, TEX_H - 240, "宣");
   paperFooter(g, "manifest · v1", "signed · ✓");
@@ -837,7 +837,7 @@ const buildFooter = (g: CanvasRenderingContext2D) => {
 
   g.fillStyle = "#E8503A";
   g.font = "500 22px 'JetBrains Mono', monospace";
-  g.fillText("— with the original still in view —", TEX_W / 2, TEX_H / 2 + 168);
+  g.fillText("with the original still in view", TEX_W / 2, TEX_H / 2 + 168);
 
   g.textBaseline = "top";
   g.textAlign = "left";
@@ -893,7 +893,7 @@ function buildBackTexture(THREE: typeof import("three")) {
   g.save();
   g.translate(TEX_W / 2, TEX_H / 2);
   g.rotate(-Math.PI / 2);
-  g.fillText("— verso · margin notes · YUHOLENS ·", 0, 0);
+  g.fillText("verso · margin notes · YUHOLENS ·", 0, 0);
   g.restore();
   const tex = new THREE.CanvasTexture(c);
   tex.anisotropy = 8;

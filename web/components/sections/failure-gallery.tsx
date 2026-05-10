@@ -134,7 +134,7 @@ export function FailureGallery() {
       </Reveal>
       <Reveal>
         <p className="section-lede">
-          Every memo that ships goes through the grounder. These are the cases the grounder caught — kept honest, not hidden.
+          Every memo that ships goes through the grounder. These are the cases the grounder caught, kept honest, not hidden.
         </p>
       </Reveal>
 
@@ -142,7 +142,7 @@ export function FailureGallery() {
         ref={trackRef}
         className="failure-deck"
         role="region"
-        aria-label="Failure cases — use arrow keys to navigate"
+        aria-label="Failure cases, use arrow keys to navigate"
         onKeyDown={onKeyDown}
       >
         {cases.map((c) => (

@@ -178,7 +178,7 @@ export function LiveDemo() {
     if (trimmed) {
       const match = filers.find((f) => f.customId === trimmed);
       if (!match) {
-        const fallbackId = state.filerId || filers[0]?.customId || "—";
+        const fallbackId = state.filerId || filers[0]?.customId || ", ";
         setTickerNotice(`no match · using ${fallbackId}`);
         if (noticeTimerRef.current !== null) {
           clearTimeout(noticeTimerRef.current);
@@ -214,7 +214,7 @@ export function LiveDemo() {
       </Reveal>
       <Reveal>
         <p className="section-lede">
-          A small, live taste. Click a row — the four-agent pipeline writes a span-cited memo from the
+          A small, live taste. Click a row, the four-agent pipeline writes a span-cited memo from the
           Japanese source, in front of you. Click any superscript to inspect the citation.
         </p>
       </Reveal>

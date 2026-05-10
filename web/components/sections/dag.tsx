@@ -114,7 +114,7 @@ export function Dag() {
       </Reveal>
       <Reveal>
         <p className="section-lede">
-          The Critic is the cheapest gate-clear move available — same SFT checkpoint, five decoder
+          The Critic is the cheapest gate-clear move available, same SFT checkpoint, five decoder
           profiles, let the gpt-5-mini judge pick per-prompt.
         </p>
       </Reveal>
@@ -271,7 +271,7 @@ function DagNode({ node, index, hovered, onHoverStart, onHoverEnd }: DagNodeProp
       onBlur={onHoverEnd}
       tabIndex={0}
       role="group"
-      aria-label={`${node.label} — ${node.role.toLowerCase()} stage, source ${node.sub}`}
+      aria-label={`${node.label}, ${node.role.toLowerCase()} stage, source ${node.sub}`}
       aria-describedby={hovered ? tooltipId : undefined}
       style={{ cursor: "pointer", outline: "none", transformOrigin: "100px 30px", transformBox: "fill-box" }}
     >

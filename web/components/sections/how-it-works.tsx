@@ -106,10 +106,10 @@ function CiteDemo() {
       <span className="word">Operating</span> <span className="word">margin</span>{" "}
       <span className="word">compressed</span> <span className="word">3.4%</span>{" "}
       <span className="word">YoY</span>
-      <sup data-pop="営業利益率 — p.23 §2.1">¹</sup>{" "}
+      <sup data-pop="営業利益率, p.23 §2.1">¹</sup>{" "}
       <span className="word">on</span> <span className="word">yen</span>{" "}
       <span className="word">weakness</span>
-      <sup data-pop="為替予約 — p.24 §2.1">²</sup>
+      <sup data-pop="為替予約, p.24 §2.1">²</sup>
       <span className="word">.</span>
     </div>
   );
@@ -162,7 +162,7 @@ export function HowItWorks() {
 
       <Reveal delay={2}>
         <p className="how-exit-caption" aria-hidden="true">
-          — end of pass · paper out
+         , end of pass · paper out
         </p>
       </Reveal>
     </section>

@@ -137,7 +137,7 @@ function ClosingSeal() {
           />
           {/* Ink-splatter dots: small irregular bleeds around the rim,
               the kind a real hanko leaves when the ink pad isn't
-              perfectly even. Fixed positions, not random — so reduced-
+              perfectly even. Fixed positions, not random, so reduced-
               motion and SSR snapshots are stable. */}
           <circle className="manifest-close__seal-dot" cx="14" cy="22" r="0.9" />
           <circle className="manifest-close__seal-dot" cx="52" cy="18" r="0.6" />
@@ -183,12 +183,12 @@ export function Manifest() {
         </Reveal>
         <Reveal delay={1}>
           <p className="section-lede">
-            We didn&rsquo;t ship a chatbot. We shipped a reading discipline that refuses claims it can&rsquo;t cite — and a public ledger that proves it did.
+            We didn&rsquo;t ship a chatbot. We shipped a reading discipline that refuses claims it can&rsquo;t cite, and a public ledger that proves it did.
           </p>
         </Reveal>
         <Reveal delay={2}>
           <p className="sig">
-            朱 / SHU — <span className="accent">vermilion</span>, the seal of the verified spec
+            朱 / SHU, <span className="accent">vermilion</span>, the seal of the verified spec
           </p>
         </Reveal>
       </div>

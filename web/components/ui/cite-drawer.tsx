@@ -202,7 +202,7 @@ export function CiteDrawerProvider({ children }: { children: React.ReactNode }) 
                 <div>
                   <div className="mono">SECTION</div>
                   <div style={{ marginTop: 4 }}>
-                    {payload.citation.section || "—"}
+                    {payload.citation.section || "··"}
                   </div>
                 </div>
                 <div>
@@ -211,7 +211,7 @@ export function CiteDrawerProvider({ children }: { children: React.ReactNode }) 
                     {payload.citation.pageRef &&
                     payload.citation.pageRef !== "??"
                       ? payload.citation.pageRef
-                      : "—"}
+                      : "··"}
                   </div>
                 </div>
               </div>

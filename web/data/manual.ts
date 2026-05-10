@@ -10,21 +10,21 @@ export type ProblemBeat = {
 
 export const PROBLEM_BEATS: ProblemBeat[] = [
   {
-    num: "— Beat 01",
+    num: "Beat 01",
     label: "The wall",
     headline: "The wall.",
     body: "Eighty-eight thousand pages of Japanese regulatory filings. Published annually. Mostly unread outside Japan.",
     demoKind: "wall",
   },
   {
-    num: "— Beat 02",
+    num: "Beat 02",
     label: "The translation gap",
     headline: "The translation gap.",
     body: "Machine translation loses the meaning. Professional translation takes weeks and costs thousands.",
     demoKind: "split",
   },
   {
-    num: "— Beat 03",
+    num: "Beat 03",
     label: "The lens",
     headline: "The lens.",
     body: "YuhoLens reads the source. Translates with context. Refuses when the source doesn't say so.",
@@ -109,7 +109,7 @@ export const FAQ: Array<{ q: string; a: EmphasisSegment[] }> = [
     a: [
       { text: "EDINET-Bench is a curated subset. The shipped memos use " },
       { text: "real", bold: true },
-      { text: " rows from the picked best-of-5 set — earnings_forecast-00271 (Kintetsu Group Holdings), earnings_forecast-00288 (TOYO INK SC HOLDINGS), fraud_detection-00467 (SBI Holdings), and the others you see in the chip strip. Honesty over flash." },
+      { text: " rows from the picked best-of-5 set, earnings_forecast-00271 (Kintetsu Group Holdings), earnings_forecast-00288 (TOYO INK SC HOLDINGS), fraud_detection-00467 (SBI Holdings), and the others you see in the chip strip. Honesty over flash." },
     ],
   },
 ];
