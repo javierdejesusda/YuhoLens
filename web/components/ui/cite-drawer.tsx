@@ -9,6 +9,86 @@ import {
 } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Citation } from "@/lib/types";
+import scriptPreviews from "@/data/repro-script-previews.generated.json";
+
+interface ScriptPreview {
+  lang: string;
+  lines: string[];
+  html: string;
+}
+
+const SCRIPT_PREVIEWS = scriptPreviews as Record<string, ScriptPreview>;
+
+/**
+ * Renders the build-time shiki snippet for a `repro-row` page reference.
+ *
+ * The HTML is generated at build time by `scripts/build-content.ts` from
+ * source files inside this repo (no user input ever reaches it), so injecting
+ * it via `dangerouslySetInnerHTML` is safe — it is the only way to get
+ * shiki's per-token coloured spans into the DOM without shipping the shiki
+ * runtime to the browser.
+ */
+function ScriptSnippet({ pageRef }: { pageRef: string }) {
+  if (!pageRef) return null;
+  const preview = SCRIPT_PREVIEWS[pageRef];
+  if (!preview) return null;
+  return (
+    <section
+      className="repro-snippet repro-snippet__root"
+      aria-label="First 8 lines of source script"
+      style={{ marginTop: 24 }}
+    >
+      <header className="mono repro-snippet__header">
+        FIRST 8 LINES · {preview.lang.toUpperCase()}
+      </header>
+      <div
+        className="repro-snippet__body"
+        // Trusted: HTML produced at build time from this repo's own source.
+        dangerouslySetInnerHTML={{ __html: preview.html }}
+      />
+      <style>{`
+        .repro-snippet__root {
+          font-family: var(--font-mono, ui-monospace, SFMono-Regular, monospace);
+        }
+        .repro-snippet__header {
+          color: var(--type-faint, var(--color-type-muted, #888));
+          font-size: 10px;
+          letter-spacing: 0.08em;
+          margin-bottom: 8px;
+        }
+        .repro-snippet__body pre {
+          margin: 0;
+          padding: 12px 14px;
+          border-radius: 2px;
+          overflow-x: auto;
+          background: #0c0d10;
+          border: 1px solid var(--color-rule-strong, #2a2a2a);
+          counter-reset: repro-snippet-line;
+        }
+        .repro-snippet__body code {
+          font-family: inherit;
+          font-size: 11px;
+          line-height: 1.55;
+          color: var(--type-primary, #e6e6e6);
+        }
+        .repro-snippet__body .line {
+          display: block;
+          counter-increment: repro-snippet-line;
+        }
+        .repro-snippet__body .line::before {
+          content: counter(repro-snippet-line, decimal-leading-zero);
+          display: inline-block;
+          width: 2.25em;
+          margin-right: 0.9em;
+          text-align: right;
+          color: var(--type-faint, #5a5a5a);
+          opacity: 0.8;
+          user-select: none;
+        }
+      `}</style>
+    </section>
+  );
+}
 
 interface DrawerPayload {
   citation: Citation;
@@ -215,6 +295,7 @@ export function CiteDrawerProvider({ children }: { children: React.ReactNode }) 
                   </div>
                 </div>
               </div>
+              <ScriptSnippet pageRef={payload.citation.pageRef} />
             </motion.aside>
           </>
         )}
