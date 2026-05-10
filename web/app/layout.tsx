@@ -61,8 +61,6 @@ export const metadata: Metadata = {
   },
 };
 
-// Authors can hand-share per-section OG cards via /og/{hero,kg2,demo,manifest}.
-// These dynamic routes are statically rendered at build time (see app/og/[section]/route.tsx).
 const SCHEMA = {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",

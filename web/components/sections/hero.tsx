@@ -170,10 +170,10 @@ export function Hero() {
             <span className="hero-stage__sep">·</span>
             <span className="jp" lang="ja">有価証券報告書、英訳</span>
           </p>
-          <h2 className="hero-stage__title">
-            <span className="line">Translated with</span>
-            <span className="line"><em>span-cited</em> receipts.</span>
-          </h2>
+          <h1 className="hero-stage__title">
+            <span className="line">Japan&rsquo;s annual reports.</span>
+            <span className="line">Read in English. With <em>span-cited</em> receipts.</span>
+          </h1>
           <p className="hero-stage__sub">
             <span className="jp-loan">Yūhō</span> are Japan&rsquo;s annual securities reports: the equivalent of US 10-Ks, ~88,000 pages filed each year by listed companies. <strong>YuhoLens</strong> reads them in English with every claim, currency, margin, and segment linked back to a page and span in the source. Open weights, GGUF on AMD silicon.
           </p>

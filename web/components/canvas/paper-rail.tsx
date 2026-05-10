@@ -319,9 +319,6 @@ const buildHero = (g: CanvasRenderingContext2D) => {
   g.fillText("[1] 営業利益率, p.23 §2.1", 70, y + 36);
   g.fillText("[2] 為替予約, p.24 §2.1", 70, y + 64);
 
-  // Vermilion 朱 hanko at the lower right — signs the page like a
-  // chop on a real filing.
-  paperStamp(g, TEX_W - 180, TEX_H - 220, "朱");
   paperFooter(g, "YUHOLENS · ingest", "span-cited · ✓");
 };
 

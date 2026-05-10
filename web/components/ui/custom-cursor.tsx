@@ -40,6 +40,7 @@ export function CustomCursor() {
     const previewMeta = previewMetaRef.current;
     if (!ring || !dot || !label) return;
     if (!preview || !previewEyebrow || !previewTitle || !previewMeta) return;
+    label.textContent = "朱";
 
     let mx = window.innerWidth / 2;
     let my = window.innerHeight / 2;
@@ -111,12 +112,16 @@ export function CustomCursor() {
     const setCard = () => {
       ring.classList.add("is-card");
       ring.classList.remove("is-link");
-      label.textContent = "READ";
+      label.textContent = "読";
     };
     const setLink = () => {
       ring.classList.add("is-link");
       ring.classList.remove("is-card");
       label.textContent = "→";
+    };
+    const setIdle = () => {
+      ring.classList.remove("is-link", "is-card");
+      label.textContent = "朱";
     };
 
     const showPreview = (key: string) => {
@@ -168,7 +173,7 @@ export function CustomCursor() {
         setLink();
         return;
       }
-      ring.classList.remove("is-link", "is-card");
+      setIdle();
     };
 
     const onOut = (e: MouseEvent) => {
@@ -183,7 +188,7 @@ export function CustomCursor() {
       ) {
         return;
       }
-      ring.classList.remove("is-link", "is-card");
+      setIdle();
     };
 
     const onKeyDown = (e: KeyboardEvent) => {
