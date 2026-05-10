@@ -4410,6 +4410,7 @@ footer.foot .foot-watermark {
   .hero[data-hero-phase="2"] .hero-cover { opacity: 0; }
   .hero[data-hero-phase="2"] .hero-stage { opacity: 1; }
   .hero[data-hero-phase="2"] .hero-stage__title .line { opacity: 1; }
+  .hero .scroll-hint { display: none; }
 }
 
 /* Problem: paper LEFT, copy RIGHT. The MetricTicker + 3 beats + closing
