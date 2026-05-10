@@ -327,15 +327,20 @@ const buildHero = (g: CanvasRenderingContext2D) => {
 
 const buildProblem = (g: CanvasRenderingContext2D) => {
   paperBase(g);
-  paperHeader(g, "訂正・註釈 · ANNOTATED", "DRAFT · p.23");
+  paperHeader(g, "訂正・註釈 · ANNOTATED", "DRAFT · p.23 / 142");
   g.fillStyle = "#15161A";
   g.font = "700 40px 'Noto Serif JP', serif";
   g.textAlign = "left";
   g.textBaseline = "alphabetic";
   g.fillText("LOST IN TRANSLATION", 70, 175);
+  g.fillStyle = "#7A6D55";
+  g.font = "italic 400 22px 'Playfair Display', serif";
+  g.textAlign = "right";
+  g.fillText("editor's marginalia", TEX_W - 70, 175);
 
   g.font = "400 24px 'Noto Serif JP', serif";
   g.textBaseline = "top";
+  g.textAlign = "left";
   const jp = [
     "当社は為替変動の影響を最小化",
     "すべく努めておりますが、",
@@ -362,11 +367,17 @@ const buildProblem = (g: CanvasRenderingContext2D) => {
   y += 32;
   g.fillStyle = "#5C594F";
   g.fillText('"difficult to fully avoid"  ←  admission', 70, y);
+  y += 32;
+  g.fillStyle = "#9A4035";
+  g.fillText('"structural change in profitability"  ←  margin loss', 70, y);
 
   g.strokeStyle = "#E8503A";
   g.lineWidth = 2.4;
   g.beginPath();
   g.ellipse(350, 248, 130, 26, 0, 0, Math.PI * 2);
+  g.stroke();
+  g.beginPath();
+  g.ellipse(280, 320, 150, 24, 0, 0, Math.PI * 2);
   g.stroke();
   g.fillStyle = "#E8503A";
   g.font = "italic 600 22px 'Playfair Display', serif";
@@ -377,6 +388,79 @@ const buildProblem = (g: CanvasRenderingContext2D) => {
   g.font = "400 18px 'JetBrains Mono', monospace";
   g.fillText("// auditor euphemism", TEX_W - 380, 250);
   g.fillText("// real meaning →", TEX_W - 380, 410);
+  g.fillText("// hedged admission", TEX_W - 380, 322);
+
+  let ny = 600;
+  g.fillStyle = "#15161A";
+  g.font = "700 26px 'Noto Serif JP', serif";
+  g.textAlign = "left";
+  g.fillText("（補足）為替予約の限界", 70, ny);
+  g.fillStyle = "#7A6D55";
+  g.font = "italic 400 20px 'Playfair Display', serif";
+  g.textAlign = "right";
+  g.fillText("supplementary — hedging cap", TEX_W - 70, ny);
+
+  ny += 38;
+  g.fillStyle = "#15161A";
+  g.font = "400 22px 'Noto Serif JP', serif";
+  g.textAlign = "left";
+  const para2: string[] = [
+    "  当社が締結する為替予約は概ね１２ヶ月",
+    "  以内であり、長期にわたる円安基調を相殺",
+    "  する設計とはなっておりません。当連結会",
+    "  計年度においては、米ドル建て売上比率の",
+    "  上昇に伴い、ヘッジ未対応部分の為替損失",
+    "  が営業利益を１７億円押し下げました。",
+  ];
+  for (const l of para2) {
+    g.fillText(l, 70, ny);
+    ny += 32;
+  }
+
+  g.strokeStyle = "#E8503A";
+  g.lineWidth = 2;
+  g.beginPath();
+  g.moveTo(86, ny - 162);
+  g.lineTo(TEX_W - 380, ny - 162);
+  g.stroke();
+  g.fillStyle = "#E8503A";
+  g.font = "italic 600 22px 'Playfair Display', serif";
+  g.textAlign = "left";
+  g.fillText("→ unhedged USD exposure", TEX_W - 360, ny - 168);
+  g.fillStyle = "#5C594F";
+  g.font = "400 18px 'JetBrains Mono', monospace";
+  g.fillText("// 17 億 ≈ ¥1.7 B", TEX_W - 360, ny - 138);
+
+  ny += 18;
+  g.strokeStyle = "rgba(14,14,16,0.3)";
+  g.lineWidth = 1;
+  g.beginPath();
+  g.moveTo(70, ny);
+  g.lineTo(TEX_W - 70, ny);
+  g.stroke();
+  ny += 22;
+  g.fillStyle = "#15161A";
+  g.font = "700 22px 'Playfair Display', serif";
+  g.textAlign = "left";
+  g.fillText("Translator's note", 70, ny);
+  ny += 34;
+  g.fillStyle = "#5C594F";
+  g.font = "italic 400 20px 'Playfair Display', serif";
+  const tn: string[] = [
+    "Where the filing hedges, we cite. Where the",
+    "filing admits, we underline. We do not paraphrase",
+    "the operative span — it stays in 日本語, beside",
+    "the gloss, so the reader can read both at once.",
+  ];
+  for (const l of tn) {
+    g.fillText(l, 70, ny);
+    ny += 28;
+  }
+
+  g.fillStyle = "#E8503A";
+  g.font = "500 18px 'JetBrains Mono', monospace";
+  g.fillText("[*] span p.23 §2.1 — operative", 70, ny + 16);
+  g.fillText("[†] span p.24 §2.1 — hedging cap", 70, ny + 42);
 
   paperStamp(g, TEX_W - 180, TEX_H - 220, "訂");
   paperFooter(g, "translator · marginalia", "untranslated · ✕");
@@ -384,38 +468,44 @@ const buildProblem = (g: CanvasRenderingContext2D) => {
 
 const buildHow = (g: CanvasRenderingContext2D) => {
   paperBase(g);
-  paperHeader(g, "パイプライン仕様書 · v0.4", "INTERNAL");
+  paperHeader(g, "パイプライン仕様書 · v0.4", "INTERNAL · p.04 / 12");
   g.fillStyle = "#15161A";
   g.font = "700 44px 'Noto Serif JP', serif";
   g.textAlign = "left";
   g.textBaseline = "alphabetic";
   g.fillText("処理パイプライン", 70, 180);
+  g.fillStyle = "#7A6D55";
+  g.font = "italic 400 22px 'Playfair Display', serif";
+  g.textAlign = "right";
+  g.fillText("A four-stage pipeline, span-grounded.", TEX_W - 70, 180);
 
   g.textBaseline = "top";
+  g.textAlign = "left";
   const steps: Array<[string, string, string]> = [
     ["01", "INGEST", "EDINET 行 ID · 有報 PDF · 節分割"],
-    ["02", "FETCH", "ページ整列 · スパン基底 · 引用候補"],
-    ["03", "READ", "英文メモ · span 単位 · p / §  / 行 番号"],
+    ["02", "TRANSLATE", "英文メモ · span 単位 · 原文同伴"],
+    ["03", "CITE", "ページ整列 · §節 / 行番号 · 引用候補"],
+    ["04", "JUDGE", "Best-of-N · 棄却率 · 不確実時は留保"],
   ];
   let y = 240;
   for (const [n, en, jp] of steps) {
-    g.strokeStyle = "rgba(14,14,16,0.18)";
+    g.strokeStyle = "rgba(14,14,16,0.22)";
     g.lineWidth = 1;
-    g.strokeRect(70, y, TEX_W - 140, 160);
+    g.strokeRect(70, y, TEX_W - 140, 122);
     g.fillStyle = "#E8503A";
-    g.font = "700 28px 'JetBrains Mono', monospace";
-    g.fillText(n, 90, y + 30);
+    g.font = "700 26px 'JetBrains Mono', monospace";
+    g.fillText(n, 90, y + 28);
     g.fillStyle = "#15161A";
-    g.font = "700 36px 'Playfair Display', serif";
-    g.fillText(en, 170, y + 26);
+    g.font = "700 32px 'Playfair Display', serif";
+    g.fillText(en, 158, y + 26);
     g.fillStyle = "#5C594F";
     g.font = "400 22px 'Noto Serif JP', serif";
-    g.fillText(jp, 170, y + 90);
-    y += 180;
+    g.fillText(jp, 158, y + 78);
+    y += 132;
   }
 
   g.save();
-  g.translate(TEX_W - 220, 220);
+  g.translate(TEX_W - 220, 224);
   g.rotate(-0.18);
   g.strokeStyle = "#E8503A";
   g.lineWidth = 3;
@@ -427,17 +517,107 @@ const buildHow = (g: CanvasRenderingContext2D) => {
   g.fillText("ROUTING", 0, 0);
   g.restore();
 
-  paperFooter(g, "pipeline · diagram", "rev 0.4 · ✓");
+  const tableY = y + 24;
+  g.textAlign = "left";
+  g.textBaseline = "alphabetic";
+  g.fillStyle = "#15161A";
+  g.font = "700 28px 'Noto Serif JP', serif";
+  g.fillText("ルーティング表", 70, tableY);
+  g.fillStyle = "#7A6D55";
+  g.font = "italic 400 20px 'Playfair Display', serif";
+  g.textAlign = "right";
+  g.fillText("Stage routing", TEX_W - 70, tableY);
+
+  g.strokeStyle = "rgba(14,14,16,0.32)";
+  g.lineWidth = 1.2;
+  g.beginPath();
+  g.moveTo(70, tableY + 14);
+  g.lineTo(TEX_W - 70, tableY + 14);
+  g.stroke();
+
+  const rows: Array<[string, string, string]> = [
+    ["split", "節分割 · spaCy-ja", "p.23 §2.1"],
+    ["translate", "英文要約 · span保持", "p.23 §2.1"],
+    ["cite", "原文引用 · 行番号付", "p.23 §2.1"],
+    ["judge", "Best-of-5 · 留保判定", "p.24 §2.2"],
+  ];
+  let ry = tableY + 46;
+  g.textBaseline = "alphabetic";
+  for (const [stage, jp, ref] of rows) {
+    g.fillStyle = "#E8503A";
+    g.font = "500 20px 'JetBrains Mono', monospace";
+    g.textAlign = "left";
+    g.fillText(stage, 70, ry);
+    g.fillStyle = "#15161A";
+    g.font = "400 22px 'Noto Serif JP', serif";
+    g.fillText(jp, 230, ry);
+    g.fillStyle = "#5C594F";
+    g.font = "400 18px 'JetBrains Mono', monospace";
+    g.textAlign = "right";
+    g.fillText(ref, TEX_W - 70, ry);
+    g.strokeStyle = "rgba(14,14,16,0.14)";
+    g.lineWidth = 1;
+    g.beginPath();
+    g.moveTo(70, ry + 12);
+    g.lineTo(TEX_W - 70, ry + 12);
+    g.stroke();
+    ry += 36;
+  }
+
+  ry += 14;
+  g.fillStyle = "#15161A";
+  g.font = "400 22px 'Noto Serif JP', serif";
+  g.textAlign = "left";
+  g.textBaseline = "top";
+  const noteJP: string[] = [
+    "本パイプラインは原文 span を消去せず、",
+    "英訳の隣に常に併置する。判定段階で",
+    "信頼度が閾値を下回る場合、出力は留保",
+    "され「未訳」として記録される。",
+  ];
+  for (const l of noteJP) {
+    g.fillText(l, 70, ry);
+    ry += 30;
+  }
+
+  g.fillStyle = "#7A6D55";
+  g.font = "italic 400 20px 'Playfair Display', serif";
+  g.textAlign = "right";
+  let glossY = tableY + 46;
+  const gloss: string[] = [
+    "split — sentence-level",
+    "translate — span-faithful",
+    "cite — page + line aligned",
+    "judge — abstain on doubt",
+  ];
+  for (const l of gloss) {
+    g.fillText(l, TEX_W - 80, glossY);
+    glossY += 36;
+  }
+
+  g.fillStyle = "#E8503A";
+  g.font = "500 18px 'JetBrains Mono', monospace";
+  g.textAlign = "left";
+  g.fillText("[1] kg2_memos_bo5_picked.jsonl — n=5", 70, TEX_H - 158);
+  g.fillText("[2] eval/citation_presence_rate.py", 70, TEX_H - 132);
+  g.fillText("[3] orpo/v3.2 — margin -0.015", 70, TEX_H - 106);
+
+  paperStamp(g, TEX_W - 180, TEX_H - 260, "判");
+  paperFooter(g, "pipeline · rev 0.4", "span-cited · ✓");
 };
 
 const buildRail = (g: CanvasRenderingContext2D) => {
   paperBase(g);
-  paperHeader(g, "財務諸表 · 連結損益計算書", "EDINET 00271 · p.78");
+  paperHeader(g, "財務諸表 · 連結損益計算書", "EDINET 00271 · p.78 / 142");
   g.fillStyle = "#15161A";
   g.font = "700 40px 'Noto Serif JP', serif";
   g.textAlign = "left";
   g.textBaseline = "alphabetic";
   g.fillText("営業利益率 推移", 70, 180);
+  g.fillStyle = "#7A6D55";
+  g.font = "italic 400 22px 'Playfair Display', serif";
+  g.textAlign = "right";
+  g.fillText("Operating margin, five-year", TEX_W - 70, 180);
 
   g.textBaseline = "top";
   const cols = ["FY20", "FY21", "FY22", "FY23", "FY24"];
@@ -487,18 +667,60 @@ const buildRail = (g: CanvasRenderingContext2D) => {
   g.textAlign = "center";
   g.fillText("peak · cited p.78 §3.2", startX + colW * 3 + colW / 2, barY - 70);
 
+  let ny = barY + barH + 60;
+  g.fillStyle = "#15161A";
+  g.font = "700 26px 'Noto Serif JP', serif";
+  g.textAlign = "left";
+  g.fillText("セグメント別 営業利益率", 70, ny);
+  g.fillStyle = "#7A6D55";
+  g.font = "italic 400 20px 'Playfair Display', serif";
+  g.textAlign = "right";
+  g.fillText("By segment, FY24", TEX_W - 70, ny);
+  ny += 18;
+  g.strokeStyle = "rgba(14,14,16,0.3)";
+  g.lineWidth = 1;
+  g.beginPath();
+  g.moveTo(70, ny);
+  g.lineTo(TEX_W - 70, ny);
+  g.stroke();
+  ny += 18;
+
+  const segRows: Array<[string, string, string]> = [
+    ["電子部品", "11.2%", "+1.6 pt"],
+    ["産業機器", " 8.4%", "▲0.3 pt"],
+    ["車載システム", " 7.1%", "▲1.1 pt"],
+    ["ヘルスケア", "10.8%", "+0.4 pt"],
+  ];
+  for (const [name, val, delta] of segRows) {
+    g.fillStyle = "#15161A";
+    g.font = "400 22px 'Noto Serif JP', serif";
+    g.textAlign = "left";
+    g.fillText(name, 86, ny);
+    g.fillStyle = "#15161A";
+    g.font = "600 22px 'Playfair Display', serif";
+    g.textAlign = "right";
+    g.fillText(val, TEX_W - 260, ny);
+    g.fillStyle = delta.startsWith("▲") ? "#9A4035" : "#5C594F";
+    g.font = "500 20px 'JetBrains Mono', monospace";
+    g.fillText(delta, TEX_W - 86, ny);
+    ny += 32;
+  }
+
   g.fillStyle = "#5C594F";
   g.font = "400 18px 'JetBrains Mono', monospace";
   g.textAlign = "left";
-  g.fillText("source · EDINET · audited · ¥ 連結 · in millions", 70, TEX_H - 130);
+  g.fillText("source · EDINET · audited · ¥ 連結 · in millions", 70, TEX_H - 158);
+  g.fillStyle = "#E8503A";
+  g.fillText("[1] §3.2 — peak FY23", 70, TEX_H - 132);
+  g.fillText("[2] §3.4 — segment table", 70, TEX_H - 106);
 
-  paperStamp(g, TEX_W - 180, TEX_H - 220, "財");
+  paperStamp(g, TEX_W - 180, TEX_H - 240, "財");
   paperFooter(g, "figures · §3.2", "cited · ✓");
 };
 
 const buildManifest = (g: CanvasRenderingContext2D) => {
   paperBase(g);
-  paperHeader(g, "宣言 · MANIFEST", "YUHOLENS");
+  paperHeader(g, "宣言 · MANIFEST", "YUHOLENS · v1");
   g.fillStyle = "#15161A";
   g.font = "700 56px 'Playfair Display', serif";
   g.textAlign = "left";
@@ -537,7 +759,46 @@ const buildManifest = (g: CanvasRenderingContext2D) => {
     y += 50;
   }
 
-  paperStamp(g, TEX_W - 180, TEX_H - 220, "宣");
+  let ny = y + 10;
+  g.strokeStyle = "rgba(14,14,16,0.3)";
+  g.lineWidth = 1;
+  g.beginPath();
+  g.moveTo(70, ny);
+  g.lineTo(TEX_W - 70, ny);
+  g.stroke();
+  ny += 22;
+
+  g.fillStyle = "#15161A";
+  g.font = "700 26px 'Noto Serif JP', serif";
+  g.fillText("実装方針", 70, ny);
+  g.fillStyle = "#7A6D55";
+  g.font = "italic 400 20px 'Playfair Display', serif";
+  g.textAlign = "right";
+  g.fillText("Implementation tenets", TEX_W - 70, ny);
+  g.textAlign = "left";
+
+  ny += 38;
+  g.fillStyle = "#15161A";
+  g.font = "400 22px 'Noto Serif JP', serif";
+  const impl: string[] = [
+    "  本モデルは有価証券報告書を span 単位で",
+    "  処理し、原文と英訳を常に同伴させる。",
+    "  判定段階で信頼度が閾値を下回る場合は",
+    "  出力を留保し、未訳として記録する。",
+  ];
+  for (const l of impl) {
+    g.fillText(l, 70, ny);
+    ny += 30;
+  }
+
+  ny += 10;
+  g.fillStyle = "#E8503A";
+  g.font = "500 18px 'JetBrains Mono', monospace";
+  g.fillText("[1] kg2_memos_bo5_picked.jsonl", 70, ny);
+  g.fillText("[2] eval/citation_presence_rate.py", 70, ny + 26);
+  g.fillText("[3] orpo/v3.2 — frozen-judge", 70, ny + 52);
+
+  paperStamp(g, TEX_W - 180, TEX_H - 240, "宣");
   paperFooter(g, "manifest · v1", "signed · ✓");
 };
 
@@ -546,20 +807,61 @@ const buildFooter = (g: CanvasRenderingContext2D) => {
   paperHeader(g, "結 · CLOSING", "YUHOLENS · " + new Date().getFullYear());
 
   g.fillStyle = "#15161A";
+  g.font = "700 36px 'Noto Serif JP', serif";
+  g.textAlign = "left";
+  g.textBaseline = "alphabetic";
+  g.fillText("読了の記録", 70, 190);
+  g.fillStyle = "#7A6D55";
+  g.font = "italic 400 22px 'Playfair Display', serif";
+  g.textAlign = "right";
+  g.fillText("Closing colophon", TEX_W - 70, 190);
+  g.strokeStyle = "rgba(14,14,16,0.32)";
+  g.lineWidth = 1.2;
+  g.beginPath();
+  g.moveTo(70, 210);
+  g.lineTo(TEX_W - 70, 210);
+  g.stroke();
+
+  g.textBaseline = "top";
+  g.fillStyle = "#15161A";
+  g.font = "400 22px 'Noto Serif JP', serif";
+  g.textAlign = "left";
+  const closing: string[] = [
+    "  本書類は当社が EDINET に提出した有価",
+    "  証券報告書をもとに、span 単位で英訳・",
+    "  註釈を付したものである。原文は常に併",
+    "  記し、信頼度の低い箇所は留保とした。",
+  ];
+  let cy = 240;
+  for (const l of closing) {
+    g.fillText(l, 70, cy);
+    cy += 32;
+  }
+
+  g.fillStyle = "#15161A";
   g.font = "700 200px 'Noto Serif JP', serif";
   g.textAlign = "center";
   g.textBaseline = "middle";
-  g.fillText("結", TEX_W / 2, TEX_H / 2 - 80);
+  g.fillText("結", TEX_W / 2, TEX_H / 2 - 40);
 
   g.fillStyle = "#5C594F";
   g.font = "italic 400 28px 'Playfair Display', serif";
-  g.fillText("end of document", TEX_W / 2, TEX_H / 2 + 80);
+  g.fillText("end of document", TEX_W / 2, TEX_H / 2 + 120);
 
   g.fillStyle = "#E8503A";
   g.font = "500 22px 'JetBrains Mono', monospace";
-  g.fillText("— with the original still in view —", TEX_W / 2, TEX_H / 2 + 130);
+  g.fillText("— with the original still in view —", TEX_W / 2, TEX_H / 2 + 168);
 
-  paperStamp(g, TEX_W / 2, TEX_H - 280, "完");
+  g.textBaseline = "top";
+  g.textAlign = "left";
+  g.fillStyle = "#5C594F";
+  g.font = "400 18px 'JetBrains Mono', monospace";
+  g.fillText("source · EDINET 00271 · audited", 70, TEX_H - 200);
+  g.fillStyle = "#E8503A";
+  g.fillText("[*] all spans cited · §1.0–§3.4", 70, TEX_H - 174);
+  g.fillText("[†] no untranslated body remains", 70, TEX_H - 148);
+
+  paperStamp(g, TEX_W / 2, TEX_H - 290, "完");
   paperFooter(g, "fin · " + new Date().getFullYear(), "archived · ✓");
 };
 
@@ -1214,17 +1516,23 @@ export function PaperRail() {
       let transitionPhase: TransitionPhase = "idle";
       let queuedStage: StageKey | null = null;
       let transitionStart = 0;
+      // Sticky disable once we've crossed into the post-readalong band; clears if the user scrolls back up to a visible-paper stage. Kills inter-section frame-flashes between repro/hardware/access where hideMax briefly drops below the fade threshold.
+      let paperTerminalDisabled = false;
+      const HIDE_TERMINAL: ReadonlySet<StageKey> = new Set([
+        "readalong",
+        "repro",
+        "hardware",
+        "access",
+      ]);
+      const VISIBLE_PAPER: ReadonlySet<StageKey> = new Set([
+        "hero",
+        "problem",
+        "how",
+      ]);
       const EXIT_MS = 320;   // time spent flying off-screen
       const ENTER_MS = 380;  // time spent flying back in
-      // Active-section pick: distance from a viewport "reading line" set
-      // at 40% down from the top. Whichever section spans that line owns
-      // the paper. If two sections are crossing it during a transition,
-      // we pick the one whose center is closest to the line. This fires
-      // the swap as soon as the next section's TOP crosses 40%, and
-      // releases the moment its bottom does — much earlier than the
-      // previous "biggest intersection ratio wins" rule, which only
-      // flipped after the new section had already dominated the screen.
-      const TRIGGER_FRACTION = 0.40;
+      // 0.65: paper finishes EXIT_MS+ENTER_MS (~700ms) before the next section's headline reaches viewport center, so the side-flip lands before the user reads the new heading.
+      const TRIGGER_FRACTION = 0.65;
       const pickActive = () => {
         const vh = window.innerHeight || 1;
         const triggerY = vh * TRIGGER_FRACTION;
@@ -1281,29 +1589,27 @@ export function PaperRail() {
             }
           }
         }
-        // Fade decision (rewrite). Two principles:
-        //   1. If ANY visible-stage section is genuinely on screen
-        //      (ratio > 0.15) the paper must be visible — don't let a
-        //      lingering hide-section fade it out during transitions.
-        //   2. Only fade when ALL visible-stage ratios are tiny AND a
-        //      hide-section dominates (> 0.5). Otherwise stay at 1.
-        // This fixes the "opacity is still low when you get to another
-        // session" complaint — the transition between hide → visible
-        // sections used to blend ratios additively and suppress the
-        // fade-back-in.
-        const visibleStageMax = lastVisibleStageRatio;
+        if (HIDE_TERMINAL.has(activeStage)) {
+          paperTerminalDisabled = true;
+        } else if (VISIBLE_PAPER.has(activeStage)) {
+          paperTerminalDisabled = false;
+        }
+        const visibleStageMax = Number.isFinite(lastVisibleStageRatio)
+          ? lastVisibleStageRatio
+          : 0;
         let hideMax = 0;
         for (const [el, ratio] of visibility) {
-          if (sectionHide.get(el) && ratio > hideMax) hideMax = ratio;
+          if (sectionHide.get(el) && Number.isFinite(ratio) && ratio > hideMax) {
+            hideMax = ratio;
+          }
         }
-        if (visibleStageMax > 0.05) {
+        if (paperTerminalDisabled) {
+          targetFade = 0;
+        } else if (visibleStageMax > 0.05) {
           targetFade = 1;
-        } else if (hideMax > 0.25 && visibleStageMax < 0.02) {
-          // Hide sections are often taller than the viewport, so their
-          // intersectionRatio caps below 1. Saturate the ramp early
-          // (0.25 → 0.45) so the paper actually disappears once a hide
-          // section dominates the viewport instead of stalling at 0.5.
-          const k = Math.min(1, (hideMax - 0.25) / 0.2);
+        } else if (hideMax > 0.05 && visibleStageMax < 0.05) {
+          // Earlier ramp: paper is gone by the time a hide section claims ~20% of the viewport, so readalong's headline reads on a clean stage.
+          const k = Math.min(1, Math.max(0, (hideMax - 0.05) / 0.15));
           targetFade = Math.max(0, 1 - k);
         } else {
           targetFade = 1;
@@ -1443,6 +1749,13 @@ export function PaperRail() {
             transitionPhase = "idle";
           }
         }
+
+        if (HIDE_TERMINAL.has(activeStage)) {
+          paperTerminalDisabled = true;
+        } else if (VISIBLE_PAPER.has(activeStage)) {
+          paperTerminalDisabled = false;
+        }
+        if (paperTerminalDisabled) targetFade = 0;
 
         // Hero phase override: when the Hero component flips
         // data-hero-phase="2" on its section, the paper auto-slides from
