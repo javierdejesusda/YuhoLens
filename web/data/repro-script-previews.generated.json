@@ -1,0 +1,86 @@
+{
+  "configs/sft.yaml": {
+    "lang": "text",
+    "lines": [
+      "# SFT hyperparameters for YuhoLens-Pipeline Week 1 main run.",
+      "# Red-team-corrected: seq 8192 (not 12K) — see build-spec §19.",
+      "",
+      "model_id: pfnet/nekomata-14b-pfn-qfin",
+      "train_data: data/teacher/sft_trl.jsonl",
+      "output_dir: output/yuholens-14b-sft",
+      "per_device_train_batch_size: 1",
+      "gradient_accumulation_steps: 32"
+    ],
+    "html": "<pre class=\"shiki github-dark\"><code># SFT hyperparameters for YuhoLens-Pipeline Week 1 main run.\n# Red-team-corrected: seq 8192 (not 12K) — see build-spec §19.\n\nmodel_id: pfnet/nekomata-14b-pfn-qfin\ntrain_data: data/teacher/sft_trl.jsonl\noutput_dir: output/yuholens-14b-sft\nper_device_train_batch_size: 1\ngradient_accumulation_steps: 32</code></pre>"
+  },
+  "src/yuholens/training/sft.py": {
+    "lang": "python",
+    "lines": [
+      "\"\"\"Full-parameter SFT entry point for ``pfnet/nekomata-14b-pfn-qfin``.",
+      "",
+      "Notes:",
+      "    * ``pfnet/nekomata-14b-pfn-qfin`` is Qwen1 (``QWenLMHeadModel``). It does",
+      "      NOT support HuggingFace's ``attn_implementation=\"flash_attention_2\"``",
+      "      keyword. Flash attention is routed via the ``use_flash_attn`` config",
+      "      field inside the model's own ``modeling_qwen.py`` custom code.",
+      "    * Default training sequence length is 8192 (the model's"
+    ],
+    "html": "<pre class=\"shiki github-dark\" style=\"background-color:#24292e;color:#e1e4e8\" tabindex=\"0\"><code><span class=\"line\"><span style=\"color:#9ECBFF\">\"\"\"Full-parameter SFT entry point for ``pfnet/nekomata-14b-pfn-qfin``.</span></span>\n<span class=\"line\"></span>\n<span class=\"line\"><span style=\"color:#9ECBFF\">Notes:</span></span>\n<span class=\"line\"><span style=\"color:#9ECBFF\">    * ``pfnet/nekomata-14b-pfn-qfin`` is Qwen1 (``QWenLMHeadModel``). It does</span></span>\n<span class=\"line\"><span style=\"color:#9ECBFF\">      NOT support HuggingFace's ``attn_implementation=\"flash_attention_2\"``</span></span>\n<span class=\"line\"><span style=\"color:#9ECBFF\">      keyword. Flash attention is routed via the ``use_flash_attn`` config</span></span>\n<span class=\"line\"><span style=\"color:#9ECBFF\">      field inside the model's own ``modeling_qwen.py`` custom code.</span></span>\n<span class=\"line\"><span style=\"color:#9ECBFF\">    * Default training sequence length is 8192 (the model's</span></span></code></pre>"
+  },
+  "src/yuholens/training/teacher.py": {
+    "lang": "python",
+    "lines": [
+      "\"\"\"Teacher bootstrap: OpenAI gpt-5-mini generates English memos + preference pairs.",
+      "",
+      "The teacher runs over ``SakanaAI/EDINET-Bench`` train splits and writes",
+      "JSONL records for the downstream SFT and ORPO trainers.",
+      "",
+      "Cost-optimised via OpenAI's batch API (50% discount vs real-time) since",
+      "bootstrap is not latency-sensitive. OpenAI auto-caches shared system-prompt",
+      "prefixes of at least 1024 tokens, so the stable analyst framing across"
+    ],
+    "html": "<pre class=\"shiki github-dark\" style=\"background-color:#24292e;color:#e1e4e8\" tabindex=\"0\"><code><span class=\"line\"><span style=\"color:#9ECBFF\">\"\"\"Teacher bootstrap: OpenAI gpt-5-mini generates English memos + preference pairs.</span></span>\n<span class=\"line\"></span>\n<span class=\"line\"><span style=\"color:#9ECBFF\">The teacher runs over ``SakanaAI/EDINET-Bench`` train splits and writes</span></span>\n<span class=\"line\"><span style=\"color:#9ECBFF\">JSONL records for the downstream SFT and ORPO trainers.</span></span>\n<span class=\"line\"></span>\n<span class=\"line\"><span style=\"color:#9ECBFF\">Cost-optimised via OpenAI's batch API (50% discount vs real-time) since</span></span>\n<span class=\"line\"><span style=\"color:#9ECBFF\">bootstrap is not latency-sensitive. OpenAI auto-caches shared system-prompt</span></span>\n<span class=\"line\"><span style=\"color:#9ECBFF\">prefixes of at least 1024 tokens, so the stable analyst framing across</span></span></code></pre>"
+  },
+  "src/yuholens/agents/graph.py": {
+    "lang": "python",
+    "lines": [
+      "\"\"\"Four-agent LangGraph pipeline for YuhoLens.",
+      "",
+      "Nodes (in build-spec §11):",
+      "    1. ``ingestor``        — PDF/XBRL parse + Japanese section split.",
+      "    2. ``pass1_detect``    — red-flag detector, one vLLM call per section.",
+      "    3. ``pass2_compose``   — cross-reference-aware English memo composer.",
+      "    4. ``ground``          — strip every memo claim that lacks a pass-1 span.",
+      ""
+    ],
+    "html": "<pre class=\"shiki github-dark\" style=\"background-color:#24292e;color:#e1e4e8\" tabindex=\"0\"><code><span class=\"line\"><span style=\"color:#9ECBFF\">\"\"\"Four-agent LangGraph pipeline for YuhoLens.</span></span>\n<span class=\"line\"></span>\n<span class=\"line\"><span style=\"color:#9ECBFF\">Nodes (in build-spec §11):</span></span>\n<span class=\"line\"><span style=\"color:#9ECBFF\">    1. ``ingestor``        — PDF/XBRL parse + Japanese section split.</span></span>\n<span class=\"line\"><span style=\"color:#9ECBFF\">    2. ``pass1_detect``    — red-flag detector, one vLLM call per section.</span></span>\n<span class=\"line\"><span style=\"color:#9ECBFF\">    3. ``pass2_compose``   — cross-reference-aware English memo composer.</span></span>\n<span class=\"line\"><span style=\"color:#9ECBFF\">    4. ``ground``          — strip every memo claim that lacks a pass-1 span.</span></span>\n<span class=\"line\"></span></code></pre>"
+  },
+  "src/yuholens/eval/run_kg2.py": {
+    "lang": "python",
+    "lines": [
+      "\"\"\"KG 2 evaluation runner — loads the SFT checkpoint directly via",
+      "transformers, generates memos on the held-out test set, and scores them on",
+      "the three KG-2 gates.",
+      "",
+      "Kill-gates (design §7):",
+      "    - citation presence rate >= 0.7",
+      "    - mean judge coherence >= 3.8 (1..5 Likert via external judge)",
+      "    - mean section coverage >= 0.6 (averaged over the four target sections)"
+    ],
+    "html": "<pre class=\"shiki github-dark\" style=\"background-color:#24292e;color:#e1e4e8\" tabindex=\"0\"><code><span class=\"line\"><span style=\"color:#9ECBFF\">\"\"\"KG 2 evaluation runner — loads the SFT checkpoint directly via</span></span>\n<span class=\"line\"><span style=\"color:#9ECBFF\">transformers, generates memos on the held-out test set, and scores them on</span></span>\n<span class=\"line\"><span style=\"color:#9ECBFF\">the three KG-2 gates.</span></span>\n<span class=\"line\"></span>\n<span class=\"line\"><span style=\"color:#9ECBFF\">Kill-gates (design §7):</span></span>\n<span class=\"line\"><span style=\"color:#9ECBFF\">    - citation presence rate >= 0.7</span></span>\n<span class=\"line\"><span style=\"color:#9ECBFF\">    - mean judge coherence >= 3.8 (1..5 Likert via external judge)</span></span>\n<span class=\"line\"><span style=\"color:#9ECBFF\">    - mean section coverage >= 0.6 (averaged over the four target sections)</span></span></code></pre>"
+  },
+  "docs/blog_post.md": {
+    "lang": "text",
+    "lines": [
+      "---",
+      "title: \"Fine-Tuning a Japanese Financial LLM on AMD MI300X in 23 Days\"",
+      "subtitle: \"Teacher-bootstrapped SFT on nekomata-14b-pfn-qfin, lifted by inference-time best-of-N, distilled to consumer-GGUF, with span-cited English memos\"",
+      "date: 2026-05-09",
+      "author: \"Javier De Jesus\"",
+      "tags: [llm, japanese-finance, rocm, mi300x, qwen, edinet, fine-tuning, orpo, langgraph]",
+      "draft: false",
+      "---"
+    ],
+    "html": "<pre class=\"shiki github-dark\"><code>---\ntitle: &quot;Fine-Tuning a Japanese Financial LLM on AMD MI300X in 23 Days&quot;\nsubtitle: &quot;Teacher-bootstrapped SFT on nekomata-14b-pfn-qfin, lifted by inference-time best-of-N, distilled to consumer-GGUF, with span-cited English memos&quot;\ndate: 2026-05-09\nauthor: &quot;Javier De Jesus&quot;\ntags: [llm, japanese-finance, rocm, mi300x, qwen, edinet, fine-tuning, orpo, langgraph]\ndraft: false\n---</code></pre>"
+  }
+}

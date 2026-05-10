@@ -6,9 +6,10 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { resolve, join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { createHighlighter } from "shiki";
 import { parseMemoLines } from "../lib/extract-memos";
 import { parseJpName, shortenJpName } from "../lib/parse-jp-name";
-import type { DecoderProfile, Filer } from "../lib/types";
+import type { DecoderProfile, Filer, ReproRow } from "../lib/types";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -244,7 +245,81 @@ function readFilers(): Filer[] {
   return [...baseTop5.map((m) => toFiler(m)), toFiler(refusalMemo, "REFUSE.X")];
 }
 
-function main(): void {
+type ShikiLang = "python" | "typescript" | "bash" | "text";
+
+interface ScriptPreview {
+  lang: ShikiLang;
+  lines: string[];
+  html: string;
+}
+
+function detectLang(scriptPath: string): ShikiLang {
+  const lower = scriptPath.toLowerCase();
+  if (lower.endsWith(".py")) return "python";
+  if (lower.endsWith(".ts") || lower.endsWith(".tsx")) return "typescript";
+  if (lower.endsWith(".sh")) return "bash";
+  return "text";
+}
+
+async function buildScriptPreviews(): Promise<Record<string, ScriptPreview>> {
+  const ledgerPath = join(OUT, "repro-ledger.generated.json");
+  if (!existsSync(ledgerPath)) {
+    console.warn(`⚠ ${ledgerPath} missing — skipping script-preview step`);
+    return {};
+  }
+  const ledger = JSON.parse(readFileSync(ledgerPath, "utf-8")) as ReproRow[];
+  const uniquePaths = Array.from(
+    new Set(ledger.map((row) => row.scriptPath).filter(Boolean)),
+  );
+
+  const highlighter = await createHighlighter({
+    themes: ["github-dark"],
+    langs: ["python", "typescript", "bash"],
+  });
+
+  const previews: Record<string, ScriptPreview> = {};
+  const missing: string[] = [];
+
+  const escapeHtml = (s: string): string =>
+    s
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+
+  for (const scriptPath of uniquePaths) {
+    const absolute = join(ROOT, scriptPath);
+    let raw: string;
+    try {
+      raw = readFileSync(absolute, "utf-8");
+    } catch {
+      missing.push(scriptPath);
+      continue;
+    }
+    const lines = raw.split(/\r?\n/).slice(0, 8);
+    const snippet = lines.join("\n");
+    const lang = detectLang(scriptPath);
+    const html =
+      lang === "text"
+        ? `<pre class="shiki github-dark"><code>${escapeHtml(snippet)}</code></pre>`
+        : highlighter.codeToHtml(snippet, {
+            lang,
+            theme: "github-dark",
+          });
+    previews[scriptPath] = { lang, lines, html };
+  }
+
+  if (missing.length) {
+    console.warn(
+      `⚠ ${missing.length} scriptPath(s) could not be read; skipped: ${missing.join(", ")}`,
+    );
+  }
+
+  return previews;
+}
+
+async function main(): Promise<void> {
   // Detect whether the gitignored eval sources are present. On Vercel /
   // any clean clone they are not, and we must NOT overwrite the committed
   // generated JSON with empty-fallback content. Locally, when the data is
@@ -286,6 +361,19 @@ function main(): void {
       "⚠ kg2_memos_bo5_picked.jsonl missing — keeping committed filers/memos JSON",
     );
   }
+
+  const previews = await buildScriptPreviews();
+  const previewKeys = Object.keys(previews);
+  writeFileSync(
+    join(OUT, "repro-script-previews.generated.json"),
+    JSON.stringify(previews, null, 2),
+  );
+  console.log(
+    `✓ wrote ${previewKeys.length} repro script previews (${previewKeys.join(", ") || "none"})`,
+  );
 }
 
-main();
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
