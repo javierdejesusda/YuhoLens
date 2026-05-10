@@ -1,7 +1,7 @@
 "use client";
 import { SealStamp } from "@/components/ui/seal-stamp";
 
-const LABLAB_URL = "https://lablab.ai/event/amd-developer-hackathon";
+const LABLAB_URL = "https://lablab.ai/ai-hackathons/amd-developer";
 
 export function SiteFooter() {
   return (

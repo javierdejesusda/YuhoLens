@@ -52,7 +52,7 @@ export function TopBar() {
         ))}
       </ul>
       <a href="#access" className="cta" data-magnet="hanko">
-        Request access
+        Get the weights
       </a>
     </nav>
   );

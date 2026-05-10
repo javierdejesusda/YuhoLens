@@ -504,19 +504,6 @@ const buildHow = (g: CanvasRenderingContext2D) => {
     y += 132;
   }
 
-  g.save();
-  g.translate(TEX_W - 220, 224);
-  g.rotate(-0.18);
-  g.strokeStyle = "#E8503A";
-  g.lineWidth = 3;
-  g.strokeRect(-90, -28, 180, 56);
-  g.fillStyle = "#E8503A";
-  g.font = "700 26px 'JetBrains Mono', monospace";
-  g.textAlign = "center";
-  g.textBaseline = "middle";
-  g.fillText("ROUTING", 0, 0);
-  g.restore();
-
   const tableY = y + 24;
   g.textAlign = "left";
   g.textBaseline = "alphabetic";
@@ -1037,13 +1024,12 @@ const INK_PROGRAMS: Array<(ctx: CanvasRenderingContext2D, p: number) => void> = 
     }
   },
   (ctx, p) => {
+    // Single ink underline beneath the section heading. The previous
+    // four-line pattern bisected the step cards as the texture rendered.
     ctx.strokeStyle = "rgba(232,80,58,0.7)";
     ctx.lineWidth = 3;
     const e = easeOutCubic(p);
-    for (let i = 0; i < 4; i++) {
-      const y = 260 + i * 150;
-      strokePath(ctx, [[60, y], [INK_W - 60, y]], Math.max(0, Math.min(1, e * 4 - i)));
-    }
+    strokePath(ctx, [[70, 200], [INK_W - 70, 200]], e);
   },
   (ctx, p) => {
     ctx.strokeStyle = "#E8503A";
@@ -1493,12 +1479,14 @@ export function PaperRail() {
       const sectionHide = new Map<HTMLElement, boolean>();
       let heroEl: HTMLElement | null = null;
       let problemEl: HTMLElement | null = null;
+      let readalongEl: HTMLElement | null = null;
       for (const el of sectionEls) {
         const k = el.dataset.paperStage as StageKey | undefined;
         if (k && k in STAGES) sectionStage.set(el, k);
         sectionHide.set(el, el.hasAttribute("data-paper-hide"));
         if (k === "hero") heroEl = el;
         if (k === "problem") problemEl = el;
+        if (k === "readalong") readalongEl = el;
       }
       let targetFade = 1;
       // Side-swap state machine. When the active stage flips between two
@@ -1593,6 +1581,15 @@ export function PaperRail() {
           paperTerminalDisabled = true;
         } else if (VISIBLE_PAPER.has(activeStage)) {
           paperTerminalDisabled = false;
+        }
+        // Position-based early-disable: as soon as readalong's top edge crosses
+        // the viewport bottom, force the terminal flag. Triggers ~150–200ms
+        // before the readalong heading is read, so the paper is fully gone.
+        if (readalongEl) {
+          const rTop = readalongEl.getBoundingClientRect().top;
+          if (Number.isFinite(rTop) && rTop < vh) {
+            paperTerminalDisabled = true;
+          }
         }
         const visibleStageMax = Number.isFinite(lastVisibleStageRatio)
           ? lastVisibleStageRatio
@@ -1754,6 +1751,13 @@ export function PaperRail() {
           paperTerminalDisabled = true;
         } else if (VISIBLE_PAPER.has(activeStage)) {
           paperTerminalDisabled = false;
+        }
+        if (readalongEl) {
+          const rTop = readalongEl.getBoundingClientRect().top;
+          const vhNow = window.innerHeight || 1;
+          if (Number.isFinite(rTop) && rTop < vhNow) {
+            paperTerminalDisabled = true;
+          }
         }
         if (paperTerminalDisabled) targetFade = 0;
 
