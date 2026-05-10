@@ -36,14 +36,14 @@ const jetbrains = JetBrains_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL("https://yuholens.site"),
   title: {
-    default: "YuhoLens - every yūhō",
+    default: "YuhoLens - Read every yūhō. Cite every claim.",
     template: "%s · YuhoLens",
   },
   description:
     "A reading lens for the 88,000 pages of yūhō filed each year, span-cited, refused when uncertain. KG-2 coherence 3.88. Built on a single MI300X.",
   alternates: { canonical: "/" },
   openGraph: {
-    title: "YuhoLens - every yūhō",
+    title: "YuhoLens - Read every yūhō. Cite every claim.",
     description:
       "Span-cited English memos from Japanese annual reports. KG-2 PASS at 3.88 coherence, 1.000 citation rate. Open weights, MIT.",
     url: "https://yuholens.site",
