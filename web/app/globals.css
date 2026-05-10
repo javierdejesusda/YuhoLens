@@ -4318,7 +4318,7 @@ footer.foot .foot-watermark {
   letter-spacing: 0.22em;
   text-transform: uppercase;
   text-decoration: none;
-  color: #f7edd7;
+  color: var(--ink-void);
   background: var(--type-primary);
   border: 1px solid var(--type-primary);
   border-radius: 999px;
@@ -4330,6 +4330,7 @@ footer.foot .foot-watermark {
 }
 .hero-stage__btn:hover {
   transform: translateY(-1px);
+  color: var(--type-on-vermilion);
   background: var(--vermilion);
   border-color: var(--vermilion);
 }
