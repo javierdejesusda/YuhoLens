@@ -157,7 +157,10 @@ export function Hero() {
       <div className="corner c-tl">
         <CursorCoords />
       </div>
-      <div className="corner c-tr">
+      <div
+        className="corner c-tr"
+        style={{ fontVariantNumeric: "tabular-nums", fontFeatureSettings: '"ss01", "tnum"' }}
+      >
         <JstClock />
       </div>
       <div className="corner c-bl">VOL. II · MMXXVI</div>
