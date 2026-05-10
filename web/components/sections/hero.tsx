@@ -29,7 +29,12 @@ export function Hero() {
       <div className="corner c-tl">
         朱 / SHU · A LENS ON JAPANESE FILINGS
       </div>
-      <div className="corner c-tr">N° 047 / TOKYO · NEW YORK</div>
+      <div
+        className="corner c-tr"
+        style={{ fontVariantNumeric: "tabular-nums", fontFeatureSettings: '"ss01", "tnum"' }}
+      >
+        N<span style={{ letterSpacing: "-0.06em" }}>°</span> 047 / TOKYO · NEW YORK
+      </div>
       <div className="corner c-bl">VOL. II · MMXXVI</div>
       <div className="corner c-br">
         <span>EDINET FEED · LIVE</span>

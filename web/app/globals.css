@@ -4695,3 +4695,71 @@ footer.foot .foot-watermark {
   .access-card { border-right: none; border-bottom: 1px solid var(--rule); }
   .access-card:last-child { border-bottom: none; }
 }
+
+/* L2.4 optical + light-mode audit */
+
+/* Sup baseline alignment: keep superscripts pinned to the baseline so
+   they never inflate the parent line-height. Geist's "sups" stylistic
+   set ships true superscript glyphs; "ss01" preserves the lining
+   numeral feel used elsewhere in the page. */
+sup,
+.ra-text sup {
+  font-feature-settings: "sups", "ss01";
+  vertical-align: super;
+  font-size: 0.62em;
+  line-height: 0;
+  margin-left: 0.05em;
+}
+.demo-cite sup,
+.ld-output sup,
+.ra-text sup {
+  margin-left: 0.02em;
+}
+
+/* Optical hangs on section titles. Hanging-punctuation is already on
+   <body>, but apply it here too so emphasis tokens that lead a title
+   pull their first glyph into the margin gracefully. */
+.section-title {
+  hanging-punctuation: first allow-end last;
+}
+.section-title em:first-child,
+.section-title .accent:first-child {
+  margin-left: -0.08em;
+}
+
+/* Em-dash hair-space: dashes wrapped in <em class="dash"> or .em-dash
+   read tighter against neighbours, closer to typographic dashes than
+   to a gap. Most em dashes hang on body copy via hanging-punctuation. */
+.em-dash,
+em.dash,
+.dash {
+  letter-spacing: -0.04em;
+  margin: 0 -0.04em;
+}
+
+/* Focus ring offsets — give the vermilion outline 3px of breathing
+   room on tightly-packed cards and on primary/secondary buttons so
+   the indicator never visually clips the chrome around it. Layered
+   over any inset focus-shadow already present on these surfaces. */
+.repro-row:focus-visible,
+.repro-ledger .repro-row:focus-visible,
+.access-card:focus-visible,
+.btn-primary:focus-visible,
+.btn-secondary:focus-visible {
+  outline: 2px solid var(--vermilion);
+  outline-offset: 3px;
+  border-radius: 1px;
+}
+
+/* Light-mode contrast audit. Vermilion #E8503A on cream #FAF7EE
+   measures ~3.5:1 — under WCAG AA for body text. Deepen the
+   accent in light mode so inline copy hits 4.5:1 against paper.
+   The deeper hue still pops against #ECE4CE card surfaces. */
+:root[data-theme="light"] {
+  --color-vermilion: #D8472F;
+  --color-vermilion-glow: #C53D26;
+  --color-vermilion-soft: rgba(216, 71, 47, 0.16);
+  --vermilion: #D8472F;
+  --vermilion-glow: #C53D26;
+  --vermilion-soft: rgba(216, 71, 47, 0.16);
+}
