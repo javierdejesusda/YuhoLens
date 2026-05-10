@@ -49,6 +49,8 @@ const MAX_SIZE = QUANTS[QUANTS.length - 1].size;
 const Q4_BASELINE = QUANTS[1].size;
 const ROW_STAGGER_MS = 90;
 const SPRING_CONFIG = { stiffness: 120, damping: 18, mass: 1 } as const;
+const LAPTOP_VRAM_GIB = 8;
+const GPU_VRAM_GIB = 16;
 
 function lerp(a: number, b: number, t: number) {
   return a + (b - a) * t;
@@ -67,6 +69,117 @@ function sizeToPct(size: number): number {
 
 function colorTone(size: number): number {
   return (size - MIN_SIZE) / (MAX_SIZE - MIN_SIZE);
+}
+
+type FitVerdict = {
+  laptopFits: boolean;
+  gpuFits: boolean;
+  message: string;
+};
+
+function fitVerdict(size: number): FitVerdict {
+  const laptopFits = size <= LAPTOP_VRAM_GIB;
+  const gpuFits = size <= GPU_VRAM_GIB;
+  let message: string;
+  if (laptopFits) {
+    message = "8 GB ✓ · RTX 4070 LAPTOP";
+  } else if (gpuFits) {
+    message = "16 GB ✓ · RTX 4080 / 4090";
+  } else {
+    message = "16 GB ✗ · NEEDS 24 GB+";
+  }
+  return { laptopFits, gpuFits, message };
+}
+
+type FitMicroVizProps = {
+  verdict: FitVerdict;
+  iconStroke: string;
+};
+
+function FitMicroViz({ verdict, iconStroke }: FitMicroVizProps) {
+  const fillIfFits = (fits: boolean) =>
+    fits ? "var(--vermilion-soft)" : "transparent";
+  return (
+    <span
+      className="hw-fit-viz__icons"
+      aria-hidden="true"
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 4,
+        marginLeft: 8,
+        flexShrink: 0,
+      }}
+    >
+      <svg
+        width="14"
+        height="10"
+        viewBox="0 0 14 10"
+        role="presentation"
+        focusable="false"
+      >
+        <rect
+          x="2"
+          y="1"
+          width="10"
+          height="6"
+          fill={fillIfFits(verdict.laptopFits)}
+          stroke={iconStroke}
+          strokeWidth="0.8"
+        />
+        <path
+          d="M0.5 8.5 H13.5 L12 9.5 H2 Z"
+          fill={fillIfFits(verdict.laptopFits)}
+          stroke={iconStroke}
+          strokeWidth="0.8"
+          strokeLinejoin="miter"
+        />
+        {!verdict.laptopFits ? (
+          <path
+            d="M3 2 L11 7 M11 2 L3 7"
+            stroke="var(--vermilion)"
+            strokeWidth="1"
+            strokeLinecap="round"
+          />
+        ) : null}
+      </svg>
+      <svg
+        width="14"
+        height="10"
+        viewBox="0 0 14 10"
+        role="presentation"
+        focusable="false"
+      >
+        <rect
+          x="0.5"
+          y="2"
+          width="10"
+          height="6"
+          fill={fillIfFits(verdict.gpuFits)}
+          stroke={iconStroke}
+          strokeWidth="0.8"
+        />
+        <line x1="2" y1="4" x2="9" y2="4" stroke={iconStroke} strokeWidth="0.6" />
+        <line x1="2" y1="6" x2="9" y2="6" stroke={iconStroke} strokeWidth="0.6" />
+        <circle
+          cx="12"
+          cy="5"
+          r="1.6"
+          fill={fillIfFits(verdict.gpuFits)}
+          stroke={iconStroke}
+          strokeWidth="0.8"
+        />
+        {!verdict.gpuFits ? (
+          <path
+            d="M1.5 3 L9.5 7 M9.5 3 L1.5 7"
+            stroke="var(--vermilion)"
+            strokeWidth="1"
+            strokeLinecap="round"
+          />
+        ) : null}
+      </svg>
+    </span>
+  );
 }
 
 type QuantBarProps = {
@@ -90,8 +203,14 @@ function QuantBar({
   const tone = colorTone(quant.size);
   const fillColor = lerpColor(tone);
   const [mounted, setMounted] = useState(false);
+  const [hovered, setHovered] = useState(false);
+  const [focused, setFocused] = useState(false);
   const widthSpring = useSpring(0, SPRING_CONFIG);
   const widthCss = useTransform(widthSpring, (v) => `${v}%`);
+  const verdict = fitVerdict(quant.size);
+  const iconStroke = tone > 0.45 ? "var(--paper-warm)" : "var(--ink-deep)";
+  // prefers-reduced-motion: tooltip on focus only (no hover).
+  const tooltipVisible = focused || (hovered && !prefersReducedMotion);
 
   useEffect(() => {
     setMounted(true);
@@ -132,11 +251,16 @@ function QuantBar({
         type="button"
         className={`hw-bar hw-bar-button has-cap${isOpen ? " is-open" : ""}`}
         onClick={onToggle}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
         aria-expanded={isOpen}
         aria-controls={`hw-detail-${quant.id}`}
         aria-label={`${quant.label} · ${quant.size.toFixed(2)} GiB · ${
           isOpen ? "hide" : "show"
         } detail`}
+        style={{ position: "relative" }}
       >
         <motion.div
           className="hw-fill"
@@ -147,8 +271,39 @@ function QuantBar({
           }}
         >
           <span className="hw-fill-num">{quant.size.toFixed(2)} GiB</span>
+          <FitMicroViz verdict={verdict} iconStroke={iconStroke} />
         </motion.div>
         <span className="hw-cap">{quant.id}</span>
+        <span
+          className="hw-fit-viz__tooltip"
+          role="presentation"
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            right: 8,
+            bottom: "calc(100% + 8px)",
+            width: 140,
+            minHeight: 60,
+            padding: "10px 12px",
+            background: "var(--ink-card)",
+            border: "1px solid var(--rule-strong)",
+            color: "var(--type-muted)",
+            fontFamily: "var(--f-mono)",
+            fontSize: 11,
+            letterSpacing: "0.18em",
+            textTransform: "uppercase",
+            lineHeight: 1.4,
+            opacity: tooltipVisible ? 1 : 0,
+            transform: tooltipVisible ? "translateY(0)" : "translateY(2px)",
+            transition: prefersReducedMotion
+              ? "none"
+              : "opacity 160ms ease-out, transform 160ms ease-out",
+            pointerEvents: "none",
+            zIndex: 5,
+          }}
+        >
+          {verdict.message}
+        </span>
       </button>
       <div />
       <div
