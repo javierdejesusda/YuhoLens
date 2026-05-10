@@ -2071,8 +2071,8 @@ h1.hero-title .accent::after {
 .repro-ledger .row .v em { color: var(--vermilion); font-style: normal; font-weight: 500; }
 .repro-ledger .row .tag {
   font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase;
-  color: var(--vermilion);
-  border: 1px solid var(--vermilion);
+  color: var(--vermilion-glow);
+  border: 1px solid var(--vermilion-glow);
   padding: 2px 6px;
 }
 .repro-ledger .row.total { background: rgba(232, 80, 58, 0.06); }
