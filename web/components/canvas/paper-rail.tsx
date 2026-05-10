@@ -1114,12 +1114,17 @@ function bendPaper(
   slack: number,
   time: number,
   verlet: ReturnType<typeof makeVerlet>,
+  cursorU: number,
+  cursorV: number,
+  cursorPress: number,
 ) {
   if (!Number.isFinite(curl)) curl = 0;
   if (!Number.isFinite(wave)) wave = 0;
   if (!Number.isFinite(flap)) flap = 0;
   if (!Number.isFinite(slack)) slack = 0;
   if (!Number.isFinite(time)) time = 0;
+  if (!Number.isFinite(cursorPress)) cursorPress = 0;
+  const cursorActive = Math.abs(cursorPress) > 0.001;
   for (let i = 0; i < pos.length; i += 3) {
     const px = rest[i];
     const py = rest[i + 1];
@@ -1142,8 +1147,21 @@ function bendPaper(
     const sagY = -sagMask * slack * 0.1;
     const sagZ = -sagMask * slack * 0.06;
     const yWobble = Math.sin(u * 5.0 + time * 1.6) * 0.006 * (1 - sagMask * 0.5);
+    // Cursor bump: subtle volume-conserving deformation centred on the
+    // cursor's UV. Most of the displacement is the positive gaussian
+    // lobe; the (1 - 0.6·r²) factor adds only a faint counter-curve at
+    // the rim, since real paper barely dips around a press. Tight radius
+    // weights (50/32) keep the footprint at ~10% of the paper, with
+    // mild vertical anisotropy along the washi grain.
+    let cursorZ = 0;
+    if (cursorActive) {
+      const du = u - cursorU;
+      const dv = v - cursorV;
+      const r2 = du * du * 50 + dv * dv * 32;
+      cursorZ = (1 - 0.6 * r2) * Math.exp(-r2) * cursorPress;
+    }
     const newY = py + ripple * 0.5 + sagY + yWobble;
-    const newZ = curlZ + waveZ + flapZ + sagZ + ripple + verletZ;
+    const newZ = curlZ + waveZ + flapZ + sagZ + ripple + verletZ + cursorZ;
     pos[i] = px;
     pos[i + 1] = Number.isFinite(newY) ? newY : py;
     pos[i + 2] = Number.isFinite(newZ) ? newZ : 0;
@@ -1467,6 +1485,17 @@ export function PaperRail() {
       const spExit = makeSpring(0, 90, 26); // 0 = on-stage, 1 = flown out
       // Texture-change "punch" — squashes scale briefly when the doc swaps.
       const spPunch = makeSpring(1, 240, 22);
+
+      // Cursor-bump physics. Paper has high internal damping and tracks
+      // a finger closely, so all three springs are overdamped or near-
+      // critical, no ringing. spBumpU/V (100/28) lock to the cursor with
+      // a barely-perceptible lag and no overshoot. spBumpAmp (70/18) is
+      // close to critical damping with one tiny overshoot, so a press
+      // rises sharply, returns smoothly, and never oscillates like a
+      // tuning fork.
+      const spBumpU = makeSpring(0.5, 100, 28);
+      const spBumpV = makeSpring(0.5, 100, 28);
+      const spBumpAmp = makeSpring(0, 70, 18);
 
       const sectionEls = Array.from(
         document.querySelectorAll<HTMLElement>("[data-paper-stage]"),
@@ -1943,11 +1972,76 @@ export function PaperRail() {
         const waveTime = waveStart > 0 ? (now - waveStart) / 600 : 1;
         const wave = waveTime < 1 ? waveTime : 0;
 
-        bendPaper(frontPosArr, frontRest, curl, wave, flap, slack, tSec, verlet);
-        bendPaper(backPosArr, backRest, curl, wave, flap, slack, tSec, verlet);
+        // Raw cursor UV in paper-screen space. Used as the spring target
+        // for the trailing bump position.
+        const cursorRawU = Math.max(0, Math.min(1, mouseRawX * 0.5 + 0.5));
+        const cursorRawV = Math.max(0, Math.min(1, -mouseRawY * 0.5 + 0.5));
+        // Cursor velocity in NDC. mouseX/Y are the lowpass-filtered cursor
+        // (pre-existing); the diff vs raw gives an instantaneous velocity
+        // estimate without needing per-frame state.
+        const cursorVelX = mouseRawX - mouseX;
+        const cursorVelY = mouseRawY - mouseY;
+        // Hover lift: when the cursor is roughly over the paper's
+        // viewport region, add a tiny persistent positive bias. Kept
+        // small (0.004) so it reads as the paper noticing the cursor,
+        // not lifting toward it.
+        const overU = Math.max(0, 1 - Math.max(0, Math.abs(mouseRawX) - 0.35) * 5);
+        const overV = Math.max(0, 1 - Math.max(0, Math.abs(mouseRawY) - 0.5) * 5);
+        const hoverLift = overU * overV * 0.004;
+        // Press input: signed by horizontal motion (so swipes have
+        // direction), magnitude boosted by total speed (so vertical
+        // gestures still register), plus the hover lift baseline.
+        // Clamp at 0.16 keeps the bump in the realistic finger-press
+        // range, never the cartoon-balloon range.
+        const cursorPressInput = Math.max(
+          -0.16,
+          Math.min(
+            0.16,
+            cursorVelX * 2.6
+              + Math.hypot(cursorVelX, cursorVelY) * 0.8
+              + hoverLift,
+          ),
+        );
+
+        spBumpU.target(cursorRawU, dt);
+        spBumpV.target(cursorRawV, dt);
+        spBumpAmp.target(cursorPressInput, dt);
+
+        const bumpU = spBumpU.value;
+        const bumpV = spBumpV.value;
+        const bumpAmp = spBumpAmp.value;
+
+        bendPaper(
+          frontPosArr,
+          frontRest,
+          curl,
+          wave,
+          flap,
+          slack,
+          tSec,
+          verlet,
+          bumpU,
+          bumpV,
+          bumpAmp,
+        );
+        bendPaper(
+          backPosArr,
+          backRest,
+          curl,
+          wave,
+          flap,
+          slack,
+          tSec,
+          verlet,
+          bumpU,
+          bumpV,
+          bumpAmp,
+        );
         frontGeom.attributes.position.needsUpdate = true;
         backGeom.attributes.position.needsUpdate = true;
-        const windActive = curl + flap + Math.abs(slack) + Math.abs(wave) > 0.005;
+        const windActive =
+          curl + flap + Math.abs(slack) + Math.abs(wave) + Math.abs(bumpAmp)
+            > 0.005;
 
         const settleAmt = Math.max(0, 1 - velNorm * 1.6);
         sweepMat.opacity = Math.max(0, settleAmt - 0.3) * 0.5 * fadeFiltered;
