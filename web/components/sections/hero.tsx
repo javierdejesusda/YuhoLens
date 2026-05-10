@@ -1,7 +1,129 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const PHASE_DELAY_MS = 3200;
+
+const JST_FORMATTER = new Intl.DateTimeFormat("en-US", {
+  timeZone: "Asia/Tokyo",
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  hour12: false,
+});
+
+const TICKER_LABELS = [
+  "EDINET FEED · LIVE",
+  "1,910 ROWS INDEXED",
+  "KG-2 · 3.88 PASS",
+] as const;
+
+const TABULAR: React.CSSProperties = { fontVariantNumeric: "tabular-nums" };
+
+function prefersReducedMotion(): boolean {
+  if (typeof window === "undefined") return false;
+  return Boolean(window.matchMedia?.("(prefers-reduced-motion: reduce)").matches);
+}
+
+function JstClock() {
+  const [stamp, setStamp] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (prefersReducedMotion()) return;
+    setStamp(JST_FORMATTER.format(new Date()));
+    const id = window.setInterval(() => {
+      setStamp(JST_FORMATTER.format(new Date()));
+    }, 1000);
+    return () => window.clearInterval(id);
+  }, []);
+
+  if (!stamp) return <>N° 047 / TOKYO · NEW YORK</>;
+  return (
+    <>
+      <span>N° 047 / TOKYO </span>
+      <span style={TABULAR}>{stamp}</span>
+      <span> JST</span>
+    </>
+  );
+}
+
+function EdinetTicker() {
+  const [idx, setIdx] = useState(0);
+  const [reduced, setReduced] = useState(false);
+
+  useEffect(() => {
+    if (prefersReducedMotion()) {
+      setReduced(true);
+      return;
+    }
+    const id = window.setInterval(() => {
+      setIdx((prev) => (prev + 1) % TICKER_LABELS.length);
+    }, 4000);
+    return () => window.clearInterval(id);
+  }, []);
+
+  const dotStyle: React.CSSProperties = reduced
+    ? { color: "var(--vermilion)", opacity: 1, animation: "none" }
+    : {
+        color: "var(--vermilion)",
+        animation: "hero-corner__pulse 1s steps(2) infinite",
+      };
+
+  return (
+    <>
+      <style>{`@keyframes hero-corner__pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }`}</style>
+      <span>{TICKER_LABELS[idx]}</span>
+      <span style={dotStyle}>●</span>
+    </>
+  );
+}
+
+function CursorCoords() {
+  const [coords, setCoords] = useState<{ x: number; y: number } | null>(null);
+  const [revealed, setRevealed] = useState(false);
+  const lastUpdateRef = useRef(0);
+  const idleTimerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (prefersReducedMotion()) return;
+
+    const armIdleTimer = () => {
+      if (idleTimerRef.current !== null) {
+        window.clearTimeout(idleTimerRef.current);
+      }
+      idleTimerRef.current = window.setTimeout(() => {
+        setRevealed(true);
+      }, 2000);
+    };
+
+    const onMove = (event: MouseEvent) => {
+      const now = performance.now();
+      if (now - lastUpdateRef.current >= 100) {
+        lastUpdateRef.current = now;
+        setCoords({ x: event.clientX, y: event.clientY });
+      }
+      armIdleTimer();
+    };
+
+    window.addEventListener("mousemove", onMove, { passive: true });
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      if (idleTimerRef.current !== null) {
+        window.clearTimeout(idleTimerRef.current);
+      }
+    };
+  }, []);
+
+  const base = "朱 / SHU · A LENS ON JAPANESE FILINGS";
+  if (!revealed || !coords) return <>{base}</>;
+  const x = String(Math.max(0, Math.min(9999, Math.round(coords.x)))).padStart(4, "0");
+  const y = String(Math.max(0, Math.min(9999, Math.round(coords.y)))).padStart(4, "0");
+  return (
+    <>
+      <span>朱 / SHU · </span>
+      <span style={TABULAR}>X {x} Y {y}</span>
+    </>
+  );
+}
 
 export function Hero() {
   const [phase, setPhase] = useState<1 | 2>(1);
@@ -27,13 +149,14 @@ export function Hero() {
       data-hero-phase={phase}
     >
       <div className="corner c-tl">
-        朱 / SHU · A LENS ON JAPANESE FILINGS
+        <CursorCoords />
       </div>
-      <div className="corner c-tr">N° 047 / TOKYO · NEW YORK</div>
+      <div className="corner c-tr">
+        <JstClock />
+      </div>
       <div className="corner c-bl">VOL. II · MMXXVI</div>
       <div className="corner c-br">
-        <span>EDINET FEED · LIVE</span>
-        <span style={{ color: "var(--vermilion)" }}>●</span>
+        <EdinetTicker />
       </div>
 
       {/* Phase 1: paper carries the entire title, brand + tagline are
