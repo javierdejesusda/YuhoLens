@@ -1,6 +1,12 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 
+import { HeroTypeset } from "../hero/hero-typeset";
+
+// Paper drifts to its phase-2 left-anchored pose at the same beat the
+// typeset moment resolves into its resting state (~3.2 s). The paper
+// rAF reads `data-hero-phase` directly, so flipping the attribute is
+// what triggers the slide.
 const PHASE_DELAY_MS = 3200;
 
 const JST_FORMATTER = new Intl.DateTimeFormat("en-US", {
@@ -159,30 +165,14 @@ export function Hero() {
         <EdinetTicker />
       </div>
 
-      {/* Phase 1: paper carries the entire title, brand + tagline are
-          printed on the document texture itself (see buildHero in
-          paper-rail). No HTML overlay needed; the four corners frame
-          the cover like masthead chrome. */}
-
-      <div className="hero-stage" aria-hidden={phase === 1}>
+      {/* Hero typeset moment: the kanji-to-roman crossfade, ink-bleed
+          glyphs, sumi-stroke under "span-cited", and CTA reveal all
+          live in HeroTypeset. The outer .hero-stage grid still owns
+          page-level positioning so the paper-rail anchor math stays
+          intact. */}
+      <div className="hero-stage hero-stage--typeset">
         <div className="hero-stage__copy">
-          <p className="hero-stage__eyebrow">
-            <span className="sq" />
-            <span>Vol. II, Edition 047</span>
-            <span className="hero-stage__sep">·</span>
-            <span className="jp" lang="ja">有価証券報告書、英訳</span>
-          </p>
-          <h2 className="hero-stage__title">
-            <span className="line">Translated with</span>
-            <span className="line"><em>span-cited</em> receipts.</span>
-          </h2>
-          <p className="hero-stage__sub">
-            Every claim, currency, margin, segment, links back to a page and span in the original <span className="jp-loan">yūhō</span>. Open weights, GGUF on AMD silicon.
-          </p>
-          <div className="hero-stage__cta">
-            <a href="#problem" className="hero-stage__btn">Read the case</a>
-            <a href="#access" className="hero-stage__btn is-ghost">Try the model</a>
-          </div>
+          <HeroTypeset />
         </div>
       </div>
 
