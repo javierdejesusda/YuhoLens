@@ -1117,6 +1117,8 @@ function bendPaper(
   cursorU: number,
   cursorV: number,
   cursorPress: number,
+  exitDirX: number,
+  exitAmt: number,
 ) {
   if (!Number.isFinite(curl)) curl = 0;
   if (!Number.isFinite(wave)) wave = 0;
@@ -1124,7 +1126,26 @@ function bendPaper(
   if (!Number.isFinite(slack)) slack = 0;
   if (!Number.isFinite(time)) time = 0;
   if (!Number.isFinite(cursorPress)) cursorPress = 0;
+  if (!Number.isFinite(exitAmt)) exitAmt = 0;
+  if (!Number.isFinite(exitDirX)) exitDirX = 1;
   const cursorActive = Math.abs(cursorPress) > 0.001;
+  // Edge-curl-on-cursor-proximity: the closer the cursor gets to a
+  // paper edge, the more that edge lifts toward the camera (real paper
+  // corners visibly peek up when a finger approaches). Hoisted out of
+  // the vertex loop because cursor proximity is constant per call.
+  const edgeRange = 0.18;
+  const invEdgeR = 1 / edgeRange;
+  const nearT = Math.max(0, (cursorV - (1 - edgeRange)) * invEdgeR);
+  const nearB = Math.max(0, (edgeRange - cursorV) * invEdgeR);
+  const nearR = Math.max(0, (cursorU - (1 - edgeRange)) * invEdgeR);
+  const nearL = Math.max(0, (edgeRange - cursorU) * invEdgeR);
+  const edgeCurlActive =
+    nearT + nearB + nearR + nearL > 0.001;
+  // Air-drag billow during stage flight: the trailing side of the
+  // paper (opposite of exitDirX) lags in -Z, like a sheet trailing off
+  // when thrown sideways. Skip the work entirely while the paper is on
+  // stage.
+  const billowActive = exitAmt > 0.005;
   for (let i = 0; i < pos.length; i += 3) {
     const px = rest[i];
     const py = rest[i + 1];
@@ -1143,16 +1164,17 @@ function bendPaper(
     const wind3 = Math.sin(u * 16.0 + time * 2.4) * Math.cos(v * 12.0 - time * 1.7) * 0.005;
     const edgeFalloff = 1 - 4 * (u - 0.5) * (u - 0.5) * (v - 0.5) * (v - 0.5);
     const ripple = (wind1 + wind2 + wind3) * (0.5 + edgeFalloff * 0.5);
-    const sagMask = Math.sin(u * Math.PI) * Math.sin(v * Math.PI);
-    const sagY = -sagMask * slack * 0.1;
-    const sagZ = -sagMask * slack * 0.06;
+    // Catenary-style sag: paper hangs from its top edge and droops
+    // nonlinearly toward the bottom. The old sin(πv) profile peaked
+    // sag at v=0.5 and returned to zero at the bottom, which is the
+    // wrong sign for a hung sheet. (1-v)² puts maximum droop at the
+    // bottom-middle and tapers smoothly to zero at the top.
+    const hPillow = Math.sin(u * Math.PI);
+    const vDroop = (1 - v) * (1 - v);
+    const sagMask = vDroop * (0.55 + 0.45 * hPillow);
+    const sagY = -sagMask * slack * 0.12;
+    const sagZ = -sagMask * slack * 0.07;
     const yWobble = Math.sin(u * 5.0 + time * 1.6) * 0.006 * (1 - sagMask * 0.5);
-    // Cursor bump: subtle volume-conserving deformation centred on the
-    // cursor's UV. Most of the displacement is the positive gaussian
-    // lobe; the (1 - 0.6·r²) factor adds only a faint counter-curve at
-    // the rim, since real paper barely dips around a press. Tight radius
-    // weights (50/32) keep the footprint at ~10% of the paper, with
-    // mild vertical anisotropy along the washi grain.
     let cursorZ = 0;
     if (cursorActive) {
       const du = u - cursorU;
@@ -1160,8 +1182,26 @@ function bendPaper(
       const r2 = du * du * 50 + dv * dv * 32;
       cursorZ = (1 - 0.6 * r2) * Math.exp(-r2) * cursorPress;
     }
+    let edgeCurlZ = 0;
+    if (edgeCurlActive) {
+      const maskT = Math.max(0, (v - (1 - edgeRange)) * invEdgeR);
+      const maskB = Math.max(0, (edgeRange - v) * invEdgeR);
+      const maskR = Math.max(0, (u - (1 - edgeRange)) * invEdgeR);
+      const maskL = Math.max(0, (edgeRange - u) * invEdgeR);
+      edgeCurlZ =
+        (maskT * maskT * nearT
+          + maskB * maskB * nearB
+          + maskR * maskR * nearR
+          + maskL * maskL * nearL) * 0.08;
+    }
+    let billowZ = 0;
+    if (billowActive) {
+      const trailMask = Math.max(0, -(u - 0.5) * exitDirX);
+      billowZ = -trailMask * trailMask * exitAmt * 0.28;
+    }
     const newY = py + ripple * 0.5 + sagY + yWobble;
-    const newZ = curlZ + waveZ + flapZ + sagZ + ripple + verletZ + cursorZ;
+    const newZ =
+      curlZ + waveZ + flapZ + sagZ + ripple + verletZ + cursorZ + edgeCurlZ + billowZ;
     pos[i] = px;
     pos[i + 1] = Number.isFinite(newY) ? newY : py;
     pos[i + 2] = Number.isFinite(newZ) ? newZ : 0;
@@ -2023,6 +2063,8 @@ export function PaperRail() {
           bumpU,
           bumpV,
           bumpAmp,
+          exitDirX,
+          exitAmt,
         );
         bendPaper(
           backPosArr,
@@ -2036,6 +2078,8 @@ export function PaperRail() {
           bumpU,
           bumpV,
           bumpAmp,
+          exitDirX,
+          exitAmt,
         );
         frontGeom.attributes.position.needsUpdate = true;
         backGeom.attributes.position.needsUpdate = true;
