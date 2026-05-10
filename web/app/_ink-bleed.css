@@ -1,0 +1,64 @@
+/* Layer 2.3 — Ink-bleed accent on hover.
+   Companion to lib/use-ink-bleed.ts. The hook stamps `data-ink-bleed`
+   on every matching element and writes pointer entry coordinates into
+   `--ink-x` / `--ink-y` on mouseenter; this stylesheet paints the
+   radial vermilion bloom via an ::after pseudo. We add `position:
+   relative; isolation: isolate` so the pseudo clips to the element
+   without leaking into nearby compositor layers. */
+
+.accent[data-ink-bleed],
+.btn-primary[data-ink-bleed],
+.access-card-link[data-ink-bleed] {
+  position: relative;
+  isolation: isolate;
+}
+
+.accent[data-ink-bleed]::after,
+.btn-primary[data-ink-bleed]::after,
+.access-card-link[data-ink-bleed]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(0);
+  transform-origin: var(--ink-x, 50%) var(--ink-y, 50%);
+  background: radial-gradient(
+    circle at var(--ink-x, 50%) var(--ink-y, 50%),
+    var(--vermilion-soft) 0%,
+    transparent 70%
+  );
+  transition:
+    opacity 320ms var(--ease-out),
+    transform 480ms var(--ease-out);
+  z-index: 0;
+}
+
+/* The .btn-primary already owns a sweeping ::before on its own z-index
+   stack; place the bleed behind the label text but in front of the
+   button background by keeping z-index: 0 and letting the button's own
+   contents (which have no explicit z-index) sit on top via `isolation`. */
+.btn-primary[data-ink-bleed]::after {
+  background: radial-gradient(
+    circle at var(--ink-x, 50%) var(--ink-y, 50%),
+    rgba(255, 255, 255, 0.18) 0%,
+    transparent 70%
+  );
+}
+
+.accent[data-ink-bleed].is-ink-bleeding::after,
+.btn-primary[data-ink-bleed].is-ink-bleeding::after,
+.access-card-link[data-ink-bleed].is-ink-bleeding::after {
+  opacity: 1;
+  transform: scale(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .accent[data-ink-bleed]::after,
+  .btn-primary[data-ink-bleed]::after,
+  .access-card-link[data-ink-bleed]::after {
+    transition: none;
+    opacity: 0;
+    transform: scale(0);
+  }
+}

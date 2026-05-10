@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./_ink-bleed.css";
 
 @theme {
   --color-ink-void: #0E0E10;
