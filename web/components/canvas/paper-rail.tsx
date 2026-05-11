@@ -303,6 +303,7 @@ const buildHero = (g: CanvasRenderingContext2D) => {
   g.fillText("[1] 営業利益率, p.23 §2.1", 70, y + 36);
   g.fillText("[2] 為替予約, p.24 §2.1", 70, y + 64);
 
+  paperStamp(g, TEX_W - 180, TEX_H - 240, "巻");
   paperFooter(g, "YUHOLENS · ingest", "span-cited · ✓");
 };
 
@@ -984,12 +985,6 @@ const INK_PROGRAMS: Array<(ctx: CanvasRenderingContext2D, p: number) => void> = 
     const e = easeOutCubic(p);
     strokePath(ctx, [[80, 286], [INK_W - 200, 286]], e);
     strokePath(ctx, [[80, 370], [600, 370]], e);
-    if (p > 0.6) {
-      ctx.beginPath();
-      const r = (p - 0.6) / 0.4;
-      ctx.arc(INK_W - 220, INK_H - 240, 70 * r, 0, Math.PI * 2);
-      ctx.stroke();
-    }
   },
   (ctx, p) => {
     ctx.strokeStyle = "#E8503A";
@@ -1402,7 +1397,11 @@ export function PaperRail() {
       shadowMesh.position.z = -0.25;
       paperGroup.add(shadowMesh);
 
-      const sweepGeom = new THREE.PlaneGeometry(PAPER_W * 1.1, 0.06);
+      // Sweep bar: a thin vermilion plane that oscillates side-to-side
+      // BEHIND the paper. The paper occludes the centre of the bar; only
+      // the slivers that extend past the paper edges are visible, so the
+      // effect reads as a bar passing behind the page rather than over it.
+      const sweepGeom = new THREE.PlaneGeometry(PAPER_W * 1.6, 0.06);
       const sweepMat = new THREE.MeshBasicMaterial({
         color: 0xe8503a,
         transparent: true,
@@ -1411,7 +1410,7 @@ export function PaperRail() {
         blending: THREE.AdditiveBlending,
       });
       const sweepMesh = new THREE.Mesh(sweepGeom, sweepMat);
-      sweepMesh.position.z = 0.02;
+      sweepMesh.position.z = -0.05;
       paperGroup.add(sweepMesh);
 
       const rimGlowGeom = new THREE.PlaneGeometry(PAPER_W * 1.25, PAPER_H * 1.15);
