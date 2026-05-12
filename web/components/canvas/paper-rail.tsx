@@ -335,13 +335,9 @@ const buildProblem = (g: CanvasRenderingContext2D) => {
     g.fillText(l, 70, y);
     y += 36;
   }
-  g.strokeStyle = "#E8503A";
-  g.lineWidth = 2.5;
-  g.beginPath();
-  g.moveTo(70, 405);
-  g.lineTo(610, 405);
-  g.stroke();
-
+  // The underline beneath the operative Japanese text (y≈405) is drawn
+  // by the animated ink overlay (INK_PROGRAMS[1]); leaving it out here
+  // avoids a doubled stroke once the overlay settles.
   y = 470;
   g.font = "italic 400 22px 'Playfair Display', serif";
   g.fillStyle = "#9A4035";
@@ -353,11 +349,12 @@ const buildProblem = (g: CanvasRenderingContext2D) => {
   g.fillStyle = "#9A4035";
   g.fillText('"structural change in profitability"  ←  margin loss', 70, y);
 
+  // The circle around the operative phrase (line 1, y≈248) is the
+  // animated ink overlay's job (INK_PROGRAMS[1]); only the static circle
+  // around the "structural change" line stays here, so the two ovals
+  // don't double up.
   g.strokeStyle = "#E8503A";
   g.lineWidth = 2.4;
-  g.beginPath();
-  g.ellipse(350, 248, 130, 26, 0, 0, Math.PI * 2);
-  g.stroke();
   g.beginPath();
   g.ellipse(280, 320, 150, 24, 0, 0, Math.PI * 2);
   g.stroke();
@@ -979,12 +976,16 @@ function strokePath(ctx: CanvasRenderingContext2D, pts: number[][], p: number) {
 
 const INK_PROGRAMS: Array<(ctx: CanvasRenderingContext2D, p: number) => void> = [
   (ctx, p) => {
+    // Hero annotation ink: two underlines tucked into the whitespace
+    // below body lines (the admission "...相殺することは困難である" and the
+    // equity-ratio line). The earlier y=286/370 strokes bisected the
+    // section heading and the "（１）..." sub-header.
     ctx.strokeStyle = "rgba(232,80,58,0.85)";
-    ctx.lineWidth = 4;
+    ctx.lineWidth = 3;
     ctx.lineCap = "round";
     const e = easeOutCubic(p);
-    strokePath(ctx, [[80, 286], [INK_W - 200, 286]], e);
-    strokePath(ctx, [[80, 370], [600, 370]], e);
+    strokePath(ctx, [[88, 612], [420, 612]], e);
+    strokePath(ctx, [[88, 762], [560, 762]], e);
   },
   (ctx, p) => {
     ctx.strokeStyle = "#E8503A";
