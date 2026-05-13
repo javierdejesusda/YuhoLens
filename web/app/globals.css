@@ -2356,6 +2356,29 @@ h1.hero-title .accent::after {
   font-family: var(--f-display); font-style: normal; font-weight: 700; font-size: 20px; color: var(--vermilion-glow);
 }
 
+/* Phone-tier ledger: the desktop 28/200/1fr/auto grid clips on narrow
+   widths (the section uses overflow: hidden for its border-radius).
+   Reflow each row to a 2-row template: key + tag inline at top, value
+   + script path on the second row, with the seal spanning both rows. */
+@media (max-width: 720px) {
+  .repro-ledger { font-size: 12px; }
+  .repro-ledger .row {
+    grid-template-columns: 28px 1fr auto;
+    grid-template-areas:
+      "seal key   tag"
+      "seal value value";
+    gap: 4px 12px;
+    padding: 12px 14px;
+    align-items: start;
+  }
+  .repro-row__seal { grid-area: seal; align-self: center; }
+  .repro-ledger .row .k { grid-area: key; min-width: 0; }
+  .repro-ledger .row .v { grid-area: value; font-size: 13px; min-width: 0; overflow-wrap: anywhere; }
+  .repro-ledger .row .tag { grid-area: tag; justify-self: end; }
+  .repro-ledger .row.total .v { font-size: 18px; }
+  .repro-ledger .repro-script-path { font-size: 10px; overflow-wrap: anywhere; }
+}
+
 /* ── Hardware ─────────────────────────────────────────────────── */
 .hw-section {
   padding: clamp(96px, 12vh, 144px) clamp(32px, 6vw, 96px);
@@ -2857,6 +2880,10 @@ footer.foot .meta .made {
   .ra-pane .ra-text { font-size: 13px; line-height: 1.85; }
   .ra-pane.en-pane .ra-text { font-size: 15px; line-height: 1.65; }
   .ra-pane .ra-head { font-size: 8px; gap: 8px; flex-wrap: wrap; }
+  .repro-section { padding-left: 18px; padding-right: 18px; }
+  .repro-ledger .row { padding: 10px 12px; gap: 4px 10px; }
+  .repro-ledger .row .v { font-size: 12px; }
+  .repro-ledger .row.total .v { font-size: 16px; }
 }
 
 @media print {
