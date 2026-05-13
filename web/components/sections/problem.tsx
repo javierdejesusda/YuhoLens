@@ -20,28 +20,45 @@ function BeatDemo({ kind }: { kind: ProblemBeat["demoKind"] }) {
   }
   if (kind === "split") {
     return (
-      <div className="demo" aria-hidden="true">
-        <div className="ja">「急激な為替変動は営業利益率に重大な影響を及ぼす可能性がある。」</div>
-        <div className="mt">
-          &ldquo;Sudden <s>foreign-exchange shaking</s> may give a serious feeling of influence to operating profit ratio.&rdquo;
+      <>
+        <div className="demo" aria-hidden="true">
+          <div className="ja">「急激な為替変動は営業利益率に重大な影響を及ぼす可能性がある。」</div>
+          <div className="mt">
+            &ldquo;Sudden <s>foreign-exchange shaking</s> may give a serious feeling of influence to operating profit ratio.&rdquo;
+          </div>
         </div>
-      </div>
+        <p className="sr-only">
+          Example: a fluent Japanese risk sentence rendered by raw machine
+          translation as &ldquo;Sudden foreign-exchange shaking may give a
+          serious feeling of influence to operating profit ratio&rdquo; - the
+          meaning is mangled.
+        </p>
+      </>
     );
   }
   return (
-    <div className="demo" aria-hidden="true">
-      Prolonged yen weakness materially compresses operating margin in the electronic-components segment.
-      <sup data-cursor-preview="cite:demo:fx">¹</sup>
-      <div className="evidence-insufficient">
-        <span className="evidence-insufficient__tag">[evidence insufficient]</span>
-        <span className="evidence-insufficient__body">
-          claim about FY25 guidance was not span-grounded; refused.
-        </span>
+    <>
+      <div className="demo" aria-hidden="true">
+        Prolonged yen weakness materially compresses operating margin in the electronic-components segment.
+        <sup data-cursor-preview="cite:demo:fx">¹</sup>
+        <div className="evidence-insufficient">
+          <span className="evidence-insufficient__tag">[evidence insufficient]</span>
+          <span className="evidence-insufficient__body">
+            claim about FY25 guidance was not span-grounded; refused.
+          </span>
+        </div>
+        <div className="ja-orig">
+          「急激な為替変動は営業利益率に重大な影響を及ぼす可能性がある」, p.23 §2.1
+        </div>
       </div>
-      <div className="ja-orig">
-        「急激な為替変動は営業利益率に重大な影響を及ぼす可能性がある」, p.23 §2.1
-      </div>
-    </div>
+      <p className="sr-only">
+        Example output: &ldquo;Prolonged yen weakness materially compresses
+        operating margin in the electronic-components segment,&rdquo; cited to
+        page 23, section 2.1 of the source. A second claim about FY25 guidance
+        had no matching span, so it is replaced with &ldquo;[evidence
+        insufficient]&rdquo; rather than asserted.
+      </p>
+    </>
   );
 }
 

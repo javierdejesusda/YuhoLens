@@ -159,6 +159,14 @@ export function HowItWorks() {
               <div className="demo-area" aria-hidden="true">
                 <StepDemo kind={s.demoKind} />
               </div>
+              {s.demoKind === "cite" ? (
+                <p className="sr-only">
+                  Example sentence: &ldquo;Operating margin compressed 3.4%
+                  year-over-year on yen weakness,&rdquo; with the first claim
+                  cited to 営業利益率 on page 23 section 2.1 and the second to
+                  為替予約 on page 24.
+                </p>
+              ) : null}
             </article>
           </Reveal>
         ))}

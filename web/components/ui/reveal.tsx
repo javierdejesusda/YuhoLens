@@ -42,10 +42,11 @@ export function Reveal({ children, delay = 0, className }: RevealProps) {
       { threshold: 0, rootMargin: "0px 0px -10% 0px" },
     );
     obs.observe(el);
-    // Fallback: if intersection observer hasn't fired after 2.5s (e.g. element
-    // is below the fold and the user is testing programmatically, or
-    // prefers-reduced-motion + a dropped frame), reveal the content anyway
-    // so it can never be permanently hidden by the observer not firing.
+    // Fallback: if the observer hasn't fired after 8s the content is shown
+    // anyway so it can never be permanently hidden by an observer that never
+    // fires. The window is long enough that a visitor who reads the hero for
+    // a few seconds before scrolling still gets the staggered reveal on the
+    // way down (a short timeout force-revealed every section with no-anim).
     const fallback = window.setTimeout(() => {
       if (process.env.NODE_ENV !== "production") {
         // Surface stuck observers in dev so future regressions don't hide
@@ -55,7 +56,7 @@ export function Reveal({ children, delay = 0, className }: RevealProps) {
       }
       setInstant(true);
       setVisible(true);
-    }, 2500);
+    }, 8000);
     return () => {
       obs.disconnect();
       clearTimeout(fallback);

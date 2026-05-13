@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useScrollState } from "@/lib/use-scroll-state";
 import { TOPBAR_LINKS } from "@/lib/sections";
 
@@ -7,6 +7,8 @@ export function TopBar() {
   const { y } = useScrollState();
   const [innerH, setInnerH] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
+  const burgerRef = useRef<HTMLButtonElement>(null);
+  const drawerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const onResize = () => setInnerH(window.innerHeight);
@@ -23,6 +25,49 @@ export function TopBar() {
     window.addEventListener("hashchange", close);
     return () => window.removeEventListener("hashchange", close);
   }, []);
+
+  // While the drawer is open it behaves like a modal dialog: focus moves
+  // inside, Escape closes it and returns focus to the burger, and Tab is
+  // trapped between the first and last focusable child. When closed the
+  // drawer is `inert` (below) so its links never appear in the tab order.
+  useEffect(() => {
+    if (!menuOpen) return;
+    const drawer = drawerRef.current;
+    if (!drawer) return;
+
+    const getFocusable = () =>
+      Array.from(
+        drawer.querySelectorAll<HTMLElement>('a[href], button:not([disabled])'),
+      ).filter((el) => el.offsetParent !== null);
+
+    getFocusable()[0]?.focus();
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        setMenuOpen(false);
+        burgerRef.current?.focus();
+        return;
+      }
+      if (e.key !== "Tab") return;
+      const focusable = getFocusable();
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement as HTMLElement | null;
+      if (e.shiftKey) {
+        if (active === first || !drawer.contains(active)) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else if (active === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [menuOpen]);
 
   // Earlier fade-in: 0.18vh corresponds to ~160 px on a 900-tall viewport,
   // so the topbar materialises just as the user has committed to scrolling.
@@ -47,6 +92,7 @@ export function TopBar() {
         Get the weights
       </a>
       <button
+        ref={burgerRef}
         type="button"
         className="topbar__burger"
         aria-label={menuOpen ? "Close menu" : "Open menu"}
@@ -58,11 +104,13 @@ export function TopBar() {
         <span aria-hidden="true" />
       </button>
       <div
+        ref={drawerRef}
         id="topbar-mobile-menu"
         className="topbar__drawer"
         role="dialog"
+        aria-modal="true"
         aria-label="Menu"
-        aria-hidden={!menuOpen}
+        inert={!menuOpen}
       >
         <ul>
           {TOPBAR_LINKS.map((l) => (
