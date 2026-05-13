@@ -82,7 +82,7 @@ flowchart LR
     B --> C[Pass-1 Detector<br/><sub>per-section JSON</sub>]
     C --> D[MemoCriticAgent<br/><sub>best-of-N composer</sub>]
     D --> E[Citation Grounder<br/><sub>span verification</sub>]
-    E --> F[English memo<br/><sub>or [evidence insufficient]</sub>]
+    E --> F["English memo<br/><sub>or [evidence insufficient]</sub>"]
     style D fill:#1f6feb,stroke:#fff,color:#fff
     style E fill:#238636,stroke:#fff,color:#fff
 ```
