@@ -1147,16 +1147,18 @@ nav.topbar.is-menu-open .topbar__drawer {
 }
 
 @media (max-width: 900px) {
-  nav.topbar > ul,
-  nav.topbar > .cta {
+  nav.topbar > ul {
     display: none;
   }
-  nav.topbar { padding: 0 22px; height: 56px; }
-  .topbar__burger { display: inline-flex; }
+  nav.topbar { padding: 0 18px; height: 56px; }
+  nav.topbar .cta {
+    padding: 8px 12px;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+  }
 }
-@media (min-width: 901px) {
-  .topbar__drawer { display: none; }
-}
+.topbar__burger { display: none !important; }
+.topbar__drawer { display: none !important; }
 
 /* ── Paper rail (Three.js stage) ─────────────────────────────── */
 #paper-stage {
@@ -2820,6 +2822,17 @@ footer.foot .meta .made {
     text-transform: uppercase;
     color: var(--vermilion);
   }
+  /* Stacked panes don't need the desktop 540px min-height: let the
+     content size the box so short memos don't leave a dead band, and
+     long ones don't get clipped by ancestor `overflow-x: clip`. */
+  .ra-pane { padding: 26px 22px; min-height: 0; }
+  .ra-pane .ra-text {
+    overflow-wrap: anywhere;
+    word-break: normal;
+    line-break: normal;
+  }
+  .ra-tab { flex: 1 1 110px; padding: 12px 14px; }
+  .ra-tab__name { font-size: 13px; }
   .problem .beats { grid-template-columns: 1fr; }
   .problem .beat { border-right: none; border-bottom: 1px solid var(--rule); }
   .how .how-grid { grid-template-columns: 1fr; }
@@ -2839,6 +2852,11 @@ footer.foot .meta .made {
   .section { padding: 110px 22px; }
   .hero-meta { gap: 14px; font-size: 10px; }
   .topbar.is-visible { padding: 0 18px; height: 56px; }
+  .readalong-section { padding-left: 18px; padding-right: 18px; }
+  .ra-pane { padding: 22px 18px; }
+  .ra-pane .ra-text { font-size: 13px; line-height: 1.85; }
+  .ra-pane.en-pane .ra-text { font-size: 15px; line-height: 1.65; }
+  .ra-pane .ra-head { font-size: 8px; gap: 8px; flex-wrap: wrap; }
 }
 
 @media print {
